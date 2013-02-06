@@ -531,6 +531,7 @@ $a.Card = (function(){
 
     self._view
       .addClass($c.CSS_PREFIX + 'card')
+      .css({ cursor:'pointer' })
       .on('mousedown', {self:self}, __ONMOUSEDOWN);
 
     self._titleView = $('<div />').css({
@@ -643,6 +644,7 @@ $a.MainBox = (function(){
       kingdom: undefined,
       othercards: undefined//,
     };
+    this._currentPageKey = 'hand';
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
 
@@ -655,18 +657,33 @@ $a.MainBox = (function(){
     });
   }
 
+  cls.prototype.draw = function(){
+    $f.Box.prototype.draw.apply(this);
+    this._drawChangePage();
+  }
+
   cls.prototype.setPage = function(pageKey, box){
     this._pages[pageKey] = box;
   }
 
   cls.prototype.changePage = function(pageKey){
+    this._currentPageKey = pageKey;
+    this._drawChangePage();
+  }
+
+  cls.prototype._drawChangePage = function(){
+    var self = this;
     _.each(this._pages, function(v, k){
-      if (pageKey === k) {
+      if (self._currentPageKey === k) {
         v.getView().show();
       } else {
         v.getView().hide();
       }
     });
+  }
+
+  cls.prototype.getCurrentPageKey = function(){
+    return this._currentPageKey;
   }
 
   cls.create = function(){
@@ -805,6 +822,7 @@ $a.OthercardsBox = (function(){
 $a.PagechangerBox = (function(){
 //{{{
   var cls = function(){
+    this._buttonViews = {};
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
 
@@ -813,35 +831,27 @@ $a.PagechangerBox = (function(){
 
   function __INITIALIZE(self){
 
-    self._handButton = self._createButtonView()
-      .css({
-        top: 4,
-        left: 4//,
-      })
-      .text('手札')
-      .on('mousedown', {self:self, buttonType:'hand'}, __ONBUTTONTOUCH)
-      .appendTo(self._view)
-    ;
+    // All buttonKeys equal MainBox._pages keys,
+    //   but it is out of specification.
+    var buttonDataList = [
+      ['hand', '手札'],
+      ['kingdom', '購入'],
+      ['othercards', '山札/捨札']//,
+    ];
+    _.each(buttonDataList, function(data, idx){
+      var buttonKey = data[0];
+      var buttonLabel = data[1];
+      var view = self._createButtonView()
+        .css({
+          top: 4,
+          left: 4 + (100 + 6) * idx//,
+        })
+        .on('mousedown', {self:self, buttonKey:buttonKey}, __ONBUTTONTOUCH)
+        .text(buttonLabel)
+        .appendTo(self._view);
+      self._buttonViews[buttonKey] = view;
+    });
 
-    self._kingdomButton = self._createButtonView()
-      .css({
-        top: 4,
-        left: 110//,
-      })
-      .text('購入')
-      .on('mousedown', {self:self, buttonType:'kingdom'}, __ONBUTTONTOUCH)
-      .appendTo(self._view)
-    ;
-
-    self._othercardsButton = self._createButtonView()
-      .css({
-        top: 4,
-        left: 216//,
-      })
-      .text('山札/捨札')
-      .on('mousedown', {self:self, buttonType:'othercards'}, __ONBUTTONTOUCH)
-      .appendTo(self._view)
-    ;
   }
 
   cls.prototype._createButtonView = function(){
@@ -852,23 +862,40 @@ $a.PagechangerBox = (function(){
         height: 40,
         lineHeight: '40px',
         fontSize: $a.fs(15),
-        backgroundColor: '#999',
+        backgroundColor: '#AAA',
+        cursor: 'pointer',
         textAlign: 'center'//,
       });
   }
 
+  cls.prototype.draw = function(){
+    var self = this;
+    $f.Box.prototype.draw.apply(this);
+
+    _.each(self._buttonViews, function(buttonView, buttonKey){
+      if (
+        buttonKey === 'hand' && $a.mainBox.getCurrentPageKey() === 'hand' ||
+        buttonKey === 'kingdom' && $a.mainBox.getCurrentPageKey() === 'kingdom' ||
+        buttonKey === 'othercards' && $a.mainBox.getCurrentPageKey() === 'othercards'
+      ) {
+        buttonView.css({ color:'#FF9900' });
+      } else {
+        buttonView.css({ color:'#FFF' });
+      }
+    });
+  }
+
   function __ONBUTTONTOUCH(evt){
     var self = evt.data.self;
-    var buttonType = evt.data.buttonType;
+    var buttonKey = evt.data.buttonKey;
 
-    if (buttonType === 'hand') {
+    if (buttonKey === 'hand') {
       $a.mainBox.changePage('hand');
-    } else if (buttonType === 'kingdom') {
+    } else if (buttonKey === 'kingdom') {
       $a.mainBox.changePage('kingdom');
-    } else if (buttonType === 'othercards') {
+    } else if (buttonKey === 'othercards') {
       $a.mainBox.changePage('othercards');
     }
-
     self.draw();
 
     return false;
@@ -1112,15 +1139,12 @@ $a.init = function(){
   $a.pagechangerBox = $a.PagechangerBox.create();
   $a.screen.getView().append($a.pagechangerBox.getView());
 
-  $a.screen.draw();
-  $a.mainBox.draw();
-
   $a.handBox.draw();
   $a.kingdomBox.draw();
   $a.othercardsBox.draw();
-  $a.mainBox.changePage('hand');
-
+  $a.mainBox.draw();
   $a.pagechangerBox.draw();
+  $a.screen.draw();
 
 //  $a.game.run();
 
