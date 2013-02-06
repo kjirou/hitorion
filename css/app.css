@@ -1,0 +1,41 @@
+/* vim: set foldmethod=marker : */
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+ul {
+  list-style-type: none;
+}
+ul li {
+  list-style-type: none;
+}
+img {
+  border: 0;
+}
+.clearfix {
+  zoom: 1;
+}
+.clearfix:after {
+  content: " ";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  clear: both;
+}
+
+/* ------------------------ */
+
+#game_container {
+  position: relative;
+  margin: 0 auto 0 auto;
+  width: 320px;
+  height: 416px;
+}
