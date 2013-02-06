@@ -22,7 +22,7 @@ $e = {
 $c = {
 //{{{
   VERSION: '0.0.1',
-  CSS_PREFIX: 'dvl-'
+  CSS_PREFIX: 'htr-'
 //}}}
 };
 
@@ -97,7 +97,7 @@ $a.Game = (function(){
     var process = function(){
 
       self._turn += 1;
-      //$a.statusbar.draw();
+      $a.statusBox.draw();
 
       $.when(self._runTurn()).done(function(){
 
@@ -125,18 +125,18 @@ $a.Game = (function(){
     var d = $.Deferred();
     $.Deferred().resolve().then(function(){
       self._currentPhaseType = 'action';
-      //$a.statusbar.draw();
+      $a.statusBox.draw();
       return self._runActionPhase();
     }).then(function(){
       $d('Ended action phase');
       self._currentPhaseType = 'buy';
-      //$a.statusbar.draw();
+      $a.statusBox.draw();
       return self._runBuyPhase();
     }).then(function(){
       $d('Ended buy phase');
       self._resetStatuses();
       $a.handCards.reset();
-      //$a.statusbar.draw();
+      $a.statusBox.draw();
       $a.handBox.draw();
       $a.othercardsBox.draw();
       d.resolve();
@@ -158,7 +158,7 @@ $a.Game = (function(){
         } else {
           $a.game.setActionCount(0);
         }
-        //$a.statusbar.draw();
+        $a.statusBox.draw();
 
         if ($a.game.getActionCount() > 0) {
           setTimeout(process, 1);
@@ -187,7 +187,7 @@ $a.Game = (function(){
       if (card.isActable()) {
 
         $a.handCards.throwCard(card);
-        //$a.statusbar.draw();
+        $a.statusBox.draw();
         $a.hand.draw();
 
         $.when(card.act()).done(function(){
@@ -216,7 +216,7 @@ $a.Game = (function(){
         } else {
           $a.game.setBuyCount(0);
         }
-        //$a.statusbar.draw();
+        $a.statusBox.draw();
 
         if ($a.game.getBuyCount() > 0) {
           setTimeout(process, 1);
@@ -243,7 +243,7 @@ $a.Game = (function(){
       if (card.isBuyable()) {
         $a.game.modifyCoinCorrection(-card.getCost());
         $a.talonCards.addNewCard(card.className, { stack:true });
-        //$a.statusbar.draw();
+        $a.statusBox.draw();
         d.resolve(true);
       } else {
         d.resolve(false);
@@ -485,9 +485,6 @@ $a.Screen = (function(){
   cls.SIZE = $e.sfSize.slice(); // Must sync to CSS
 
   function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#EEE'
-    });
   }
 
   cls.create = function(){
@@ -597,7 +594,7 @@ $a.Card = (function(){
       $a.handCardsd.pullCards(this._card);
     }
 
-    //$a.statusbar.draw();
+    $a.statusBox.draw();
     $a.handBox.draw();
   }
 
@@ -814,6 +811,107 @@ $a.OthercardsBox = (function(){
 }());
 
 
+$a.StatusBox = (function(){
+//{{{
+  var cls = function(){
+    this._stateViews = {};
+  }
+  $f.inherit(cls, new $f.Box(), $f.Box);
+
+  cls.POS = [0, 0];
+  cls.SIZE = [$a.Screen.SIZE[0], 48];
+
+  function __INITIALIZE(self){
+    self._view.css({
+      backgroundColor: '#EEE'
+    });
+
+    var stateDataList = [
+      ['turn', 'Turn'],
+      ['victorypoints', 'VP'],
+      ['action', 'Action'],
+      ['buy', 'Buy'],
+      ['coin', 'Coin']//,
+    ];
+    _.each(stateDataList, function(data, idx){
+      var stateKey = data[0];
+      var headerLabel = data[1];
+      var view = self._createStateView();
+      view.css({
+        top: 4,
+        left: 6 + (60 + 3) * idx//,
+      });
+      view._stateHeaderView.text(headerLabel);
+      self._view.append(view);
+      self._stateViews[stateKey] = view;
+    });
+  }
+
+  cls.prototype._createStateView = function(){
+    var width = 60;
+    var frame = $('<div />')
+      .css({
+        position: 'absolute',
+        width: width,
+        height: 40,
+        textAlign: 'center'//,
+      });
+    var header = $('<div />')
+      .css({
+        position: 'absolute',
+        width: width,
+        height: 12,
+        lineHeight: '12px',
+        fontSize: $a.fs(10)//,
+      });
+    var body = $('<div />')
+      .css({
+        position: 'absolute',
+        top: 12,
+        width: width,
+        height: 28,
+        lineHeight: '28px',
+        fontSize: $a.fs(15)//,
+      });
+
+    // FIXME: Add properties to jQuery object
+    frame._stateHeaderView = header;
+    frame._stateBodyView = body;
+
+    return frame.append(header).append(body);
+  }
+
+  cls.prototype.draw = function(){
+    $f.Box.prototype.draw.apply(this);
+
+    this._stateViews.turn._stateBodyView.text(
+      $a.game.getTurn() + '/' + $a.game.getMaxTurn()
+    );
+    this._stateViews.victorypoints._stateBodyView.text(
+      $a.game.summaryVictoryPoints() + '/'  + $a.game.getNecessaryVictoryPoints()
+    );
+    this._stateViews.action._stateBodyView.text(
+      $a.game.getActionCount()
+    );
+    this._stateViews.buy._stateBodyView.text(
+      $a.game.getBuyCount()
+    );
+    this._stateViews.coin._stateBodyView.text(
+      $a.game.getCoin()
+    );
+  }
+
+  cls.create = function(){
+    var obj = $f.Box.create.apply(this, arguments);
+    __INITIALIZE(obj);
+    return obj;
+  };
+
+  return cls;
+//}}}
+}());
+
+
 $a.PagechangerBox = (function(){
 //{{{
   var cls = function(){
@@ -907,49 +1005,6 @@ $a.PagechangerBox = (function(){
 }());
 
 
-//$a.Statusbar = (function(){
-////{{{
-//  var cls = function(){
-//  }
-//  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-//
-//  cls.POS = [0, 0];
-//  cls.SIZE = [$a.Screen.SIZE[0], 32];
-//
-//  function __INITIALIZE(self){
-//    self._view.css({
-//      lineHeight: cls.SIZE[1] + 'px',
-//      fontSize: $a.fontSize(14),
-//      backgroundColor: '#FFF'
-//    });
-//  }
-//
-//  cls.prototype.draw = function(){
-//    $f.Sprite.prototype.draw.apply(this);
-//
-//    var t = '';
-//    t += $f.format('期間: {0}/{1}', $a.game.getTurn(), $a.game.getMaxTurn());
-//    t += $f.format(', 進捗: {0}/{1}', $a.game.summaryScore(), $a.game.getNecessaryScore());
-//    t += $f.format(', 行動回数: {0}', $a.game.getActionCount());
-//    t += $f.format(', 開発回数: {0}', $a.game.getBuyCount());
-//    t += $f.format(', 開発力: {0}', $a.game.getCoin());
-//    t += $f.format(', 山札: {0}/{1}', $a.deck.count(), $a.game.getTotalCardCount());
-//    var phaseText = ($a.game.getCurrentPhaseType() === 'action')? '行動': '開発';
-//    t += $f.format(', フェーズ: {0}', phaseText);
-//    this._view.text(t);
-//  }
-//
-//  cls.create = function(){
-//    var obj = $f.Sprite.create.apply(this);
-//    __INITIALIZE(obj);
-//    return obj;
-//  };
-//
-//  return cls;
-////}}}
-//}());
-
-
 $a.init = function(){
 //{{{
 
@@ -992,12 +1047,17 @@ $a.init = function(){
   $a.pagechangerBox = $a.PagechangerBox.create();
   $a.screen.getView().append($a.pagechangerBox.getView());
 
+  $a.statusBox = $a.StatusBox.create();
+  $a.screen.getView().append($a.statusBox.getView());
+
   $a.handBox.draw();
   $a.kingdomBox.draw();
   $a.othercardsBox.draw();
   $a.mainBox.draw();
   $a.pagechangerBox.draw();
+  $a.statusBox.draw();
   $a.screen.draw();
+
 
   $a.game.run();
 
