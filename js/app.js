@@ -44,7 +44,6 @@ $a = {
   deckCardsBox: undefined,
   talonCardsBox: undefined,
   trashCardsBox: undefined,
-  phaseendbuttonBox: undefined,
   statusBox: undefined,
   pagechangerBox: undefined,
 
@@ -202,6 +201,7 @@ $a.Game = (function(){
           $a.handCards.throwCard(signaler);
           $a.statusBox.draw();
           $a.handBox.draw();
+          $a.talonCardsBox.draw();
 
           $.when(signaler.act()).done(function(){
             d.resolve('acted');
@@ -430,6 +430,19 @@ $a.KingdomCards = (function(){
 
   cls.prototype._choice = function(){
     var choices = cls.__FIXED_CARDS.slice();
+
+    choices = choices.concat([
+      'ChancellorCard',
+      'VillageCard',
+      'WoodcutterCard',
+      'WorkshopCard',
+      'RemodelCard',
+      'SmithyCard',
+      'FestivalCard',
+      'LaboratoryCard',
+      'MarketCard',
+    ]);
+
     return choices;
   }
 
@@ -501,10 +514,6 @@ $a.Screen = (function(){
   var cls = function(){
   }
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-
-  cls.ZINDEXES = {
-    PHASEENDBUTTONBOX: 100//,
-  }
 
   cls.POS = [0, 0];
   cls.SIZE = $e.sfSize.slice(); // Must sync to CSS
@@ -617,7 +626,7 @@ $a.Card = (function(){
     $a.game.modifyBuyCount(this._buyCount);
     $a.game.modifyCoinCorrection(this._coinCorrection);
     if (this._card > 0) {
-      $a.handCardsd.pullCards(this._card);
+      $a.handCards.pullCards(this._card);
     }
 
     $a.statusBox.draw();
