@@ -4,29 +4,34 @@
  * @dependency Underscore.js v1.4.4 <http://underscorejs.org/>
  *             jQuery v1.9.1 <http://jquery.com/>
  */
-var $e, $c, $a; // $f, $d
+// $ = jQuery, _ = Underscore.js
+// $e = Environments, $c = Consts, $a = Application,
+// $f = Functions, $d = Debug print
+var $e, $c, $a; // $, _, $f, $d are already existed
 
 
 $e = {
+//{{{
     debug: true,
     mediaUrl: '.',
     sfSize: [320, 416]//,
+//}}}
 };
 
 
 $c = {
+//{{{
   VERSION: '0.0.1',
   CSS_PREFIX: 'dvl-'
+//}}}
 };
 
 
-/**
- * Application
- */
 $a = {
 //{{{
   player: undefined,
   game: undefined,
+  kingdomCards: undefined,
   deckCards: undefined,
   talonCards: undefined,
   trashCards: undefined,
@@ -34,12 +39,12 @@ $a = {
   screen: undefined,
   mainBox: undefined,
   handBox: undefined,
-  //statusbar: undefined,
-  //field: undefined,
+  kingdomBox: undefined,
+  othercardsBox: undefined,
 
   $cards: {},
 
-  fontSize: function(px){
+  fs: function(px){
     return px;
   }//,
 //}}}
@@ -128,7 +133,7 @@ $a.Game = (function(){
     }).then(function(){
       $d('Ended buy phase');
       self._resetStatuses();
-      $a.hand.resetCards();
+      $a.hand.reset();
       $a.statusbar.draw();
       $a.hand.draw();
       d.resolve();
@@ -388,6 +393,56 @@ $a.Cards = (function(){
 }());
 
 
+$a.KingdomCards = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.Cards(), $a.Cards);
+
+  cls.__FIXED_CARDS = [
+    'Coin1Card', 'Coin2Card', 'Coin3Card',
+    'Victorypoints1Card', 'Victorypoints3Card', 'Victorypoints6Card'//,
+  ];
+
+  cls.prototype._choice = function(){
+    var choices = cls.__FIXED_CARDS.slice();
+    return choices;
+  }
+
+  cls.prototype.reset = function(){
+    var self = this;
+    _.each(this._choice(), function(cardClassName){
+      self.addNewCard(cardClassName);
+    });
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.DeckCards = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.Cards(), $a.Cards);
+
+  cls.__DEFAULT_CARDS = [
+    'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card',
+    'Victorypoints1Card', 'Victorypoints1Card', 'Victorypoints1Card'//,
+  ];
+
+  cls.prototype.reset = function(){
+    var self = this;
+    _.each(cls.__DEFAULT_CARDS, function(cardClassName){
+      self.addNewCard(cardClassName);
+    });
+    this.shuffle();
+  }
+
+  return cls;
+//}}}
+}());
+
+
 $a.HandCards = (function(){
 //{{{
   var cls = function(){}
@@ -401,13 +456,9 @@ $a.HandCards = (function(){
     $a.deckCards.dealTo(this, cardCount);
   }
 
-  cls.prototype.resetCards = function(){
+  cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
     this.pullCards(5);
-  }
-
-  cls.create = function(){
-    return new this();
   }
 
   return cls;
@@ -450,7 +501,7 @@ $a.MainBox = (function(){
     this._pages = {
       hand: undefined,
       kingdom: undefined,
-      others: undefined//,
+      othercards: undefined//,
     };
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
@@ -476,7 +527,7 @@ $a.MainBox = (function(){
   }
 
   cls.create = function(){
-    var obj = $f.Box.create.apply(this);
+    var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
   }
@@ -499,6 +550,103 @@ $a.HandBox = (function(){
     self._view.css({
       backgroundColor: '#FFF'
     });
+  }
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $f.Box.prototype.draw.apply(this);
+
+    // FIXME:
+    // 一度手札に入って描画されたカードは、手札から無くなった後も
+    // 非表示でこの要素内に存在し、また手札に入ったら表示している。
+    //
+    // 本来はカードデータと同期させて、全削除と再描画を行うのが良いが
+    // 今回は card をオブジェクトとして使い回す設計であるため、
+    // card._view.remove をしてしまうと、jQueryのイベントが消えてしまう。
+    // そのために、この様な処理にした。
+    //
+    // 別解としては:
+    // a)捨て札や廃棄札用の隠し要素を作り、そこへappendToする
+    //   appendToならイベントは消えない
+    //   ..これが一番良さそう
+    // b)カードをオブジェクトで持たず、クラス名で持つ
+    //   ..何かわかり難くなりそうでNG
+    // c)イベントまで含めてカードの再描画処理をする
+    //   ..これが一番綺麗そうだが、_view再描画は基底クラスに入っているため
+    //     _viewではなくその中に一要素を作ってそれを書き直すことになる
+    this._view.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
+      $(e).hide();
+    });
+
+    var coords = $f.squaring([60, 60], cls.SIZE, 3);
+    _.each($a.handCards.getData(), function(card, idx){
+      card.setPos(coords[idx]);
+      card.draw();
+      card.getView().show();
+      self.getView().append(card.getView());
+    });
+  }
+
+  cls.create = function(){
+    var obj = $f.Box.create.apply(this, arguments);
+    __INITIALIZE(obj);
+    return obj;
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.KingdomBox = (function(){
+//{{{
+  var cls = function(){
+  }
+  $f.inherit(cls, new $f.Box(), $f.Box);
+
+  cls.POS = $a.HandBox.SIZE.slice();
+  cls.SIZE = $a.HandBox.SIZE.slice();
+
+  function __INITIALIZE(self){
+    self._view.css({
+      backgroundColor: '#FFF'
+    });
+  }
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $f.Box.prototype.draw.apply(this);
+  }
+
+  cls.create = function(){
+    var obj = $f.Box.create.apply(this, arguments);
+    __INITIALIZE(obj);
+    return obj;
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.OthercardsBox = (function(){
+//{{{
+  var cls = function(){
+  }
+  $f.inherit(cls, new $f.Box(), $f.Box);
+
+  cls.POS = $a.HandBox.SIZE.slice();
+  cls.SIZE = $a.HandBox.SIZE.slice();
+
+  function __INITIALIZE(self){
+    self._view.css({
+      backgroundColor: '#FFF'
+    });
+  }
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $f.Box.prototype.draw.apply(this);
   }
 
   cls.create = function(){
@@ -736,20 +884,18 @@ $a.Card = (function(){
     self._titleView = $('<div />').css({
       width: cls.SIZE[0],
       height: 40,
-      fontSize: $a.fontSize(10),
+      fontSize: $a.fs(10),
       lineHeight: '40px',
       textAlign: 'center'//,
     }).appendTo(self._view);
 
-    //self._descriptionView = $('<div />').css({
-    //  marginTop: 5,
-    //  marginLeft: 5,
-    //  width: cls.SIZE[0] - 10,
-    //  height: 90,
-    //  fontSize: $a.fontSize(10),
-    //  lineHeight: '15px',
-    //  textAlign: 'left'//,
-    //}).appendTo(self._view);
+    self._costView = $('<div />').css({
+      width: cls.SIZE[0],
+      height: 20,
+      fontSize: $a.fs(10),
+      lineHeight: '20px',
+      textAlign: 'center'//,
+    }).appendTo(self._view);
   }
 
   cls.prototype.draw = function(){
@@ -766,11 +912,7 @@ $a.Card = (function(){
 
     this._titleView.text(this._title);
 
-    //if (this._description === null) {
-    //  this._descriptionView.html($f.nl2br($f.escapeHTML(this._createDescriptionText())));
-    //} else {
-    //  this._descriptionView.html($f.nl2br($f.escapeHTML(this._description)));
-    //}
+    this._costView.text(this._cost + ' cost');
 
     this._view.css({
       backgroundColor: bgColor
@@ -847,20 +989,20 @@ $a.init = function(){
   $a.player = $a.Player.create();
   $a.game = $a.Game.create();
 
-  $a.deckCards = $a.Cards.create();
-  var initialDeck = [
-    'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card',
-    'Victorypoints1Card', 'Victorypoints1Card', 'Victorypoints1Card'//,
-  ];
-  _.each(initialDeck, function(cardClassName){ $a.deckCards.addNewCard(cardClassName); });
-  $a.deckCards.shuffle();
+
+  $a.kingdomCards = $a.KingdomCards.create();
+  $a.kingdomCards.reset();
+
+  $a.deckCards = $a.DeckCards.create();
+  $a.deckCards.reset();
 
   $a.talonCards = $a.Cards.create();
 
   $a.trashCards = $a.Cards.create();
 
   $a.handCards = $a.HandCards.create();
-  $a.handCards.resetCards();
+  $a.handCards.reset();
+
 
   $a.screen = $a.Screen.create();
   $('#game_container').append($a.screen.getView());
@@ -872,24 +1014,20 @@ $a.init = function(){
   $a.mainBox.setPage('hand', $a.handBox);
   $a.mainBox.getView().append($a.handBox.getView());
 
+  $a.kingdomBox = $a.KingdomBox.create();
+  $a.mainBox.setPage('kingdom', $a.kingdomBox);
+  $a.mainBox.getView().append($a.kingdomBox.getView());
+
+  $a.othercardsBox = $a.OthercardsBox.create();
+  $a.mainBox.setPage('othercards', $a.othercardsBox);
+  $a.mainBox.getView().append($a.othercardsBox.getView());
+
   $a.screen.draw();
   $a.mainBox.draw();
-  $a.handBox.draw();
 
-//  $a.statusbar = $a.Statusbar.create();
-//  $a.screen.getView().append($a.statusbar.getView());
-//
-//  $a.field = $a.Field.create();
-//  $a.field.draw();
-//  $a.screen.getView().append($a.field.getView());
-//
-//  $a.hand = $a.Hand.create();
-//  $a.screen.getView().append($a.hand.getView());
-//
-//  $a.hand.draw();
-//
-//  $a.statusbar.draw();
-//
+  $a.handBox.draw();
+  $a.mainBox.changePage('hand');
+
 //  $a.game.run();
 
 //}}}
