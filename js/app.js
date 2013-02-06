@@ -27,20 +27,18 @@ $a = {
 //{{{
   player: undefined,
   game: undefined,
-  deck: undefined,
-  talon: undefined,
-  trash: undefined,
+  deckCards: undefined,
+  talonCards: undefined,
+  trashCards: undefined,
+  handCards: undefined,
   screen: undefined,
-  statusbar: undefined,
-  field: undefined,
-  hand: undefined,
+  mainBox: undefined,
+  handBox: undefined,
+  //statusbar: undefined,
+  //field: undefined,
 
   $cards: {},
 
-  catchError: function(err){
-    $d('error =', err);
-    $d('error.stack =', err.stack);
-  },
   fontSize: function(px){
     return px;
   }//,
@@ -71,7 +69,7 @@ $a.Game = (function(){
 //{{{
   var cls = function(){
 
-    this._necessaryScore = 25;
+    this._necessaryVictoryPoints = 25;
 
     this._turn = 0;
     this._maxTurn = 12;
@@ -96,7 +94,7 @@ $a.Game = (function(){
 
       $.when(self._runTurn()).done(function(){
 
-        if (self.summaryScore() >= self._necessaryScore) {
+        if (self.summaryVictoryPoints() >= self._necessaryVictoryPoints) {
           // Victory
           alert('You won!');
           return;
@@ -238,7 +236,7 @@ $a.Game = (function(){
 
       if (card.isBuyable()) {
         $a.game.modifyCoinCorrection(-card.getCost());
-        $a.talon.addNewCard(card.className, { stack:true });
+        $a.talonCards.addNewCard(card.className, { stack:true });
         $a.statusbar.draw();
         d.resolve(true);
       } else {
@@ -256,9 +254,9 @@ $a.Game = (function(){
 
   cls.prototype._mergePlayersCardData = function(){
     var cards = [];
-    cards = cards.concat($a.deck.getData())
-    cards = cards.concat($a.talon.getData())
-    cards = cards.concat($a.hand.getCards().getData())
+    cards = cards.concat($a.deckCards.getData())
+    cards = cards.concat($a.talonCards.getData())
+    cards = cards.concat($a.handCards.getCards().getData())
     return cards;
   }
 
@@ -266,12 +264,12 @@ $a.Game = (function(){
     return this._mergePlayersCardData().length;
   }
 
-  cls.prototype.summaryScore = function(){
+  cls.prototype.summaryVictoryPoints = function(){
     return _.reduce(this._mergePlayersCardData(), function(memo, card){
-      return memo + card.getScore();
+      return memo + card.getVictoryPoints();
     }, 0);
   }
-  cls.prototype.getNecessaryScore = function(){ return this._necessaryScore; }
+  cls.prototype.getNecessaryVictoryPoints = function(){ return this._necessaryVictoryPoints; }
 
   cls.prototype._resetStatuses = function(){
     this._actionCount = 1;
@@ -390,6 +388,33 @@ $a.Cards = (function(){
 }());
 
 
+$a.HandCards = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.Cards(), $a.Cards);
+
+  cls.prototype.pullCards = function(cardCount){
+    if ($a.deckCards.count() < cardCount) {
+      $a.talonCards.shuffle();
+      $a.talonCards.dealTo($a.deckCards, $a.talonCards.count());
+    }
+    $a.deckCards.dealTo(this, cardCount);
+  }
+
+  cls.prototype.resetCards = function(){
+    this.dumpTo($a.talonCards);
+    this.pullCards(5);
+  }
+
+  cls.create = function(){
+    return new this();
+  }
+
+  return cls;
+//}}}
+}());
+
+
 $a.Screen = (function(){
 //{{{
   var cls = function(){
@@ -419,202 +444,257 @@ $a.Screen = (function(){
 }());
 
 
-$a.Statusbar = (function(){
+$a.MainBox = (function(){
+//{{{
+  var cls = function(){
+    this._pages = {
+      hand: undefined,
+      kingdom: undefined,
+      others: undefined//,
+    };
+  }
+  $f.inherit(cls, new $f.Box(), $f.Box);
+
+  cls.POS = [48, 0];
+  cls.SIZE = [320, 320];
+
+  function __INITIALIZE(self){
+  }
+
+  cls.prototype.setPage = function(pageKey, box){
+    this._pages[pageKey] = box;
+  }
+
+  cls.prototype.changePage = function(pageKey){
+    _.each(this._pages, function(v, k){
+      if (pageKey === k) {
+        v.getView().show();
+      } else {
+        v.getView().hide();
+      }
+    });
+  }
+
+  cls.create = function(){
+    var obj = $f.Box.create.apply(this);
+    __INITIALIZE(obj);
+    return obj;
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.HandBox = (function(){
 //{{{
   var cls = function(){
   }
-  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+  $f.inherit(cls, new $f.Box(), $f.Box);
 
-  cls.POS = [0, 0];
-  cls.SIZE = [$a.Screen.SIZE[0], 32];
+  cls.POS = [4, 4];
+  cls.SIZE = [312, 312]; // 60 * 5 + 3 * 4
 
   function __INITIALIZE(self){
     self._view.css({
-      lineHeight: cls.SIZE[1] + 'px',
-      fontSize: $a.fontSize(14),
       backgroundColor: '#FFF'
     });
   }
 
-  cls.prototype.draw = function(){
-    $f.Sprite.prototype.draw.apply(this);
-
-    var t = '';
-    t += $f.format('期間: {0}/{1}', $a.game.getTurn(), $a.game.getMaxTurn());
-    t += $f.format(', 進捗: {0}/{1}', $a.game.summaryScore(), $a.game.getNecessaryScore());
-    t += $f.format(', 行動回数: {0}', $a.game.getActionCount());
-    t += $f.format(', 開発回数: {0}', $a.game.getBuyCount());
-    t += $f.format(', 開発力: {0}', $a.game.getCoin());
-    t += $f.format(', 山札: {0}/{1}', $a.deck.count(), $a.game.getTotalCardCount());
-    var phaseText = ($a.game.getCurrentPhaseType() === 'action')? '行動': '開発';
-    t += $f.format(', フェーズ: {0}', phaseText);
-    this._view.text(t);
-  }
-
   cls.create = function(){
-    var obj = $f.Sprite.create.apply(this);
+    var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  };
+  }
 
   return cls;
 //}}}
 }());
 
 
-$a.Field = (function(){
-//{{{
-  var cls = function(){
-    this._cards = $a.Cards.create();
-  }
-  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-
-  cls.POS = [32, 0];
-  cls.SIZE = [$a.Screen.SIZE[0], 268];
-
-  cls.__SALES_CARDS = [
-    'Score1Card',
-    'Score3Card',
-    'Score6Card',
-    'Coin1Card',
-    'Coin2Card',
-    'Coin3Card',
-    'TechnicalbookCard',
-    //'ReorganizationCard',
-    'ObjectorientedCard',
-    'HealthcontrolCard',
-    'LogicalthinkingCard',
-    'ModularizationCard',
-    'ScalabilityCard',
-    'Senseofresponsibility',
-    'ContinuousintegrationCard'//,
-  ]
-
-  function __INITIALIZE(self){
-
-    self._cards = $a.Cards.create();
-    _.each(cls.__SALES_CARDS, function(cardClassName){
-      self._cards.addNewCard(cardClassName);
-    });
-
-    var coords = $f.squaring($a.Card.SIZE, cls.SIZE, 10);
-    _.each(self._cards.getData(), function(card, idx){
-      card.setPos([
-        coords[idx][0] + 20,
-        coords[idx][1] + 20
-      ]);
-      card.draw();
-      self.getView().append(card.getView());
-    });
-  }
-
-  cls.prototype.getCards = function(){
-    return this._cards;
-  }
-
-  // FIXME: Must standarize to Hand
-  cls.prototype.waitChoice = function(signaler){
-    _.each(this._cards.getData(), function(card){
-      card.setSignaler(signaler);
-    });
-  }
-
-  //cls.prototype.waitChoices = function(signaler){
-  //}
-
-  cls.create = function(){
-    var obj = $f.Sprite.create.apply(this);
-    __INITIALIZE(obj);
-    return obj;
-  };
-
-  return cls;
-//}}}
-}());
+//$a.Statusbar = (function(){
+////{{{
+//  var cls = function(){
+//  }
+//  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+//
+//  cls.POS = [0, 0];
+//  cls.SIZE = [$a.Screen.SIZE[0], 32];
+//
+//  function __INITIALIZE(self){
+//    self._view.css({
+//      lineHeight: cls.SIZE[1] + 'px',
+//      fontSize: $a.fontSize(14),
+//      backgroundColor: '#FFF'
+//    });
+//  }
+//
+//  cls.prototype.draw = function(){
+//    $f.Sprite.prototype.draw.apply(this);
+//
+//    var t = '';
+//    t += $f.format('期間: {0}/{1}', $a.game.getTurn(), $a.game.getMaxTurn());
+//    t += $f.format(', 進捗: {0}/{1}', $a.game.summaryScore(), $a.game.getNecessaryScore());
+//    t += $f.format(', 行動回数: {0}', $a.game.getActionCount());
+//    t += $f.format(', 開発回数: {0}', $a.game.getBuyCount());
+//    t += $f.format(', 開発力: {0}', $a.game.getCoin());
+//    t += $f.format(', 山札: {0}/{1}', $a.deck.count(), $a.game.getTotalCardCount());
+//    var phaseText = ($a.game.getCurrentPhaseType() === 'action')? '行動': '開発';
+//    t += $f.format(', フェーズ: {0}', phaseText);
+//    this._view.text(t);
+//  }
+//
+//  cls.create = function(){
+//    var obj = $f.Sprite.create.apply(this);
+//    __INITIALIZE(obj);
+//    return obj;
+//  };
+//
+//  return cls;
+////}}}
+//}());
 
 
-$a.Hand = (function(){
-//{{{
-  var cls = function(){
-    this._cards = $a.Cards.create();
-  }
-  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+//$a.Field = (function(){
+////{{{
+//  var cls = function(){
+//    this._cards = $a.Cards.create();
+//  }
+//  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+//
+//  cls.POS = [32, 0];
+//  cls.SIZE = [$a.Screen.SIZE[0], 268];
+//
+//  cls.__SALES_CARDS = [
+//    'Score1Card',
+//    'Score3Card',
+//    'Score6Card',
+//    'Coin1Card',
+//    'Coin2Card',
+//    'Coin3Card',
+//    'TechnicalbookCard',
+//    //'ReorganizationCard',
+//    'ObjectorientedCard',
+//    'HealthcontrolCard',
+//    'LogicalthinkingCard',
+//    'ModularizationCard',
+//    'ScalabilityCard',
+//    'Senseofresponsibility',
+//    'ContinuousintegrationCard'//,
+//  ]
+//
+//  function __INITIALIZE(self){
+//
+//    self._cards = $a.Cards.create();
+//    _.each(cls.__SALES_CARDS, function(cardClassName){
+//      self._cards.addNewCard(cardClassName);
+//    });
+//
+//    var coords = $f.squaring($a.Card.SIZE, cls.SIZE, 10);
+//    _.each(self._cards.getData(), function(card, idx){
+//      card.setPos([
+//        coords[idx][0] + 20,
+//        coords[idx][1] + 20
+//      ]);
+//      card.draw();
+//      self.getView().append(card.getView());
+//    });
+//  }
+//
+//  cls.prototype.getCards = function(){
+//    return this._cards;
+//  }
+//
+//  // FIXME: Must standarize to Hand
+//  cls.prototype.waitChoice = function(signaler){
+//    _.each(this._cards.getData(), function(card){
+//      card.setSignaler(signaler);
+//    });
+//  }
+//
+//  //cls.prototype.waitChoices = function(signaler){
+//  //}
+//
+//  cls.create = function(){
+//    var obj = $f.Sprite.create.apply(this);
+//    __INITIALIZE(obj);
+//    return obj;
+//  };
+//
+//  return cls;
+////}}}
+//}());
 
-  cls.POS = [330, 20];
-  cls.SIZE = [710, 250];
 
-  function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#e0ffff'
-    });
-  }
-
-  cls.prototype.draw = function(){
-    var self = this;
-    $f.Sprite.prototype.draw.apply(this);
-
-    // FIXME:
-    // 一度手札に入って描画されたカードは、手札から無くなった後も
-    // 非表示でこの要素内に存在し、また手札に入ったら表示している。
-    //
-    // 本来はカードデータと同期させて、全削除と再描画を行うのが良いが
-    // 今回は card をオブジェクトとして使い回す設計であるため、
-    // card._view.remove をしてしまうと、jQueryのイベントが消えてしまう。
-    // そのために、この様な処理にした。
-    //
-    // 別解としては:
-    // a)捨て札や廃棄札用の隠し要素を作り、そこへappendToする
-    //   appendToならイベントは消えない
-    //   ..これが一番良さそう
-    // b)カードをオブジェクトで持たず、クラス名で持つ
-    //   ..何かわかり難くなりそうでNG
-    // c)イベントまで含めてカードの再描画処理をする
-    //   ..これが一番綺麗そうだが、_view再描画は基底クラスに入っているため
-    //     _viewではなくその中に一要素を作ってそれを書き直すことになる
-    this._view.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
-      $(e).hide();
-    });
-
-    var coords = $f.squaring($a.Card.SIZE, cls.SIZE, 10);
-    _.each(this._cards.getData(), function(card, idx){
-      card.setPos(coords[idx]);
-      card.draw();
-      card.getView().show();
-      self.getView().append(card.getView());
-    });
-  }
-
-  cls.prototype.getCards = function(){
-    return this._cards;
-  }
-
-  cls.prototype.throwCard = function(card){
-    this._cards.remove(card);
-    $a.talon.stack(card);
-  }
-
-  cls.prototype.pullCards = function(cardCount){
-    if ($a.deck.count() < cardCount) {
-      $a.talon.shuffle();
-      $a.talon.dealTo($a.deck, $a.talon.count());
-    }
-    $a.deck.dealTo(this._cards, cardCount);
-  }
-
-  cls.prototype.resetCards = function(){
-    this._cards.dumpTo($a.talon);
-    this.pullCards(5);
-  }
-
-  cls.create = function(){
-    var obj = $f.Sprite.create.apply(this);
-    __INITIALIZE(obj);
-    return obj;
-  };
-
-  return cls;
-//}}}
-}());
+//$a.Hand = (function(){
+////{{{
+//  var cls = function(){
+//    this._cards = $a.Cards.create();
+//  }
+//  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+//
+//  cls.POS = [330, 20];
+//  cls.SIZE = [710, 250];
+//
+//  function __INITIALIZE(self){
+//    self._view.css({
+//      backgroundColor: '#e0ffff'
+//    });
+//  }
+//
+//  cls.prototype.draw = function(){
+//    var self = this;
+//    $f.Sprite.prototype.draw.apply(this);
+//
+//    // FIXME:
+//    // 一度手札に入って描画されたカードは、手札から無くなった後も
+//    // 非表示でこの要素内に存在し、また手札に入ったら表示している。
+//    //
+//    // 本来はカードデータと同期させて、全削除と再描画を行うのが良いが
+//    // 今回は card をオブジェクトとして使い回す設計であるため、
+//    // card._view.remove をしてしまうと、jQueryのイベントが消えてしまう。
+//    // そのために、この様な処理にした。
+//    //
+//    // 別解としては:
+//    // a)捨て札や廃棄札用の隠し要素を作り、そこへappendToする
+//    //   appendToならイベントは消えない
+//    //   ..これが一番良さそう
+//    // b)カードをオブジェクトで持たず、クラス名で持つ
+//    //   ..何かわかり難くなりそうでNG
+//    // c)イベントまで含めてカードの再描画処理をする
+//    //   ..これが一番綺麗そうだが、_view再描画は基底クラスに入っているため
+//    //     _viewではなくその中に一要素を作ってそれを書き直すことになる
+//    this._view.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
+//      $(e).hide();
+//    });
+//
+//    var coords = $f.squaring($a.Card.SIZE, cls.SIZE, 10);
+//    _.each(this._cards.getData(), function(card, idx){
+//      card.setPos(coords[idx]);
+//      card.draw();
+//      card.getView().show();
+//      self.getView().append(card.getView());
+//    });
+//  }
+//
+//  cls.prototype.getCards = function(){
+//    return this._cards;
+//  }
+//
+//  cls.prototype.throwCard = function(card){
+//    this._cards.remove(card);
+//    $a.talon.stack(card);
+//  }
+//
+//  cls.create = function(){
+//    var obj = $f.Sprite.create.apply(this);
+//    __INITIALIZE(obj);
+//    return obj;
+//  };
+//
+//  return cls;
+////}}}
+//}());
 
 
 $a.Card = (function(){
@@ -627,7 +707,7 @@ $a.Card = (function(){
     this._title = undefined;
     this._description = null;
     this._cost = 0;
-    this._score = 0;
+    this._victoryPoints = 0;
     this._card = 0;
     this._actionCount = 0;
     this._buyCount = 0;
@@ -643,7 +723,7 @@ $a.Card = (function(){
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
 
   cls.POS = [0, 0];
-  cls.SIZE = [80, 120];
+  cls.SIZE = [60, 60];
 
   function __INITIALIZE(self){
 
@@ -655,21 +735,21 @@ $a.Card = (function(){
 
     self._titleView = $('<div />').css({
       width: cls.SIZE[0],
-      height: 20,
-      fontSize: $a.fontSize(12),
-      lineHeight: '20px',
+      height: 40,
+      fontSize: $a.fontSize(10),
+      lineHeight: '40px',
       textAlign: 'center'//,
     }).appendTo(self._view);
 
-    self._descriptionView = $('<div />').css({
-      marginTop: 5,
-      marginLeft: 5,
-      width: cls.SIZE[0] - 10,
-      height: 90,
-      fontSize: $a.fontSize(10),
-      lineHeight: '15px',
-      textAlign: 'left'//,
-    }).appendTo(self._view);
+    //self._descriptionView = $('<div />').css({
+    //  marginTop: 5,
+    //  marginLeft: 5,
+    //  width: cls.SIZE[0] - 10,
+    //  height: 90,
+    //  fontSize: $a.fontSize(10),
+    //  lineHeight: '15px',
+    //  textAlign: 'left'//,
+    //}).appendTo(self._view);
   }
 
   cls.prototype.draw = function(){
@@ -686,40 +766,15 @@ $a.Card = (function(){
 
     this._titleView.text(this._title);
 
-    if (this._description === null) {
-      this._descriptionView.html($f.nl2br($f.escapeHTML(this._createDescriptionText())));
-    } else {
-      this._descriptionView.html($f.nl2br($f.escapeHTML(this._description)));
-    }
+    //if (this._description === null) {
+    //  this._descriptionView.html($f.nl2br($f.escapeHTML(this._createDescriptionText())));
+    //} else {
+    //  this._descriptionView.html($f.nl2br($f.escapeHTML(this._description)));
+    //}
 
     this._view.css({
       backgroundColor: bgColor
     });
-  }
-
-  cls.prototype._createDescriptionText = function(){
-    var lines = [];
-
-    lines.push($f.format('コスト: {0}', this._cost));
-    if (this._coin !== 0) {
-      lines.push($f.format('開発力: {0}', this._coin));
-    }
-    if (this._score !== 0) {
-      lines.push($f.format('進捗: {0}', this._score));
-    }
-    if (this._card !== 0) {
-      lines.push($f.format('カード+: {0}', this._card));
-    }
-    if (this._actionCount !== 0) {
-      lines.push($f.format('行動回数+: {0}', this._actionCount));
-    }
-    if (this._buyCount !== 0) {
-      lines.push($f.format('開発回数+: {0}', this._buyCount));
-    }
-    if (this._coinCorrection !== 0) {
-      lines.push($f.format('開発力+: {0}', this._coinCorrection));
-    }
-    return lines.join('\n');
   }
 
   cls.prototype.setSignaler = function(deferredObject){
@@ -760,7 +815,7 @@ $a.Card = (function(){
   }
 
   cls.prototype.getCost = function(){ return this._cost; }
-  cls.prototype.getScore = function(){ return this._score; }
+  cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
   cls.prototype.getCoin = function(){ return this._coin; }
 
   cls.prototype.isBuyable = function(){
@@ -792,23 +847,34 @@ $a.init = function(){
   $a.player = $a.Player.create();
   $a.game = $a.Game.create();
 
-  $a.deck = $a.Cards.create();
+  $a.deckCards = $a.Cards.create();
   var initialDeck = [
     'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card',
-    'Score1Card', 'Score1Card', 'Score1Card'//,
-    //'ObjectorientedCard', 'HealthcontrolCard', 'ModularizationCard', 'ScalabilityCard', 'Senseofresponsibility',
+    'Victorypoints1Card', 'Victorypoints1Card', 'Victorypoints1Card'//,
   ];
-  _.each(initialDeck, function(cardClassName){
-    $a.deck.addNewCard(cardClassName);
-  });
-  $a.deck.shuffle();
+  _.each(initialDeck, function(cardClassName){ $a.deckCards.addNewCard(cardClassName); });
+  $a.deckCards.shuffle();
 
-  $a.talon = $a.Cards.create();
-  $a.trash = $a.Cards.create();
+  $a.talonCards = $a.Cards.create();
+
+  $a.trashCards = $a.Cards.create();
+
+  $a.handCards = $a.HandCards.create();
+  $a.handCards.resetCards();
 
   $a.screen = $a.Screen.create();
-  $a.screen.draw();
   $('#game_container').append($a.screen.getView());
+
+  $a.mainBox = $a.MainBox.create();
+  $a.screen.getView().append($a.mainBox.getView());
+
+  $a.handBox = $a.HandBox.create();
+  $a.mainBox.setPage('hand', $a.handBox);
+  $a.mainBox.getView().append($a.handBox.getView());
+
+  $a.screen.draw();
+  $a.mainBox.draw();
+  $a.handBox.draw();
 
 //  $a.statusbar = $a.Statusbar.create();
 //  $a.screen.getView().append($a.statusbar.getView());
@@ -820,7 +886,6 @@ $a.init = function(){
 //  $a.hand = $a.Hand.create();
 //  $a.screen.getView().append($a.hand.getView());
 //
-//  $a.hand.resetCards();
 //  $a.hand.draw();
 //
 //  $a.statusbar.draw();

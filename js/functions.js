@@ -255,6 +255,22 @@ $f.Sprite = (function(){
 }());
 
 
+$f.Box = (function(){
+//{{{
+  var cls = function(){
+  }
+  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+
+  cls.create = function(){
+    var obj = $f.Sprite.create.apply(this, arguments);
+    return obj;
+  };
+
+  return cls;
+//}}}
+}());
+
+
 /**
  * Shortcuts
  */
