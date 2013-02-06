@@ -127,6 +127,18 @@ $f.argumentsToArray = function(args){
   return arr;
 }
 
+/**
+ * Wait until choice by player
+ *
+ * signalables: Mixed $f.SignalableMixin objects
+ * signal: Set a $.Deferred object.
+ *         It will execute .resolve(signalable)
+ *           when the player touch a one of signalables.
+ */
+$f.waitChoice = function(signalables, signal){
+  _.each(signalables, function(v){ v.setSignal(signal); });
+}
+
 
 /**
  * Classes
@@ -166,6 +178,28 @@ $f.ReceivableOptionsMixin = (function(){
         return this.__options[key];
     };
     return cls;
+//}}}
+}());
+
+
+$f.SignalableMixin = (function(){
+//{{{
+  var cls = function(){
+    // $.Deferred object || null
+    this.__signal = null;
+  }
+
+  cls.prototype.setSignal = function(jqueryDeferred){
+    this.__signal = jqueryDeferred;
+  }
+
+  cls.prototype.triggerSignal = function(){
+    if (this.__signal !== null && this.__signal.state() === 'pending') {
+      this.__signal.resolve(this);
+    }
+  }
+
+  return cls;
 //}}}
 }());
 

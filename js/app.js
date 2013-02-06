@@ -97,7 +97,7 @@ $a.Game = (function(){
     var process = function(){
 
       self._turn += 1;
-      $a.statusbar.draw();
+      //$a.statusbar.draw();
 
       $.when(self._runTurn()).done(function(){
 
@@ -125,19 +125,20 @@ $a.Game = (function(){
     var d = $.Deferred();
     $.Deferred().resolve().then(function(){
       self._currentPhaseType = 'action';
-      $a.statusbar.draw();
+      //$a.statusbar.draw();
       return self._runActionPhase();
     }).then(function(){
       $d('Ended action phase');
       self._currentPhaseType = 'buy';
-      $a.statusbar.draw();
+      //$a.statusbar.draw();
       return self._runBuyPhase();
     }).then(function(){
       $d('Ended buy phase');
       self._resetStatuses();
-      $a.hand.reset();
-      $a.statusbar.draw();
-      $a.hand.draw();
+      $a.handCards.reset();
+      //$a.statusbar.draw();
+      $a.handBox.draw();
+      $a.othercardsBox.draw();
       d.resolve();
     });
     return d;
@@ -157,7 +158,7 @@ $a.Game = (function(){
         } else {
           $a.game.setActionCount(0);
         }
-        $a.statusbar.draw();
+        //$a.statusbar.draw();
 
         if ($a.game.getActionCount() > 0) {
           setTimeout(process, 1);
@@ -176,19 +177,17 @@ $a.Game = (function(){
 
     var d = $.Deferred();
 
-    var signaler = $.Deferred();
-    _.each($a.hand.getCards().getData(), function(card){
-      card.setSignaler(signaler);
-    });
+    var signal = $.Deferred();
+    $f.waitChoice($a.handCards.getData(), signal);
 
     // TODO: カードしか選択できないので、
     //       全て行動カードの場合にキャンセル不可
-    $.when(signaler).done(function(card){
+    $.when(signal).done(function(card){
 
       if (card.isActable()) {
 
-        $a.hand.throwCard(card);
-        $a.statusbar.draw();
+        $a.handCards.throwCard(card);
+        //$a.statusbar.draw();
         $a.hand.draw();
 
         $.when(card.act()).done(function(){
@@ -217,7 +216,7 @@ $a.Game = (function(){
         } else {
           $a.game.setBuyCount(0);
         }
-        $a.statusbar.draw();
+        //$a.statusbar.draw();
 
         if ($a.game.getBuyCount() > 0) {
           setTimeout(process, 1);
@@ -235,16 +234,16 @@ $a.Game = (function(){
   cls.prototype._runWaitingBuySelection = function(){
 
     var d = $.Deferred();
-    var signaler = $.Deferred();
-    $a.field.waitChoice(signaler);
+    var signal = $.Deferred();
+    $f.waitChoice($a.kingdomCards.getData(), signal);
 
     // TODO: 現在購入不可なものを選択するとキャンセルというUIになっている
-    $.when(signaler).done(function(card){
+    $.when(signal).done(function(card){
 
       if (card.isBuyable()) {
         $a.game.modifyCoinCorrection(-card.getCost());
         $a.talonCards.addNewCard(card.className, { stack:true });
-        $a.statusbar.draw();
+        //$a.statusbar.draw();
         d.resolve(true);
       } else {
         d.resolve(false);
@@ -263,7 +262,7 @@ $a.Game = (function(){
     var cards = [];
     cards = cards.concat($a.deckCards.getData())
     cards = cards.concat($a.talonCards.getData())
-    cards = cards.concat($a.handCards.getCards().getData())
+    cards = cards.concat($a.handCards.getData())
     return cards;
   }
 
@@ -296,7 +295,7 @@ $a.Game = (function(){
     return this.summaryCoin() + this._coinCorrection;
   }
   cls.prototype.summaryCoin = function(){
-    return _.reduce($a.hand.getCards().getData(), function(memo, card){
+    return _.reduce($a.handCards.getData(), function(memo, card){
       return memo + card.getCoin();
     }, 0);
   }
@@ -458,6 +457,11 @@ $a.HandCards = (function(){
     $a.deckCards.dealTo(this, cardCount);
   }
 
+  cls.prototype.throwCard = function(card){
+    this.remove(card);
+    $a.talonCards.stack(card);
+  }
+
   cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
     this.pullCards(5);
@@ -515,12 +519,9 @@ $a.Card = (function(){
     this._coin = 0;
 
     this.className = undefined;
-
-    // For signaling mousedown event to outside
-    // Deferred object || null
-    this._signaler = null;
   }
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+  $f.mixin(cls, new $f.SignalableMixin());
 
   cls.POS = [0, 0];
   cls.SIZE = [60, 60];
@@ -572,10 +573,6 @@ $a.Card = (function(){
     });
   }
 
-  cls.prototype.setSignaler = function(deferredObject){
-    this._signaler = deferredObject;
-  }
-
   /**
    * null = It is not actable.
    * func = Custom action.
@@ -597,11 +594,11 @@ $a.Card = (function(){
     $a.game.modifyBuyCount(this._buyCount);
     $a.game.modifyCoinCorrection(this._coinCorrection);
     if (this._card > 0) {
-      $a.hand.pullCards(this._card);
+      $a.handCardsd.pullCards(this._card);
     }
 
-    $a.statusbar.draw();
-    $a.hand.draw();
+    //$a.statusbar.draw();
+    $a.handBox.draw();
   }
 
   cls.prototype.getCardType = function(){
@@ -619,9 +616,7 @@ $a.Card = (function(){
 
   function __ONMOUSEDOWN(evt){
     var self = evt.data.self;
-    if (self._signaler !== null && self._signaler.state() === 'pending') {
-      self._signaler.resolve(self);
-    }
+    self.triggerSignal();
     return false;
   }
 
@@ -955,148 +950,6 @@ $a.PagechangerBox = (function(){
 //}());
 
 
-//$a.Field = (function(){
-////{{{
-//  var cls = function(){
-//    this._cards = $a.Cards.create();
-//  }
-//  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-//
-//  cls.POS = [32, 0];
-//  cls.SIZE = [$a.Screen.SIZE[0], 268];
-//
-//  cls.__SALES_CARDS = [
-//    'Score1Card',
-//    'Score3Card',
-//    'Score6Card',
-//    'Coin1Card',
-//    'Coin2Card',
-//    'Coin3Card',
-//    'TechnicalbookCard',
-//    //'ReorganizationCard',
-//    'ObjectorientedCard',
-//    'HealthcontrolCard',
-//    'LogicalthinkingCard',
-//    'ModularizationCard',
-//    'ScalabilityCard',
-//    'Senseofresponsibility',
-//    'ContinuousintegrationCard'//,
-//  ]
-//
-//  function __INITIALIZE(self){
-//
-//    self._cards = $a.Cards.create();
-//    _.each(cls.__SALES_CARDS, function(cardClassName){
-//      self._cards.addNewCard(cardClassName);
-//    });
-//
-//    var coords = $f.squaring($a.Card.SIZE, cls.SIZE, 10);
-//    _.each(self._cards.getData(), function(card, idx){
-//      card.setPos([
-//        coords[idx][0] + 20,
-//        coords[idx][1] + 20
-//      ]);
-//      card.draw();
-//      self.getView().append(card.getView());
-//    });
-//  }
-//
-//  cls.prototype.getCards = function(){
-//    return this._cards;
-//  }
-//
-//  // FIXME: Must standarize to Hand
-//  cls.prototype.waitChoice = function(signaler){
-//    _.each(this._cards.getData(), function(card){
-//      card.setSignaler(signaler);
-//    });
-//  }
-//
-//  //cls.prototype.waitChoices = function(signaler){
-//  //}
-//
-//  cls.create = function(){
-//    var obj = $f.Sprite.create.apply(this);
-//    __INITIALIZE(obj);
-//    return obj;
-//  };
-//
-//  return cls;
-////}}}
-//}());
-
-
-//$a.Hand = (function(){
-////{{{
-//  var cls = function(){
-//    this._cards = $a.Cards.create();
-//  }
-//  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-//
-//  cls.POS = [330, 20];
-//  cls.SIZE = [710, 250];
-//
-//  function __INITIALIZE(self){
-//    self._view.css({
-//      backgroundColor: '#e0ffff'
-//    });
-//  }
-//
-//  cls.prototype.draw = function(){
-//    var self = this;
-//    $f.Sprite.prototype.draw.apply(this);
-//
-//    // FIXME:
-//    // 一度手札に入って描画されたカードは、手札から無くなった後も
-//    // 非表示でこの要素内に存在し、また手札に入ったら表示している。
-//    //
-//    // 本来はカードデータと同期させて、全削除と再描画を行うのが良いが
-//    // 今回は card をオブジェクトとして使い回す設計であるため、
-//    // card._view.remove をしてしまうと、jQueryのイベントが消えてしまう。
-//    // そのために、この様な処理にした。
-//    //
-//    // 別解としては:
-//    // a)捨て札や廃棄札用の隠し要素を作り、そこへappendToする
-//    //   appendToならイベントは消えない
-//    //   ..これが一番良さそう
-//    // b)カードをオブジェクトで持たず、クラス名で持つ
-//    //   ..何かわかり難くなりそうでNG
-//    // c)イベントまで含めてカードの再描画処理をする
-//    //   ..これが一番綺麗そうだが、_view再描画は基底クラスに入っているため
-//    //     _viewではなくその中に一要素を作ってそれを書き直すことになる
-//    this._view.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
-//      $(e).hide();
-//    });
-//
-//    var coords = $f.squaring($a.Card.SIZE, cls.SIZE, 10);
-//    _.each(this._cards.getData(), function(card, idx){
-//      card.setPos(coords[idx]);
-//      card.draw();
-//      card.getView().show();
-//      self.getView().append(card.getView());
-//    });
-//  }
-//
-//  cls.prototype.getCards = function(){
-//    return this._cards;
-//  }
-//
-//  cls.prototype.throwCard = function(card){
-//    this._cards.remove(card);
-//    $a.talon.stack(card);
-//  }
-//
-//  cls.create = function(){
-//    var obj = $f.Sprite.create.apply(this);
-//    __INITIALIZE(obj);
-//    return obj;
-//  };
-//
-//  return cls;
-////}}}
-//}());
-
-
 $a.init = function(){
 //{{{
 
@@ -1146,7 +999,7 @@ $a.init = function(){
   $a.pagechangerBox.draw();
   $a.screen.draw();
 
-//  $a.game.run();
+  $a.game.run();
 
 //}}}
 }
