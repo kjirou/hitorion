@@ -41,6 +41,9 @@ $a = {
   handBox: undefined,
   kingdomBox: undefined,
   othercardsBox: undefined,
+  deckCardsBox: undefined,
+  talonCardsBox: undefined,
+  trashCardsBox: undefined,
   statusBox: undefined,
   pagechangerBox: undefined,
 
@@ -789,21 +792,157 @@ $a.OthercardsBox = (function(){
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
 
-  cls.POS = $a.HandBox.SIZE.slice();
+  cls.POS = $a.HandBox.POS.slice();
   cls.SIZE = $a.HandBox.SIZE.slice();
 
   function __INITIALIZE(self){
-  }
-
-  cls.prototype.draw = function(){
-    var self = this;
-    $f.Box.prototype.draw.apply(this);
   }
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
+  }
+
+  return cls;
+//}}}
+}());
+
+
+/** Abstract */
+$a.CardsBox = (function(){
+//{{{
+  var cls = function(){
+    this._titleView = undefined;
+    this._counterView = undefined;
+    this._cardContainerView = undefined;
+  }
+  $f.inherit(cls, new $f.Box(), $f.Box);
+
+  cls.POS = [0, 0];
+  cls.SIZE = [120, 60];
+  cls.FRAME_BORDER_WIDTH = 1;
+
+  function __INITIALIZE(self){
+    self._view.css({
+      border: cls.FRAME_BORDER_WIDTH + 'px solid #AAA'//,
+    });
+    self._titleView = $('<div />')
+      .css({
+        position: 'absolute',
+        width: 60,
+        height: 30,
+        lineHeight: '30px',
+        fontSize: $a.fs(15),
+        textAlign: 'center'//,
+      })
+      .appendTo(self._view)
+    ;
+    self._counterView = $('<div />')
+      .css({
+        position: 'absolute',
+        top: 30,
+        width: 60,
+        height: 30,
+        lineHeight: '30px',
+        fontSize: $a.fs(15),
+        textAlign: 'center'//,
+      })
+      .appendTo(self._view)
+    ;
+    self._cardContainerView = $('<div />')
+      .css({
+        position: 'absolute',
+        left: 60,
+        width: 60,
+        height: 60//,
+      })
+      .appendTo(self._view)
+    ;
+  }
+
+  cls.create = function(){
+    var obj = $f.Box.create.apply(this, arguments);
+    __INITIALIZE(obj);
+    return obj;
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.DeckCardsBox = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.CardsBox(), $a.CardsBox);
+
+  cls.POS = [
+    50 - cls.FRAME_BORDER_WIDTH,
+    100 - cls.FRAME_BORDER_WIDTH
+  ];
+  cls.SIZE = [120, 60];
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $a.CardsBox.prototype.draw.apply(this);
+
+    this._titleView.text('山札');
+    this._counterView.text($a.deckCards.count());
+
+    // TODO: Display card object
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.TalonCardsBox = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.CardsBox(), $a.CardsBox);
+
+  cls.POS = [
+    130 - cls.FRAME_BORDER_WIDTH,
+    100 - cls.FRAME_BORDER_WIDTH
+  ];
+  cls.SIZE = [120, 60];
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $a.CardsBox.prototype.draw.apply(this);
+
+    this._titleView.text('捨札');
+    this._counterView.text($a.talonCards.count());
+
+    // TODO: Display card object
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.TrashCardsBox = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.CardsBox(), $a.CardsBox);
+
+  cls.POS = [
+    210 - cls.FRAME_BORDER_WIDTH,
+    100 - cls.FRAME_BORDER_WIDTH
+  ];
+  cls.SIZE = [120, 60];
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $a.CardsBox.prototype.draw.apply(this);
+
+    this._titleView.text('廃棄');
+    this._counterView.text($a.trashCards.count());
+
+    // TODO: Display card object
   }
 
   return cls;
@@ -1044,6 +1183,15 @@ $a.init = function(){
   $a.mainBox.setPage('othercards', $a.othercardsBox);
   $a.mainBox.getView().append($a.othercardsBox.getView());
 
+  $a.deckCardsBox = $a.DeckCardsBox.create();
+  $a.othercardsBox.getView().append($a.deckCardsBox.getView());
+
+  $a.talonCardsBox = $a.TalonCardsBox.create();
+  $a.othercardsBox.getView().append($a.talonCardsBox.getView());
+
+  $a.trashCardsBox = $a.TrashCardsBox.create();
+  $a.othercardsBox.getView().append($a.trashCardsBox.getView());
+
   $a.pagechangerBox = $a.PagechangerBox.create();
   $a.screen.getView().append($a.pagechangerBox.getView());
 
@@ -1053,6 +1201,9 @@ $a.init = function(){
   $a.handBox.draw();
   $a.kingdomBox.draw();
   $a.othercardsBox.draw();
+  $a.deckCardsBox.draw();
+  $a.talonCardsBox.draw();
+  $a.trashCardsBox.draw();
   $a.mainBox.draw();
   $a.pagechangerBox.draw();
   $a.statusBox.draw();
