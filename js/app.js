@@ -44,6 +44,7 @@ $a = {
   deckCardsBox: undefined,
   talonCardsBox: undefined,
   trashCardsBox: undefined,
+  phaseendbuttonBox: undefined,
   statusBox: undefined,
   pagechangerBox: undefined,
 
@@ -129,11 +130,15 @@ $a.Game = (function(){
     $.Deferred().resolve().then(function(){
       self._currentPhaseType = 'action';
       $a.statusBox.draw();
+      $a.mainBox.changePage('hand');
+      $a.pagechangerBox.draw();
       return self._runActionPhase();
     }).then(function(){
       $d('Ended action phase');
       self._currentPhaseType = 'buy';
       $a.statusBox.draw();
+      $a.mainBox.changePage('kingdom');
+      $a.pagechangerBox.draw();
       return self._runBuyPhase();
     }).then(function(){
       $d('Ended buy phase');
@@ -141,7 +146,8 @@ $a.Game = (function(){
       $a.handCards.reset();
       $a.statusBox.draw();
       $a.handBox.draw();
-      $a.othercardsBox.draw();
+      $a.deckCardsBox.draw();
+      $a.talonCardsBox.draw();
       d.resolve();
     });
     return d;
@@ -154,20 +160,16 @@ $a.Game = (function(){
     var process = function(){
       $.when(
         self._runWaitingActionSelection()
-      ).done(function(isDoneAction){
+      ).done(function(doneType){
 
-        if (isDoneAction) {
+        if (doneType === 'phaseend') {
+          phaseEnd.resolve();
+          return;
+        } else if (doneType === 'acted') {
           $a.game.modifyActionCount(-1);
-        } else {
-          $a.game.setActionCount(0);
         }
         $a.statusBox.draw();
-
-        if ($a.game.getActionCount() > 0) {
-          setTimeout(process, 1);
-        } else {
-          phaseEnd.resolve();
-        }
+        setTimeout(process, 1);
 
       });
     }
@@ -181,25 +183,35 @@ $a.Game = (function(){
     var d = $.Deferred();
 
     var signal = $.Deferred();
-    $f.waitChoice($a.handCards.getData(), signal);
+    var signalables = [$a.statusBox];
+    if ($a.game.getActionCount() > 0) {// Can't choice
+      signalables = signalables.concat($a.handCards.getData());
+    }
+    $f.waitChoice(signalables, signal);
 
-    // TODO: カードしか選択できないので、
-    //       全て行動カードの場合にキャンセル不可
-    $.when(signal).done(function(card){
+    $.when(signal).done(function(signaler){
 
-      if (card.isActable()) {
-
-        $a.handCards.throwCard(card);
-        $a.statusBox.draw();
-        $a.hand.draw();
-
-        $.when(card.act()).done(function(){
-          d.resolve(true);
-        });
-
+      // Is touched statusBox
+      if (signaler instanceof $a.Card === false) {
+        d.resolve('phaseend');
+      // Is touched card
       } else {
-        d.resolve(false);
+        // Is actable card
+        if (signaler.isActable()) {
+
+          $a.handCards.throwCard(signaler);
+          $a.statusBox.draw();
+          $a.handBox.draw();
+
+          $.when(signaler.act()).done(function(){
+            d.resolve('acted');
+          });
+        // Is not actable card
+        } else {
+          d.resolve('notacted');
+        }
       }
+
     });
 
     return d;
@@ -212,20 +224,17 @@ $a.Game = (function(){
     var process = function(){
       $.when(
         self._runWaitingBuySelection()
-      ).done(function(isDone){
+      ).done(function(doneType){
 
-        if (isDone) {
+        if (doneType === 'phaseend') {
+          phaseEnd.resolve();
+          return;
+        } else if (doneType === 'buy') {
           $a.game.modifyBuyCount(-1);
-        } else {
-          $a.game.setBuyCount(0);
+          $a.talonCardsBox.draw();
         }
         $a.statusBox.draw();
-
-        if ($a.game.getBuyCount() > 0) {
-          setTimeout(process, 1);
-        } else {
-          phaseEnd.resolve();
-        }
+        setTimeout(process, 1);
 
       });
     }
@@ -238,19 +247,31 @@ $a.Game = (function(){
 
     var d = $.Deferred();
     var signal = $.Deferred();
-    $f.waitChoice($a.kingdomCards.getData(), signal);
+    var signalables = [$a.statusBox];
+    if ($a.game.getBuyCount() > 0) {// Can't choice
+      signalables = signalables.concat($a.kingdomCards.getData());
+    }
+    $f.waitChoice(signalables, signal);
 
-    // TODO: 現在購入不可なものを選択するとキャンセルというUIになっている
-    $.when(signal).done(function(card){
+    $.when(signal).done(function(signaler){
 
-      if (card.isBuyable()) {
-        $a.game.modifyCoinCorrection(-card.getCost());
-        $a.talonCards.addNewCard(card.className, { stack:true });
-        $a.statusBox.draw();
-        d.resolve(true);
+      // Is touched statusBox
+      if (signaler instanceof $a.Card === false) {
+        d.resolve('phaseend');
+      // Is touched card
       } else {
-        d.resolve(false);
+        // Is buyable card
+        if (signaler.isBuyable()) {
+          $a.game.modifyCoinCorrection(-signaler.getCost());
+          $a.talonCards.addNewCard(signaler.className, { stack:true });
+          $a.statusBox.draw();
+          d.resolve('buy');
+        // Is not buyable card
+        } else {
+          d.resolve('notbuy');
+        }
       }
+
     });
 
     return d;
@@ -482,6 +503,7 @@ $a.Screen = (function(){
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
 
   cls.ZINDEXES = {
+    PHASEENDBUTTONBOX: 100//,
   }
 
   cls.POS = [0, 0];
@@ -501,6 +523,7 @@ $a.Screen = (function(){
 }());
 
 
+/** Abstract class */
 $a.Card = (function(){
 //{{{
   var cls = function(){
@@ -646,10 +669,29 @@ $a.MainBox = (function(){
   cls.POS = [48, 0];
   cls.SIZE = [320, 320];
 
+  cls.ZINDEXES = {
+    COMMENT: 100
+  };
+
   function __INITIALIZE(self){
     self._view.css({
       backgroundColor: '#FFF'
     });
+
+    self._commentView = $('<div />')
+      .css({
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        height: 12,
+        zIndex: cls.ZINDEXES.COMMENT,
+        lineHeight: '12px',
+        fontSize: $a.fs(10),
+        color: '#666',
+        textAlign: 'center'//,
+      })
+      .text('フェーズ終了はステータスバーをタッチ')
+      .appendTo(self._view);
   }
 
   cls.prototype.draw = function(){
@@ -809,7 +851,7 @@ $a.OthercardsBox = (function(){
 }());
 
 
-/** Abstract */
+/** Abstract class */
 $a.CardsBox = (function(){
 //{{{
   var cls = function(){
@@ -956,14 +998,23 @@ $a.StatusBox = (function(){
     this._stateViews = {};
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
+  $f.mixin(cls, new $f.SignalableMixin());
 
   cls.POS = [0, 0];
   cls.SIZE = [$a.Screen.SIZE[0], 48];
 
+  cls.STYLES = {
+    COLOR: '#000',
+    HILIGHT_COLOR: '#FF9900'//,
+  };
+
   function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#EEE'
-    });
+    self._view
+      .css({
+        backgroundColor: '#EEE',
+        cursor: 'pointer'
+      })
+      .on('mousedown', { self:self }, __ONTOUCH);
 
     var stateDataList = [
       ['turn', 'Turn'],
@@ -993,6 +1044,7 @@ $a.StatusBox = (function(){
         position: 'absolute',
         width: width,
         height: 40,
+        color: cls.STYLES.COLOR,
         textAlign: 'center'//,
       });
     var header = $('<div />')
@@ -1038,6 +1090,25 @@ $a.StatusBox = (function(){
     this._stateViews.coin._stateBodyView.text(
       $a.game.getCoin()
     );
+
+    this._drawHilightPhase();
+  }
+
+  cls.prototype._drawHilightPhase = function(){
+    var phaseType = $a.game.getCurrentPhaseType();
+    if (phaseType === 'action') {
+      this._stateViews.action.css({ color: cls.STYLES.HILIGHT_COLOR });
+      this._stateViews.buy.css({ color: cls.STYLES.COLOR });
+    } else if (phaseType === 'buy') {
+      this._stateViews.action.css({ color: cls.STYLES.COLOR });
+      this._stateViews.buy.css({ color: cls.STYLES.HILIGHT_COLOR });
+    }
+  }
+
+  function __ONTOUCH(evt){
+    var self = evt.data.self;
+    self.triggerSignal();
+    return false;
   }
 
   cls.create = function(){
