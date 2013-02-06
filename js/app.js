@@ -41,6 +41,8 @@ $a = {
   handBox: undefined,
   kingdomBox: undefined,
   othercardsBox: undefined,
+  statusBox: undefined,
+  pagechangerBox: undefined,
 
   $cards: {},
 
@@ -495,6 +497,144 @@ $a.Screen = (function(){
 }());
 
 
+$a.Card = (function(){
+//{{{
+  var cls = function(){
+    /** Array of 'victory', 'treasure', 'action', 'reaction', 'attack'.
+      Currently used 'victory' or 'treasure' or 'action', and always only one. */
+    this._cardTypes = undefined;
+
+    this._title = undefined;
+    this._description = null;
+    this._cost = 0;
+    this._victoryPoints = 0;
+    this._card = 0;
+    this._actionCount = 0;
+    this._buyCount = 0;
+    this._coinCorrection = 0;
+    this._coin = 0;
+
+    this.className = undefined;
+
+    // For signaling mousedown event to outside
+    // Deferred object || null
+    this._signaler = null;
+  }
+  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+
+  cls.POS = [0, 0];
+  cls.SIZE = [60, 60];
+
+  function __INITIALIZE(self){
+
+    self.className = $f.getMyName($a.$cards, self.__myClass__);
+
+    self._view
+      .addClass($c.CSS_PREFIX + 'card')
+      .on('mousedown', {self:self}, __ONMOUSEDOWN);
+
+    self._titleView = $('<div />').css({
+      width: cls.SIZE[0],
+      height: 40,
+      fontSize: $a.fs(10),
+      lineHeight: '40px',
+      textAlign: 'center'//,
+    }).appendTo(self._view);
+
+    self._costView = $('<div />').css({
+      width: cls.SIZE[0],
+      height: 20,
+      fontSize: $a.fs(10),
+      lineHeight: '20px',
+      textAlign: 'center'//,
+    }).appendTo(self._view);
+  }
+
+  cls.prototype.draw = function(){
+    $f.Sprite.prototype.draw.apply(this);
+
+    var bgColor;
+    if (this.getCardType() === 'victory') {
+      bgColor = '#76bc75';
+    } else if (this.getCardType() === 'treasure') {
+      bgColor = '#f9ca58';
+    } else if (this.getCardType() === 'action') {
+      bgColor = '#839c9d';
+    }
+
+    this._titleView.text(this._title);
+
+    this._costView.text(this._cost + ' cost');
+
+    this._view.css({
+      backgroundColor: bgColor
+    });
+  }
+
+  cls.prototype.setSignaler = function(deferredObject){
+    this._signaler = deferredObject;
+  }
+
+  /**
+   * null = It is not actable.
+   * func = Custom action.
+   *        It must return resolved deferred, if it include async process.
+   */
+  cls.prototype._act = null;
+
+  cls.prototype.act = function(){
+    return this._act() || $.Deferred().resolve();
+  }
+
+  cls.prototype.isActable = function(){
+    return this._act !== null;
+  }
+
+  cls.prototype._actBuffing = function(){
+
+    $a.game.modifyActionCount(this._actionCount);
+    $a.game.modifyBuyCount(this._buyCount);
+    $a.game.modifyCoinCorrection(this._coinCorrection);
+    if (this._card > 0) {
+      $a.hand.pullCards(this._card);
+    }
+
+    $a.statusbar.draw();
+    $a.hand.draw();
+  }
+
+  cls.prototype.getCardType = function(){
+    // Card types are currently always only one
+    return this._cardTypes[0];
+  }
+
+  cls.prototype.getCost = function(){ return this._cost; }
+  cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
+  cls.prototype.getCoin = function(){ return this._coin; }
+
+  cls.prototype.isBuyable = function(){
+    return this._cost <= $a.game.getCoin();
+  }
+
+  function __ONMOUSEDOWN(evt){
+    var self = evt.data.self;
+    if (self._signaler !== null && self._signaler.state() === 'pending') {
+      self._signaler.resolve(self);
+    }
+    return false;
+  }
+
+  cls.create = function(){
+    var obj = $f.Sprite.create.apply(this);
+    __INITIALIZE(obj);
+    return obj;
+  };
+
+  return cls;
+//}}}
+}());
+
+
 $a.MainBox = (function(){
 //{{{
   var cls = function(){
@@ -510,6 +650,9 @@ $a.MainBox = (function(){
   cls.SIZE = [320, 320];
 
   function __INITIALIZE(self){
+    self._view.css({
+      backgroundColor: '#FFF'
+    });
   }
 
   cls.prototype.setPage = function(pageKey, box){
@@ -547,9 +690,6 @@ $a.HandBox = (function(){
   cls.SIZE = [312, 312]; // 60 * 5 + 3 * 4
 
   function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#FFF'
-    });
   }
 
   cls.prototype.draw = function(){
@@ -604,18 +744,23 @@ $a.KingdomBox = (function(){
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
 
-  cls.POS = $a.HandBox.SIZE.slice();
+  cls.POS = $a.HandBox.POS.slice();
   cls.SIZE = $a.HandBox.SIZE.slice();
 
   function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#FFF'
-    });
   }
 
   cls.prototype.draw = function(){
     var self = this;
     $f.Box.prototype.draw.apply(this);
+
+    var coords = $f.squaring([60, 60], cls.SIZE, 3);
+    _.each($a.kingdomCards.getData(), function(card, idx){
+      card.setPos(coords[idx]);
+      card.draw();
+      card.getView().show();
+      self.getView().append(card.getView());
+    });
   }
 
   cls.create = function(){
@@ -639,14 +784,94 @@ $a.OthercardsBox = (function(){
   cls.SIZE = $a.HandBox.SIZE.slice();
 
   function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#FFF'
-    });
   }
 
   cls.prototype.draw = function(){
     var self = this;
     $f.Box.prototype.draw.apply(this);
+  }
+
+  cls.create = function(){
+    var obj = $f.Box.create.apply(this, arguments);
+    __INITIALIZE(obj);
+    return obj;
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.PagechangerBox = (function(){
+//{{{
+  var cls = function(){
+  }
+  $f.inherit(cls, new $f.Box(), $f.Box);
+
+  cls.POS = [368, 0];  // 48 + 320
+  cls.SIZE = [$a.Screen.SIZE[0], 48];
+
+  function __INITIALIZE(self){
+
+    self._handButton = self._createButtonView()
+      .css({
+        top: 4,
+        left: 4//,
+      })
+      .text('手札')
+      .on('mousedown', {self:self, buttonType:'hand'}, __ONBUTTONTOUCH)
+      .appendTo(self._view)
+    ;
+
+    self._kingdomButton = self._createButtonView()
+      .css({
+        top: 4,
+        left: 110//,
+      })
+      .text('購入')
+      .on('mousedown', {self:self, buttonType:'kingdom'}, __ONBUTTONTOUCH)
+      .appendTo(self._view)
+    ;
+
+    self._othercardsButton = self._createButtonView()
+      .css({
+        top: 4,
+        left: 216//,
+      })
+      .text('山札/捨札')
+      .on('mousedown', {self:self, buttonType:'othercards'}, __ONBUTTONTOUCH)
+      .appendTo(self._view)
+    ;
+  }
+
+  cls.prototype._createButtonView = function(){
+    return $('<div />')
+      .css({
+        position: 'absolute',
+        width: 100,
+        height: 40,
+        lineHeight: '40px',
+        fontSize: $a.fs(15),
+        backgroundColor: '#999',
+        textAlign: 'center'//,
+      });
+  }
+
+  function __ONBUTTONTOUCH(evt){
+    var self = evt.data.self;
+    var buttonType = evt.data.buttonType;
+
+    if (buttonType === 'hand') {
+      $a.mainBox.changePage('hand');
+    } else if (buttonType === 'kingdom') {
+      $a.mainBox.changePage('kingdom');
+    } else if (buttonType === 'othercards') {
+      $a.mainBox.changePage('othercards');
+    }
+
+    self.draw();
+
+    return false;
   }
 
   cls.create = function(){
@@ -845,144 +1070,6 @@ $a.OthercardsBox = (function(){
 //}());
 
 
-$a.Card = (function(){
-//{{{
-  var cls = function(){
-    /** Array of 'victory', 'treasure', 'action', 'reaction', 'attack'.
-      Currently used 'victory' or 'treasure' or 'action', and always only one. */
-    this._cardTypes = undefined;
-
-    this._title = undefined;
-    this._description = null;
-    this._cost = 0;
-    this._victoryPoints = 0;
-    this._card = 0;
-    this._actionCount = 0;
-    this._buyCount = 0;
-    this._coinCorrection = 0;
-    this._coin = 0;
-
-    this.className = undefined;
-
-    // For signaling mousedown event to outside
-    // Deferred object || null
-    this._signaler = null;
-  }
-  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-
-  cls.POS = [0, 0];
-  cls.SIZE = [60, 60];
-
-  function __INITIALIZE(self){
-
-    self.className = $f.getMyName($a.$cards, self.__myClass__);
-
-    self._view
-      .addClass($c.CSS_PREFIX + 'card')
-      .on('mousedown', {self:self}, __ONMOUSEDOWN);
-
-    self._titleView = $('<div />').css({
-      width: cls.SIZE[0],
-      height: 40,
-      fontSize: $a.fs(10),
-      lineHeight: '40px',
-      textAlign: 'center'//,
-    }).appendTo(self._view);
-
-    self._costView = $('<div />').css({
-      width: cls.SIZE[0],
-      height: 20,
-      fontSize: $a.fs(10),
-      lineHeight: '20px',
-      textAlign: 'center'//,
-    }).appendTo(self._view);
-  }
-
-  cls.prototype.draw = function(){
-    $f.Sprite.prototype.draw.apply(this);
-
-    var bgColor;
-    if (this.getCardType() === 'victory') {
-      bgColor = '#76bc75';
-    } else if (this.getCardType() === 'treasure') {
-      bgColor = '#f9ca58';
-    } else if (this.getCardType() === 'action') {
-      bgColor = '#839c9d';
-    }
-
-    this._titleView.text(this._title);
-
-    this._costView.text(this._cost + ' cost');
-
-    this._view.css({
-      backgroundColor: bgColor
-    });
-  }
-
-  cls.prototype.setSignaler = function(deferredObject){
-    this._signaler = deferredObject;
-  }
-
-  /**
-   * null = It is not actable.
-   * func = Custom action.
-   *        It must return resolved deferred, if it include async process.
-   */
-  cls.prototype._act = null;
-
-  cls.prototype.act = function(){
-    return this._act() || $.Deferred().resolve();
-  }
-
-  cls.prototype.isActable = function(){
-    return this._act !== null;
-  }
-
-  cls.prototype._actBuffing = function(){
-
-    $a.game.modifyActionCount(this._actionCount);
-    $a.game.modifyBuyCount(this._buyCount);
-    $a.game.modifyCoinCorrection(this._coinCorrection);
-    if (this._card > 0) {
-      $a.hand.pullCards(this._card);
-    }
-
-    $a.statusbar.draw();
-    $a.hand.draw();
-  }
-
-  cls.prototype.getCardType = function(){
-    // Card types are currently always only one
-    return this._cardTypes[0];
-  }
-
-  cls.prototype.getCost = function(){ return this._cost; }
-  cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
-  cls.prototype.getCoin = function(){ return this._coin; }
-
-  cls.prototype.isBuyable = function(){
-    return this._cost <= $a.game.getCoin();
-  }
-
-  function __ONMOUSEDOWN(evt){
-    var self = evt.data.self;
-    if (self._signaler !== null && self._signaler.state() === 'pending') {
-      self._signaler.resolve(self);
-    }
-    return false;
-  }
-
-  cls.create = function(){
-    var obj = $f.Sprite.create.apply(this);
-    __INITIALIZE(obj);
-    return obj;
-  };
-
-  return cls;
-//}}}
-}());
-
-
 $a.init = function(){
 //{{{
 
@@ -1022,11 +1109,18 @@ $a.init = function(){
   $a.mainBox.setPage('othercards', $a.othercardsBox);
   $a.mainBox.getView().append($a.othercardsBox.getView());
 
+  $a.pagechangerBox = $a.PagechangerBox.create();
+  $a.screen.getView().append($a.pagechangerBox.getView());
+
   $a.screen.draw();
   $a.mainBox.draw();
 
   $a.handBox.draw();
+  $a.kingdomBox.draw();
+  $a.othercardsBox.draw();
   $a.mainBox.changePage('hand');
+
+  $a.pagechangerBox.draw();
 
 //  $a.game.run();
 
