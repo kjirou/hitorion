@@ -147,6 +147,7 @@ $a.Game = (function(){
       $a.handBox.draw();
       $a.deckCardsBox.draw();
       $a.talonCardsBox.draw();
+      $a.pagechangerBox.draw();
       d.resolve();
     });
     return d;
@@ -197,12 +198,11 @@ $a.Game = (function(){
       } else {
         // Is actable card
         if (signaler.isActable()) {
-
           $a.handCards.throwCard(signaler);
           $a.statusBox.draw();
           $a.handBox.draw();
           $a.talonCardsBox.draw();
-
+          $a.pagechangerBox.draw();
           $.when(signaler.act()).done(function(){
             d.resolve('acted');
           });
@@ -265,6 +265,7 @@ $a.Game = (function(){
           $a.game.modifyCoinCorrection(-signaler.getCost());
           $a.talonCards.addNewCard(signaler.className, { stack:true });
           $a.statusBox.draw();
+          $a.pagechangerBox.draw();
           d.resolve('buy');
         // Is not buyable card
         } else {
@@ -636,6 +637,7 @@ $a.Card = (function(){
 
     $a.statusBox.draw();
     $a.handBox.draw();
+    $a.pagechangerBox.draw();
   }
 
   cls.prototype.getCardType = function(){
@@ -1154,20 +1156,18 @@ $a.PagechangerBox = (function(){
     // All buttonKeys equal MainBox._pages keys,
     //   but it is out of specification.
     var buttonDataList = [
-      ['hand', '手札'],
-      ['kingdom', '購入'],
-      ['othercards', '山札/捨札']//,
+      ['hand'],
+      ['kingdom'],
+      ['othercards']//,
     ];
     _.each(buttonDataList, function(data, idx){
       var buttonKey = data[0];
-      var buttonLabel = data[1];
       var view = self._createButtonView()
         .css({
           top: 4,
           left: 4 + (100 + 6) * idx//,
         })
         .on('mousedown', {self:self, buttonKey:buttonKey}, __ONBUTTONTOUCH)
-        .text(buttonLabel)
         .appendTo(self._view);
       self._buttonViews[buttonKey] = view;
     });
@@ -1181,7 +1181,7 @@ $a.PagechangerBox = (function(){
         width: 100,
         height: 40,
         lineHeight: '40px',
-        fontSize: $a.fs(15),
+        fontSize: $a.fs(12),
         backgroundColor: '#AAA',
         cursor: 'pointer',
         textAlign: 'center'//,
@@ -1193,6 +1193,17 @@ $a.PagechangerBox = (function(){
     $f.Box.prototype.draw.apply(this);
 
     _.each(self._buttonViews, function(buttonView, buttonKey){
+      // Label
+      if (buttonKey === 'hand') {
+        buttonView.text('手札' + $a.handCards.count());
+      } else if (buttonKey === 'kingdom') {
+        buttonView.text('購入');
+      } else if (buttonKey === 'othercards') {
+        buttonView.text(
+          $f.format('山札{0}/捨札{1}', $a.deckCards.count(), $a.talonCards.count())
+        );
+      }
+      // Selected color
       if (
         buttonKey === 'hand' && $a.mainBox.getCurrentPageKey() === 'hand' ||
         buttonKey === 'kingdom' && $a.mainBox.getCurrentPageKey() === 'kingdom' ||

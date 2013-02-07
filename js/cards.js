@@ -95,6 +95,7 @@ $a.$cards.ChancellorCard = (function(){
       $a.statusBox.draw();
       $a.deckCardsBox.draw();
       $a.talonCardsBox.draw();
+      $a.pagechangerBox.draw();
     }
   }
   return cls;
@@ -153,6 +154,7 @@ $a.$cards.WorkshopCard = (function(){
         $a.talonCards.addNewCard(card.className, { stack:true })
         $a.statusBox.draw();
         $a.talonCardsBox.draw();
+        $a.pagechangerBox.draw();
       d.resolve();
     });
     return d;
@@ -200,6 +202,7 @@ $a.$cards.RemodelCard = (function(){
           $a.talonCards.addNewCard(wantedCard.className, { stack:true })
           $a.statusBox.draw();
           $a.talonCardsBox.draw();
+          $a.pagechangerBox.draw();
         }
         d.resolve();
 
