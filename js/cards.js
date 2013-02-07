@@ -176,13 +176,16 @@ $a.$cards.RemodelCard = (function(){
   cls.prototype._act = function(){
 
     var d = $.Deferred();
-
     alert('廃棄するカードを選んで下さい');
     var signal = $.Deferred();
     $f.waitChoice($a.handCards.getData(), signal);
+
     $.when(signal).done(function(card){
 
       var maxGainableCardCost = card.getCost() + 2;
+      $a.handCards.destroyCard(card);
+      $a.handBox.draw();
+      $a.trashCardsBox.draw();
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
@@ -190,6 +193,7 @@ $a.$cards.RemodelCard = (function(){
 
       var signal2 = $.Deferred();
       $f.waitChoice($a.kingdomCards.getData(), signal2);
+
       $.when(signal2).done(function(wantedCard){
 
         if (wantedCard.getCost() <= maxGainableCardCost) {

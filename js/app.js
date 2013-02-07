@@ -499,6 +499,11 @@ $a.HandCards = (function(){
     $a.talonCards.stack(card);
   }
 
+  cls.prototype.destroyCard = function(card){
+    this.remove(card);
+    $a.trashCards.stack(card);
+  }
+
   cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
     this.pullCards(5);
