@@ -182,7 +182,7 @@ $a.Game = (function(){
     var d = $.Deferred();
 
     var signal = $.Deferred();
-    var signalables = [$a.statusBox];
+    var signalables = [$a.mainBox];
     if ($a.game.getActionCount() > 0) {// Can't choice
       signalables = signalables.concat($a.handCards.getData());
     }
@@ -247,7 +247,7 @@ $a.Game = (function(){
 
     var d = $.Deferred();
     var signal = $.Deferred();
-    var signalables = [$a.statusBox];
+    var signalables = [$a.mainBox];
     if ($a.game.getBuyCount() > 0) {// Can't choice
       signalables = signalables.concat($a.kingdomCards.getData());
     }
@@ -654,6 +654,7 @@ $a.Card = (function(){
   function __ONMOUSEDOWN(evt){
     var self = evt.data.self;
     self.triggerSignal();
+    evt.stopPropagation();
     return false;
   }
 
@@ -679,6 +680,7 @@ $a.MainBox = (function(){
     this._currentPageKey = 'hand';
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
+  $f.mixin(cls, new $f.SignalableMixin());
 
   cls.POS = [48, 0];
   cls.SIZE = [320, 320];
@@ -688,9 +690,12 @@ $a.MainBox = (function(){
   };
 
   function __INITIALIZE(self){
-    self._view.css({
-      backgroundColor: '#FFF'
-    });
+
+    self._view
+      .css({
+        backgroundColor: '#FFF'
+      })
+      .on('mousedown', { self:self }, __ONTOUCH);
 
     self._commentView = $('<div />')
       .css({
@@ -704,7 +709,7 @@ $a.MainBox = (function(){
         color: '#666',
         textAlign: 'center'//,
       })
-      .text('フェーズ終了はステータスバーをタッチ')
+      .text('フェーズ終了は空き部分をタッチ')
       .appendTo(self._view);
   }
 
@@ -735,6 +740,12 @@ $a.MainBox = (function(){
 
   cls.prototype.getCurrentPageKey = function(){
     return this._currentPageKey;
+  }
+
+  function __ONTOUCH(evt){
+    var self = evt.data.self;
+    self.triggerSignal();
+    return false;
   }
 
   cls.create = function(){
@@ -1012,7 +1023,6 @@ $a.StatusBox = (function(){
     this._stateViews = {};
   }
   $f.inherit(cls, new $f.Box(), $f.Box);
-  $f.mixin(cls, new $f.SignalableMixin());
 
   cls.POS = [0, 0];
   cls.SIZE = [$a.Screen.SIZE[0], 48];
@@ -1027,8 +1037,7 @@ $a.StatusBox = (function(){
       .css({
         backgroundColor: '#EEE',
         cursor: 'pointer'
-      })
-      .on('mousedown', { self:self }, __ONTOUCH);
+      });
 
     var stateDataList = [
       ['turn', 'Turn'],
@@ -1117,12 +1126,6 @@ $a.StatusBox = (function(){
       this._stateViews.action.css({ color: cls.STYLES.COLOR });
       this._stateViews.buy.css({ color: cls.STYLES.HILIGHT_COLOR });
     }
-  }
-
-  function __ONTOUCH(evt){
-    var self = evt.data.self;
-    self.triggerSignal();
-    return false;
   }
 
   cls.create = function(){
