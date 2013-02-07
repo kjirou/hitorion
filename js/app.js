@@ -31,6 +31,10 @@ $a = {
 //{{{
   player: undefined,
   game: undefined,
+  pages: [],
+  topPage: undefined,
+  stagePage: undefined,
+  gamePage: undefined,
   kingdomCards: undefined,
   deckCards: undefined,
   talonCards: undefined,
@@ -48,6 +52,7 @@ $a = {
   pagechangerBox: undefined,
 
   $cards: {},
+  $pages: {},
 
   fs: function(px){
     return px;
@@ -1250,6 +1255,7 @@ $a.init = function(){
   $a.game = $a.Game.create();
 
 
+  // Cards
   $a.kingdomCards = $a.KingdomCards.create();
   $a.kingdomCards.reset();
 
@@ -1267,8 +1273,26 @@ $a.init = function(){
   $a.screen = $a.Screen.create();
   $('#game_container').append($a.screen.getView());
 
+
+  // Pages
+  //$a.topPage = $a.$pages.TopPage.create();
+  //$a.screen.getView().append($a.topPage.getView());
+
+  //$a.stagePage = $a.$pages.StagePage.create();
+  //$a.screen.getView().append($a.stagePage.getView());
+
+  $a.gamePage = $a.$pages.GamePage.create();
+  $a.screen.getView().append($a.gamePage.getView());
+
+  $a.pages = [
+    $a.gamePage
+    //$a.topPage, $stagePage, $a.gamePage
+  ];
+
+
+  // Game page boxes
   $a.mainBox = $a.MainBox.create();
-  $a.screen.getView().append($a.mainBox.getView());
+  $a.gamePage.getView().append($a.mainBox.getView());
 
   $a.handBox = $a.HandBox.create();
   $a.mainBox.setPage('hand', $a.handBox);
@@ -1292,10 +1316,10 @@ $a.init = function(){
   $a.othercardsBox.getView().append($a.trashCardsBox.getView());
 
   $a.pagechangerBox = $a.PagechangerBox.create();
-  $a.screen.getView().append($a.pagechangerBox.getView());
+  $a.gamePage.getView().append($a.pagechangerBox.getView());
 
   $a.statusBox = $a.StatusBox.create();
-  $a.screen.getView().append($a.statusBox.getView());
+  $a.gamePage.getView().append($a.statusBox.getView());
 
   $a.handBox.draw();
   $a.kingdomBox.draw();
@@ -1306,8 +1330,10 @@ $a.init = function(){
   $a.mainBox.draw();
   $a.pagechangerBox.draw();
   $a.statusBox.draw();
-  $a.screen.draw();
 
+
+  $a.gamePage.draw();
+  $a.screen.draw();
 
   $a.game.run();
 
