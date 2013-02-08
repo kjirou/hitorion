@@ -532,6 +532,16 @@ $a.Screen = (function(){
   function __INITIALIZE(self){
   }
 
+  cls.prototype.changePage = function(page){
+    // TODO: Add fadeIn/Out version
+    var d = $.Deferred();
+    _.each($a.pages, function(page){
+      page.getView().hide();
+    });
+    page.getView().show();
+    return d.resolve();
+  }
+
   cls.create = function(){
     var obj = $f.Sprite.create.apply(this);
     __INITIALIZE(obj);
@@ -1275,8 +1285,8 @@ $a.init = function(){
 
 
   // Pages
-  //$a.topPage = $a.$pages.TopPage.create();
-  //$a.screen.getView().append($a.topPage.getView());
+  $a.topPage = $a.$pages.TopPage.create();
+  $a.screen.getView().append($a.topPage.getView());
 
   //$a.stagePage = $a.$pages.StagePage.create();
   //$a.screen.getView().append($a.stagePage.getView());
@@ -1285,7 +1295,7 @@ $a.init = function(){
   $a.screen.getView().append($a.gamePage.getView());
 
   $a.pages = [
-    $a.gamePage
+    $a.topPage, $a.gamePage
     //$a.topPage, $stagePage, $a.gamePage
   ];
 
@@ -1332,9 +1342,11 @@ $a.init = function(){
   $a.statusBox.draw();
 
 
+  $a.topPage.draw();
   $a.gamePage.draw();
   $a.screen.draw();
 
+  $a.screen.changePage($a.topPage);
   $a.game.run();
 
 //}}}

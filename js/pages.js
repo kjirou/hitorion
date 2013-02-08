@@ -29,6 +29,34 @@ $a.$pages.TopPage = (function(){
   $f.inherit(cls, new $a.Page(), $a.Page);
 
   function __INITIALIZE(self){
+
+    self._titleView = $('<div />')
+      .css({
+        position: 'absolute',
+        top: 180,
+        width: '100%',
+        height: 32,
+        lineHeight: '32px',
+        fontSize: $a.fs(15),
+        textAlign: 'center'//,
+      })
+      .text('- Hitorion -')
+      .appendTo(self._view)
+    ;
+
+    self._view
+      .css({
+        backgroundColor: '#EEE',
+        cursor: 'pointer'//,
+      })
+      .on('mousedown', { self:self }, __ONTOUCHSTART)
+    ;
+  }
+
+  function __ONTOUCHSTART(evt){
+    var self = evt.data.self;
+    $a.screen.changePage($a.gamePage);
+    return false;
   }
 
   cls.create = function(){
