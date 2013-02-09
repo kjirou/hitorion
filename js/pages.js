@@ -169,7 +169,7 @@ $a.$pages.StageselectionPage = (function(){
         lineHeight: '40px',
         fontSize: $a.fs(18),
         textAlign: 'center'//,
-      }).text(data.score);
+      });
 
       frame.append(label).append(scoreHeader).append(score);
       self._bodyBox.getView().append(frame);
@@ -196,6 +196,15 @@ $a.$pages.StageselectionPage = (function(){
       .html('3ゲーム行い、それらの勝利点の合計がスコアになります<br />各ゲームは 12/14/16 ターン経過で終了')
       .appendTo(self.getBodyBox().getView())
     ;
+  }
+
+  cls.prototype.draw = function(){
+    var self = this;
+    $a.Page.prototype.draw.apply(this);
+
+    _.each($a.Stage.getData(), function(data, className){
+      self._buttonViews[className].score.text(data.score);
+    });
   }
 
   function __ONTOUCHBUTTON(evt){

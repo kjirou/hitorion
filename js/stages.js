@@ -25,12 +25,12 @@ $a.Stage = (function(){
     // Each game settings
     self._rounds = [];
     var roundsDataList = [
-      ['1st', 1],
-      ['2nd', 1],
-      ['3rd', 1]//,
-      //['1st', 12],
-      //['2nd', 14],
-      //['3rd', 16]//,
+      //['1st', 1],
+      //['2nd', 1],
+      //['3rd', 1]//,
+      ['1st', 12],
+      ['2nd', 14],
+      ['3rd', 16]//,
     ];
     _.each(roundsDataList, function(data, idx){
       self._rounds.push({
@@ -139,14 +139,22 @@ $a.Stage = (function(){
 
   cls.prototype._finish = function(){
 
-    // TODO: Score save
-    alert(this._summaryTotalScore());
+    var myData = $a.Stage.getData()[this.className];
 
-    // TODO: Post to runking
+    var score = this._summaryTotalScore();
+    if (score > myData.score) {
+      myData.score = score;
+      $a.player.saveStageData();
+    }
+
+    // TODO: Post score to runking
 
     // TODO: Tweet
 
     $a.stage = null;
+
+    $a.stageselectionPage.draw();
+    $a.screen.changePage($a.stageselectionPage);
   }
 
   cls.initializeClassBasedDatalyzerMixin($a.$stages, cls, function(klass, className){
