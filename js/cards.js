@@ -105,6 +105,7 @@ $a.Card = (function(){
     return this._cardTypes[0];
   }
 
+  cls.prototype.getTitle = function(){ return this._title; }
   cls.prototype.getCost = function(){ return this._cost; }
   cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
   cls.prototype.getCoin = function(){ return this._coin; }

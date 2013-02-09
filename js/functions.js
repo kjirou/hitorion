@@ -330,6 +330,11 @@ $f.Sprite = (function(){
 
     cls.prototype.setZIndex = function(v){ this._zIndex = v };
 
+    cls.prototype.destroy = function(){
+      this.getView().remove();
+      delete __OBJECTS[this._elementId];
+    }
+
     cls.getByElementId = function(elementId){
         var obj = __OBJECTS[elementId];
         if (obj === undefined) throw new Error('Sprite.getByElementId: Not found object');

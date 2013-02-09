@@ -198,7 +198,11 @@ $a.$pages.StageselectionPage = (function(){
       return false;
     }
 
+    $a.stage = $a.$stages[stageClassName].create();
+    $a.stage.prepareGame();
+    $a.game.run();
     $a.screen.changePage($a.gamePage);
+
     return false;
   }
 

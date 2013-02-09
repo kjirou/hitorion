@@ -35,11 +35,11 @@ $a = {
   topPage: undefined,
   stageselectionPage: undefined,
   gamePage: undefined,
-  kingdomCards: undefined,
-  deckCards: undefined,
-  talonCards: undefined,
-  trashCards: undefined,
-  handCards: undefined,
+  kingdomCards: null,
+  deckCards: null,
+  talonCards: null,
+  trashCards: null,
+  handCards: null,
   screen: undefined,
   pages: [],
   navigator: undefined,
@@ -87,10 +87,8 @@ $a.Game = (function(){
 //{{{
   var cls = function(){
 
-    this._necessaryVictoryPoints = 25;
-
     this._turn = 0;
-    this._maxTurn = 12;
+    this._maxTurn = undefined;
     /** 'action' || 'buy' */
     this._currentPhaseType = 'action';
 
@@ -111,12 +109,6 @@ $a.Game = (function(){
       $a.statusBox.draw();
 
       $.when(self._runTurn()).done(function(){
-
-        if (self.summaryVictoryPoints() >= self._necessaryVictoryPoints) {
-          // Victory
-          alert('You won!');
-          return;
-        }
 
         if (self.getTurn() < self.getMaxTurn()) {
           setTimeout(process, 1);
@@ -308,7 +300,6 @@ $a.Game = (function(){
       return memo + card.getVictoryPoints();
     }, 0);
   }
-  cls.prototype.getNecessaryVictoryPoints = function(){ return this._necessaryVictoryPoints; }
 
   cls.prototype._resetStatuses = function(){
     this._actionCount = 1;
@@ -334,8 +325,9 @@ $a.Game = (function(){
   }
   cls.prototype.modifyCoinCorrection = function(value){ this._coinCorrection += value; }
 
-  cls.create = function(){
+  cls.create = function(maxTrun){
     var obj = new this();
+    obj._maxTurn = maxTrun;
     __INITIALIZE(obj);
     return obj;
   }
@@ -429,7 +421,9 @@ $a.Cards = (function(){
 
 $a.KingdomCards = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){
+    this._choicedCardClassNames = undefined;
+  }
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.__FIXED_CARDS = [
@@ -437,29 +431,27 @@ $a.KingdomCards = (function(){
     'Victorypoints1Card', 'Victorypoints3Card', 'Victorypoints6Card'//,
   ];
 
-  cls.prototype._choice = function(){
-    var choices = cls.__FIXED_CARDS.slice();
-
-    choices = choices.concat([
-      'ChancellorCard',
-      'VillageCard',
-      'WoodcutterCard',
-      'WorkshopCard',
-      'RemodelCard',
-      'SmithyCard',
-      'FestivalCard',
-      'LaboratoryCard',
-      'MarketCard',
-    ]);
-
-    return choices;
-  }
-
   cls.prototype.reset = function(){
     var self = this;
-    _.each(this._choice(), function(cardClassName){
+
+    _.each(this._choicedCardClassNames, function(cardClassName){
       self.addNewCard(cardClassName);
     });
+    // TODO: Add second-sort by card's english title
+    this._cards.sort(function(a, b){
+      return a.getCost() - b.getCost();
+    });
+
+    var reversed = cls.__FIXED_CARDS.slice().reverse();
+    _.each(reversed, function(cardClassName){
+      self.addNewCard(cardClassName, { stack:true });
+    });
+  }
+
+  cls.create = function(choicedCardClassNames){
+    var obj = $a.Cards.create.apply(this);
+    obj._choicedCardClassNames = choicedCardClassNames;
+    return obj;
   }
 
   return cls;
@@ -1026,7 +1018,7 @@ $a.StatusBox = (function(){
       $a.game.getTurn() + '/' + $a.game.getMaxTurn()
     );
     this._stateViews.victorypoints._stateBodyView.text(
-      $a.game.summaryVictoryPoints() + '/'  + $a.game.getNecessaryVictoryPoints()
+      $a.game.summaryVictoryPoints()
     );
     this._stateViews.action._stateBodyView.text(
       $a.game.getActionCount()
@@ -1169,22 +1161,6 @@ $a.init = function(){
 //{{{
 
   $a.player = $a.Player.create();
-  $a.game = $a.Game.create();
-
-
-  // Cards
-  $a.kingdomCards = $a.KingdomCards.create();
-  $a.kingdomCards.reset();
-
-  $a.deckCards = $a.DeckCards.create();
-  $a.deckCards.reset();
-
-  $a.talonCards = $a.Cards.create();
-
-  $a.trashCards = $a.Cards.create();
-
-  $a.handCards = $a.HandCards.create();
-  $a.handCards.reset();
 
 
   $a.screen = $a.Screen.create();
@@ -1209,7 +1185,7 @@ $a.init = function(){
   ];
 
 
-  // Game page boxes
+  // Prepare boxes for game-page
   $a.mainBox = $a.MainBox.create();
   $a.gamePage.getView().append($a.mainBox.getView());
 
@@ -1240,16 +1216,6 @@ $a.init = function(){
   $a.statusBox = $a.StatusBox.create();
   $a.gamePage.getView().append($a.statusBox.getView());
 
-  $a.handBox.draw();
-  $a.kingdomBox.draw();
-  $a.othercardsBox.draw();
-  $a.deckCardsBox.draw();
-  $a.talonCardsBox.draw();
-  $a.trashCardsBox.draw();
-  $a.mainBox.draw();
-  $a.pagechangerBox.draw();
-  $a.statusBox.draw();
-
 
   $a.topPage.draw();
   $a.stageselectionPage.draw();
@@ -1257,8 +1223,8 @@ $a.init = function(){
   $a.navigator.draw();
   $a.screen.draw();
 
+
   $a.screen.changePage($a.topPage);
-  $a.game.run();
 
 //}}}
 }
