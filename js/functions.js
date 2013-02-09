@@ -295,8 +295,14 @@ $f.Box = (function(){
   }
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
 
+  function __INITIALIZE(self){
+    self._view
+      .addClass('box');
+  }
+
   cls.create = function(){
     var obj = $f.Sprite.create.apply(this, arguments);
+    __INITIALIZE(obj);
     return obj;
   };
 

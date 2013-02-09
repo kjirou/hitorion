@@ -33,7 +33,7 @@ $a = {
   game: undefined,
   pages: [],
   topPage: undefined,
-  stagePage: undefined,
+  stageselectionPage: undefined,
   gamePage: undefined,
   kingdomCards: undefined,
   deckCards: undefined,
@@ -41,6 +41,7 @@ $a = {
   trashCards: undefined,
   handCards: undefined,
   screen: undefined,
+  navigator: undefined,
   mainBox: undefined,
   handBox: undefined,
   kingdomBox: undefined,
@@ -524,10 +525,14 @@ $a.Screen = (function(){
 //{{{
   var cls = function(){
   }
-  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+  $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [0, 0];
   cls.SIZE = $e.sfSize.slice(); // Must sync to CSS
+
+  cls.ZINDEXES = {
+    NAVIGATOR: 100
+  }
 
   function __INITIALIZE(self){
   }
@@ -539,11 +544,16 @@ $a.Screen = (function(){
       page.getView().hide();
     });
     page.getView().show();
+    if (page.hasNavigator) {
+      $a.navigator.getView().show();
+    } else {
+      $a.navigator.getView().hide();
+    }
     return d.resolve();
   }
 
   cls.create = function(){
-    var obj = $f.Sprite.create.apply(this);
+    var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
   }
@@ -553,133 +563,28 @@ $a.Screen = (function(){
 }());
 
 
-/** Abstract class */
-$a.Card = (function(){
+$a.Navigator = (function(){
 //{{{
   var cls = function(){
-    /** Array of 'victory', 'treasure', 'action', 'reaction', 'attack'.
-      Currently used 'victory' or 'treasure' or 'action', and always only one. */
-    this._cardTypes = undefined;
-
-    this._title = undefined;
-    this._description = null;
-    this._cost = 0;
-    this._victoryPoints = 0;
-    this._card = 0;
-    this._actionCount = 0;
-    this._buyCount = 0;
-    this._coinCorrection = 0;
-    this._coin = 0;
-
-    this.className = undefined;
   }
-  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
-  $f.mixin(cls, new $f.SignalableMixin());
+  $f.inherit(cls, new $f.Box(), $f.Box);
 
-  cls.POS = [0, 0];
-  cls.SIZE = [60, 60];
+  cls.POS = [368, 0]; // 368 = 416 - 48
+  cls.SIZE = [$a.Screen.SIZE[0], 48];
 
   function __INITIALIZE(self){
+    self.setZIndex($a.Screen.ZINDEXES.NAVIGATOR);
 
-    self.className = $f.getMyName($a.$cards, self.__myClass__);
-
-    self._view
-      .addClass($c.CSS_PREFIX + 'card')
-      .css({ cursor:'pointer' })
-      .on('mousedown', {self:self}, __ONMOUSEDOWN);
-
-    self._titleView = $('<div />').css({
-      width: cls.SIZE[0],
-      height: 40,
-      fontSize: $a.fs(10),
-      lineHeight: '40px',
-      textAlign: 'center'//,
-    }).appendTo(self._view);
-
-    self._costView = $('<div />').css({
-      width: cls.SIZE[0],
-      height: 20,
-      fontSize: $a.fs(10),
-      lineHeight: '20px',
-      textAlign: 'center'//,
-    }).appendTo(self._view);
-  }
-
-  cls.prototype.draw = function(){
-    $f.Sprite.prototype.draw.apply(this);
-
-    var bgColor;
-    if (this.getCardType() === 'victory') {
-      bgColor = '#76bc75';
-    } else if (this.getCardType() === 'treasure') {
-      bgColor = '#f9ca58';
-    } else if (this.getCardType() === 'action') {
-      bgColor = '#839c9d';
-    }
-
-    this._titleView.text(this._title);
-
-    this._costView.text(this._cost + ' cost');
-
-    this._view.css({
-      backgroundColor: bgColor
+    self._view.css({
+      backgroundColor: 'yellow'
     });
   }
 
-  /**
-   * null = It is not actable.
-   * func = Custom action.
-   *        It must return resolved deferred, if it include async process.
-   */
-  cls.prototype._act = null;
-
-  cls.prototype.act = function(){
-    return this._act() || $.Deferred().resolve();
-  }
-
-  cls.prototype.isActable = function(){
-    return this._act !== null;
-  }
-
-  cls.prototype._actBuffing = function(){
-
-    $a.game.modifyActionCount(this._actionCount);
-    $a.game.modifyBuyCount(this._buyCount);
-    $a.game.modifyCoinCorrection(this._coinCorrection);
-    if (this._card > 0) {
-      $a.handCards.pullCards(this._card);
-    }
-
-    $a.statusBox.draw();
-    $a.handBox.draw();
-    $a.pagechangerBox.draw();
-  }
-
-  cls.prototype.getCardType = function(){
-    // Card types are currently always only one
-    return this._cardTypes[0];
-  }
-
-  cls.prototype.getCost = function(){ return this._cost; }
-  cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
-  cls.prototype.getCoin = function(){ return this._coin; }
-
-  cls.prototype.isBuyable = function(){
-    return this._cost <= $a.game.getCoin();
-  }
-
-  function __ONMOUSEDOWN(evt){
-    var self = evt.data.self;
-    self.triggerSignal();
-    evt.stopPropagation();
-    return false;
-  }
-
   cls.create = function(){
-    var obj = $f.Sprite.create.apply(this);
+    var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  };
+  }
 
   return cls;
 //}}}
@@ -1283,20 +1188,22 @@ $a.init = function(){
   $a.screen = $a.Screen.create();
   $('#game_container').append($a.screen.getView());
 
+  $a.navigator = $a.Navigator.create();
+  $a.screen.getView().append($a.navigator.getView());
+
 
   // Pages
   $a.topPage = $a.$pages.TopPage.create();
   $a.screen.getView().append($a.topPage.getView());
 
-  //$a.stagePage = $a.$pages.StagePage.create();
-  //$a.screen.getView().append($a.stagePage.getView());
+  $a.stageselectionPage = $a.$pages.StageselectionPage.create();
+  $a.screen.getView().append($a.stageselectionPage.getView());
 
   $a.gamePage = $a.$pages.GamePage.create();
   $a.screen.getView().append($a.gamePage.getView());
 
   $a.pages = [
-    $a.topPage, $a.gamePage
-    //$a.topPage, $stagePage, $a.gamePage
+    $a.topPage, $a.stageselectionPage, $a.gamePage
   ];
 
 
@@ -1343,7 +1250,9 @@ $a.init = function(){
 
 
   $a.topPage.draw();
+  $a.stageselectionPage.draw();
   $a.gamePage.draw();
+  $a.navigator.draw();
   $a.screen.draw();
 
   $a.screen.changePage($a.topPage);

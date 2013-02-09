@@ -1,3 +1,139 @@
+/** Abstract class */
+$a.Card = (function(){
+//{{{
+  var cls = function(){
+    /** Array of 'victory', 'treasure', 'action', 'reaction', 'attack'.
+      Currently used 'victory' or 'treasure' or 'action', and always only one. */
+    this._cardTypes = undefined;
+
+    this._title = undefined;
+    this._description = null;
+    this._cost = 0;
+    this._victoryPoints = 0;
+    this._card = 0;
+    this._actionCount = 0;
+    this._buyCount = 0;
+    this._coinCorrection = 0;
+    this._coin = 0;
+
+    this.className = undefined;
+  }
+  $f.inherit(cls, new $f.Sprite(), $f.Sprite);
+  $f.mixin(cls, new $f.SignalableMixin());
+
+  cls.POS = [0, 0];
+  cls.SIZE = [60, 60];
+
+  function __INITIALIZE(self){
+
+    self.className = $f.getMyName($a.$cards, self.__myClass__);
+
+    self._view
+      .addClass($c.CSS_PREFIX + 'card')
+      .css({ cursor:'pointer' })
+      .on('mousedown', {self:self}, __ONMOUSEDOWN);
+
+    self._titleView = $('<div />').css({
+      width: cls.SIZE[0],
+      height: 40,
+      fontSize: $a.fs(10),
+      lineHeight: '40px',
+      textAlign: 'center'//,
+    }).appendTo(self._view);
+
+    self._costView = $('<div />').css({
+      width: cls.SIZE[0],
+      height: 20,
+      fontSize: $a.fs(10),
+      lineHeight: '20px',
+      textAlign: 'center'//,
+    }).appendTo(self._view);
+  }
+
+  cls.prototype.draw = function(){
+    $f.Sprite.prototype.draw.apply(this);
+
+    var bgColor;
+    if (this.getCardType() === 'victory') {
+      bgColor = '#76bc75';
+    } else if (this.getCardType() === 'treasure') {
+      bgColor = '#f9ca58';
+    } else if (this.getCardType() === 'action') {
+      bgColor = '#839c9d';
+    }
+
+    this._titleView.text(this._title);
+
+    this._costView.text(this._cost + ' cost');
+
+    this._view.css({
+      backgroundColor: bgColor
+    });
+  }
+
+  /**
+   * null = It is not actable.
+   * func = Custom action.
+   *        It must return resolved deferred, if it include async process.
+   */
+  cls.prototype._act = null;
+
+  cls.prototype.act = function(){
+    return this._act() || $.Deferred().resolve();
+  }
+
+  cls.prototype.isActable = function(){
+    return this._act !== null;
+  }
+
+  cls.prototype._actBuffing = function(){
+
+    $a.game.modifyActionCount(this._actionCount);
+    $a.game.modifyBuyCount(this._buyCount);
+    $a.game.modifyCoinCorrection(this._coinCorrection);
+    if (this._card > 0) {
+      $a.handCards.pullCards(this._card);
+    }
+
+    $a.statusBox.draw();
+    $a.handBox.draw();
+    $a.pagechangerBox.draw();
+  }
+
+  cls.prototype.getCardType = function(){
+    // Card types are currently always only one
+    return this._cardTypes[0];
+  }
+
+  cls.prototype.getCost = function(){ return this._cost; }
+  cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
+  cls.prototype.getCoin = function(){ return this._coin; }
+
+  cls.prototype.isBuyable = function(){
+    return this._cost <= $a.game.getCoin();
+  }
+
+  function __ONMOUSEDOWN(evt){
+    var self = evt.data.self;
+    self.triggerSignal();
+    evt.stopPropagation();
+    return false;
+  }
+
+  cls.create = function(){
+    var obj = $f.Sprite.create.apply(this);
+    __INITIALIZE(obj);
+    return obj;
+  };
+
+  return cls;
+//}}}
+}());
+
+
+//
+// Fixed cards
+//
 $a.$cards.Coin1Card = (function(){
 //{{{
   var cls = function(){
