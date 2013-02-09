@@ -204,6 +204,65 @@ $f.SignalableMixin = (function(){
 }());
 
 
+$f.ClassBasedMasterDatalyzerMixin = (function(){
+//{{{
+  var cls = function(){}
+
+  function __isSubClass(container, subClassName, superClass){
+    if (container.hasOwnProperty(subClassName) === false) return false;
+    var subClass = container[subClassName];
+    return subClass.prototype instanceof superClass;
+  }
+
+  function __createClassBasedMasterData(container, superClass, dataFilter){
+    var masterData = {};
+    _.each(container, function(klass, subClassName){
+        if (__isSubClass(container, subClassName, superClass) === false) return;
+        var oneData = dataFilter(klass, subClassName);
+        if (_.isObject(oneData)) {
+          masterData[subClassName] = oneData;
+        }
+    });
+    return masterData;
+  }
+
+  function __createClassBasedMasterDataList(container, superClass, dataFilter){
+    var masterDataList = [];
+    _.each(container, function(klass, subClassName){
+        if (__isSubClass(container, subClassName, superClass) === false) return;
+        var oneData = dataFilter(klass, subClassName);
+        if (_.isObject(oneData)) {
+          masterDataList.push(oneData);
+        }
+    });
+    return masterDataList;
+  }
+
+  cls.initializeClassBasedMasterDatalyzerMixin = function(container, superClass, dataFilter){
+    this.__classBasedMasterDatalyzerMixinData = {
+      container: container,
+      superClass: superClass,
+      dataFilter: dataFilter//,
+    }
+  }
+
+  cls.getMasterData = function(){
+    var tmp = this.__classBasedMasterDatalyzerMixinData;
+    return __createClassBasedMasterData(
+      tmp.container, tmp.superClass, tmp.dataFilter);
+  }
+
+  cls.getMasterDataList = function(){
+    var tmp = this.__classBasedMasterDatalyzerMixinData;
+    return __createClassBasedMasterDataList(
+      tmp.container, tmp.superClass, tmp.dataFilter);
+  }
+
+  return cls;
+//}}}
+}());
+
+
 $f.Sprite = (function(){
 //{{{
     var cls = function(){

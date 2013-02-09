@@ -30,8 +30,8 @@ $c = {
 $a = {
 //{{{
   player: undefined,
-  game: undefined,
-  pages: [],
+  game: null,
+  stage: null,
   topPage: undefined,
   stageselectionPage: undefined,
   gamePage: undefined,
@@ -41,6 +41,7 @@ $a = {
   trashCards: undefined,
   handCards: undefined,
   screen: undefined,
+  pages: [],
   navigator: undefined,
   mainBox: undefined,
   handBox: undefined,
@@ -54,6 +55,7 @@ $a = {
 
   $cards: {},
   $pages: {},
+  $stages: {},
 
   fs: function(px){
     return px;

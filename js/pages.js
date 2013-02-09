@@ -24,6 +24,10 @@ $a.Page = (function(){
     this.getView().append(this._bodyBox.getView());
   }
 
+  cls.prototype.getBodyBox = function(){
+    return this._bodyBox;
+  }
+
   cls.prototype._createTitleView = function(){
     return $('<div>').css({
       position: 'absolute',
@@ -118,18 +122,14 @@ $a.$pages.StageselectionPage = (function(){
       .text('- Stage selection -')
       .appendTo(self.getView());
 
-    var buttonTop = 90;
+    var buttonTop = 80;
     var buttonSize = [120, 60];
     var borderWidth = 1;
     var spacing = 20;
-    var buttonDataList = [
-      ['basic', '基本'],
-      ['intrigue', '陰謀'],
-      ['seaside', '海辺']//,
-    ];
-    _.each(buttonDataList, function(data, idx){
-      var buttonKey = data[0];
-      var buttonLabel = data[1];
+    var stageDataList = $a.Stage.getMasterDataList().sort(function(a, b){
+      return a.order - b.order;
+    });
+    _.each(stageDataList, function(data, idx){
 
       var frame = $('<div>').css({
         position: 'absolute',
@@ -139,7 +139,7 @@ $a.$pages.StageselectionPage = (function(){
         height: buttonSize[1],
         border: borderWidth + 'px solid #000',
         cursor: 'pointer'//,
-      }).on('mousedown', { self:self, buttonKey:buttonKey }, __ONTOUCHBUTTON);
+      }).on('mousedown', { self:self, stageClassName:data.className }, __ONTOUCHBUTTON);
 
       var label = $('<div>').css({
         position: 'absolute',
@@ -148,7 +148,7 @@ $a.$pages.StageselectionPage = (function(){
         lineHeight: buttonSize[1] + 'px',
         fontSize: $a.fs(15),
         textAlign: 'center'//,
-      }).text(buttonLabel);
+      }).text(data.label);
 
       var scoreHeader = $('<div>').css({
         position: 'absolute',
@@ -165,20 +165,35 @@ $a.$pages.StageselectionPage = (function(){
       frame.append(label).append(scoreHeader).append(score);
       self._bodyBox.getView().append(frame);
 
-      self._buttonViews[buttonKey] = {
+      self._buttonViews[data.className] = {
         frame: frame,
         label: label,
         scoreHeader: scoreHeader,
         score: score//,
       }
     });
+
+    self._ruleView = $('<div>')
+      .css({
+        position: 'absolute',
+        bottom: 5,
+        width: '100%',
+        height: 24,
+        lineHeight: '12px',
+        fontSize: $a.fs(10),
+        color: '#666',
+        textAlign: 'center'
+      })
+      .html('3ゲーム行い、それらの勝利点の合計がスコアになります<br />各ゲームは 12/14/16 ターン経過で終了')
+      .appendTo(self.getBodyBox().getView())
+    ;
   }
 
   function __ONTOUCHBUTTON(evt){
     var self = evt.data.self;
-    var buttonKey = evt.data.buttonKey;
+    var stageClassName = evt.data.stageClassName;
 
-    if (_.indexOf(['basic'], buttonKey) < 0) {
+    if (_.indexOf(['BasicStage'], stageClassName) < 0) {
       alert('Sorry, this is not implement');
       return false;
     }
