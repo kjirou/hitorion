@@ -204,7 +204,7 @@ $f.SignalableMixin = (function(){
 }());
 
 
-$f.ClassBasedMasterDatalyzerMixin = (function(){
+$f.ClassBasedDatalyzerMixin = (function(){
 //{{{
   var cls = function(){}
 
@@ -214,47 +214,47 @@ $f.ClassBasedMasterDatalyzerMixin = (function(){
     return subClass.prototype instanceof superClass;
   }
 
-  function __createClassBasedMasterData(container, superClass, dataFilter){
-    var masterData = {};
+  function __createClassBasedData(container, superClass, dataFilter){
+    var data = {};
     _.each(container, function(klass, subClassName){
         if (__isSubClass(container, subClassName, superClass) === false) return;
         var oneData = dataFilter(klass, subClassName);
         if (_.isObject(oneData)) {
-          masterData[subClassName] = oneData;
+          data[subClassName] = oneData;
         }
     });
-    return masterData;
+    return data;
   }
 
-  function __createClassBasedMasterDataList(container, superClass, dataFilter){
-    var masterDataList = [];
+  function __createClassBasedDataList(container, superClass, dataFilter){
+    var dataList = [];
     _.each(container, function(klass, subClassName){
         if (__isSubClass(container, subClassName, superClass) === false) return;
         var oneData = dataFilter(klass, subClassName);
         if (_.isObject(oneData)) {
-          masterDataList.push(oneData);
+          dataList.push(oneData);
         }
     });
-    return masterDataList;
+    return dataList;
   }
 
-  cls.initializeClassBasedMasterDatalyzerMixin = function(container, superClass, dataFilter){
-    this.__classBasedMasterDatalyzerMixinData = {
+  cls.initializeClassBasedDatalyzerMixin = function(container, superClass, dataFilter){
+    this.__classBasedDatalyzerMixinData = {
       container: container,
       superClass: superClass,
       dataFilter: dataFilter//,
     }
   }
 
-  cls.getMasterData = function(){
-    var tmp = this.__classBasedMasterDatalyzerMixinData;
-    return __createClassBasedMasterData(
+  cls.getClassBasedData = function(){
+    var tmp = this.__classBasedDatalyzerMixinData;
+    return __createClassBasedData(
       tmp.container, tmp.superClass, tmp.dataFilter);
   }
 
-  cls.getMasterDataList = function(){
-    var tmp = this.__classBasedMasterDatalyzerMixinData;
-    return __createClassBasedMasterDataList(
+  cls.getClassBasedDataList = function(){
+    var tmp = this.__classBasedDatalyzerMixinData;
+    return __createClassBasedDataList(
       tmp.container, tmp.superClass, tmp.dataFilter);
   }
 

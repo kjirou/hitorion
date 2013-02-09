@@ -126,7 +126,7 @@ $a.$pages.StageselectionPage = (function(){
     var buttonSize = [120, 60];
     var borderWidth = 1;
     var spacing = 20;
-    var stageDataList = $a.Stage.getMasterDataList().sort(function(a, b){
+    var stageDataList = $a.Stage.getDataList().sort(function(a, b){
       return a.order - b.order;
     });
     _.each(stageDataList, function(data, idx){
@@ -160,7 +160,16 @@ $a.$pages.StageselectionPage = (function(){
         textAlign: 'center'//,
       }).text('Score');
 
-      var score = $('<div>');
+      var score = $('<div>').css({
+        position: 'absolute',
+        top: 20,
+        left: buttonSize[0] / 2,
+        width: buttonSize[0] / 2,
+        height: 40,
+        lineHeight: '40px',
+        fontSize: $a.fs(18),
+        textAlign: 'center'//,
+      }).text(data.score);
 
       frame.append(label).append(scoreHeader).append(score);
       self._bodyBox.getView().append(frame);

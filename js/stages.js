@@ -11,14 +11,7 @@ $a.Stage = (function(){
     this._rounds = undefined;
     this._currentRoundIndex = 0;
   }
-  $f.mixin(cls, null, $f.ClassBasedMasterDatalyzerMixin);
-  cls.initializeClassBasedMasterDatalyzerMixin($a.$stages, cls, function(klass, className){
-    return {
-      className: className,
-      order: klass._order,
-      label: klass._label//,
-    };
-  });
+  $f.mixin(cls, null, $f.ClassBasedDatalyzerMixin);
 
   // Must set for each sub-class
   cls._label = undefined;
@@ -154,6 +147,42 @@ $a.Stage = (function(){
     // TODO: Tweet
 
     $a.stage = null;
+  }
+
+  cls.initializeClassBasedDatalyzerMixin($a.$stages, cls, function(klass, className){
+    return {
+      className: className,
+      order: klass._order,
+      label: klass._label,
+      score: 0//,
+    };
+  });
+
+  cls.mergeMyData = function(dat, myDat){
+    if ('score' in myDat) dat.score = myDat.score;
+    return dat;
+  }
+
+  var __mergedData = undefined;
+
+  cls.initializeData = function(myData){
+    __mergedData = {};
+    _.each(cls.getClassBasedData(), function(data, className){
+      if (className in myData) cls.mergeMyData(data, myData[className]);
+      __mergedData[className] = data;
+    });
+  }
+
+  cls.getData = function(){
+    return __mergedData;
+  }
+
+  cls.getDataList = function(){
+    return _.map(__mergedData, function(data, className){
+      return data;
+    }).sort(function(a, b){
+      return a.order - b.order;
+    });
   }
 
   cls.create = function(){

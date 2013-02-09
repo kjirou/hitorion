@@ -70,6 +70,25 @@ $a.Player = (function(){
   }
 
   function __INITIALIZE(self){
+    $a.Stage.initializeData(self._getStorage('stage') || {});
+  }
+
+  cls.prototype._getStorage = function(itemKey){
+    var item = localStorage.getItem(itemKey);
+    if (item === null) return null;
+    return JSON.parse(item);
+  }
+
+  cls.prototype._saveStorage = function(itemKey, rawObject){
+    localStorage.setItem(itemKey, JSON.stringify(rawObject))
+  }
+
+  cls.prototype.saveStageData = function(){
+    var cleanedData = {};
+    _.each($a.Stage.getData(), function(data, className){
+      cleanedData[className] = $a.Stage.mergeMyData({}, data);
+    });
+    this._saveStorage('stage', cleanedData);
   }
 
   cls.create = function(){
