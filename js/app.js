@@ -103,6 +103,7 @@ $a.Game = (function(){
 
   cls.prototype.run = function(){
     var self = this;
+    var d = $.Deferred();
     var process = function(){
 
       self._turn += 1;
@@ -113,14 +114,19 @@ $a.Game = (function(){
         if (self.getTurn() < self.getMaxTurn()) {
           setTimeout(process, 1);
         } else {
-          // Defeat
-          alert('You lost..');
+          d.resolve();
           return;
         }
 
       });
     }
-    setTimeout(process, 1);
+
+    var roundNumber = $a.stage.getCurrentRound().roundNumber;
+    $a.screen.runShowingRound(roundNumber, this._maxTurn).then(function(){
+      setTimeout(process, 1);
+    });
+
+    return d;
   }
 
   cls.prototype._runTurn = function(){
@@ -340,10 +346,11 @@ $a.Game = (function(){
 $a.Cards = (function(){
 //{{{
   var cls = function(){
-    this._cards = [];
+    this._cards = undefined;
   }
 
   function __INITIALIZE(self){
+    self._cards = [];
   }
 
   cls.prototype.getData = function(){
@@ -525,10 +532,8 @@ $a.Screen = (function(){
   cls.SIZE = $e.sfSize.slice(); // Must sync to CSS
 
   cls.ZINDEXES = {
+    COVER: 99999,
     NAVIGATOR: 100
-  }
-
-  function __INITIALIZE(self){
   }
 
   cls.prototype.changePage = function(page){
@@ -546,9 +551,43 @@ $a.Screen = (function(){
     return d.resolve();
   }
 
+  cls.prototype.runShowingRound = function(roundNumber, maxTurn){
+    var d = $.Deferred();
+    var view = $('<div>')
+      .hide()
+      .append(
+        $('<div>').css({
+          position: 'absolute',
+          top: (this.getHeight() - 48) / 2,
+          width: this.getWidth(),
+          height: 48,
+          lineHeight: '24px',
+          fontSize: $a.fs(18),
+          fontWeight: 'bold',
+          textAlign: 'center'//,
+        }).html($f.format('Round {0}<br />Turn {1}', roundNumber, maxTurn))
+      )
+      .css({
+        position: 'absolute',
+        width: this.getWidth(),
+        height: this.getHeight(),
+        zIndex: cls.ZINDEXES.COVER//,
+      })
+      .fadeIn(1000, function(){
+        setTimeout(function(){
+          view.fadeOut(1000, function(){
+            view.remove();
+            d.resolve();
+          })
+        }, 500);
+      })
+      .appendTo(this.getView())
+    ;
+    return d;
+  }
+
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
-    __INITIALIZE(obj);
     return obj;
   }
 

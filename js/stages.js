@@ -32,12 +32,16 @@ $a.Stage = (function(){
     // Each game settings
     self._rounds = [];
     var roundsDataList = [
-      ['1st', 12],
-      ['2nd', 14],
-      ['3rd', 16]//,
+      ['1st', 1],
+      ['2nd', 1],
+      ['3rd', 1]//,
+      //['1st', 12],
+      //['2nd', 14],
+      //['3rd', 16]//,
     ];
     _.each(roundsDataList, function(data, idx){
       self._rounds.push({
+        roundNumber: idx + 1,
         label: data[0],
         maxTurn: data[1],
         score: null//,
@@ -53,7 +57,7 @@ $a.Stage = (function(){
     return cards.slice(0, count);
   }
 
-  cls.prototype.cleanGame = function(){
+  cls.prototype._cleanGame = function(){
 
     // Destroy all cards
     var allCards = [];
@@ -73,10 +77,9 @@ $a.Stage = (function(){
     $a.game = null;
   }
 
-  cls.prototype.prepareGame = function(){
+  cls.prototype._prepareGame = function(){
 
-    var round = this._rounds[this._currentRoundIndex];
-
+    var round = this.getCurrentRound();
     $a.game = $a.Game.create(round.maxTurn);
 
     $a.kingdomCards = $a.KingdomCards.create(
@@ -98,25 +101,59 @@ $a.Stage = (function(){
     $a.deckCardsBox.draw();
     $a.talonCardsBox.draw();
     $a.trashCardsBox.draw();
+    $a.mainBox.changePage('hand');
     $a.pagechangerBox.draw();
   }
 
-  cls.prototype.getRounds = function(){
-    return this._rounds;
+  cls.prototype.getCurrentRound = function(){
+    return this._rounds[this._currentRoundIndex];
   }
 
-  cls.prototype.nextRound = function(){
-    this._currentRoundIndex += 1;
+  cls.prototype.run = function(){
+    var self = this;
+    var process = function(){
+
+      self._prepareGame();
+
+      $.when($a.game.run()).done(function(){
+
+        self.getCurrentRound().score = $a.game.summaryVictoryPoints();
+        self._cleanGame();
+        self._currentRoundIndex += 1;
+
+        if (self._isFinishedAllRounds() === false) {
+          setTimeout(process, 1);
+        } else {
+          self._finish();
+          return;
+        }
+
+      });
+    }
+
+    setTimeout(process, 1);
   }
 
-  cls.prototype.isFinishedAllRounds = function(){
+  cls.prototype._isFinishedAllRounds = function(){
     return this._rounds.length <= this._currentRoundIndex;
   }
 
-  cls.prototype.summaryTotalScore = function(){
+  cls.prototype._summaryTotalScore = function(){
     return _.reduce(this._rounds, function(memo, round){
       return memo + round.score;
     }, 0);
+  }
+
+  cls.prototype._finish = function(){
+
+    // TODO: Score save
+    alert(this._summaryTotalScore());
+
+    // TODO: Post to runking
+
+    // TODO: Tweet
+
+    $a.stage = null;
   }
 
   cls.create = function(){

@@ -199,9 +199,8 @@ $a.$pages.StageselectionPage = (function(){
     }
 
     $a.stage = $a.$stages[stageClassName].create();
-    $a.stage.prepareGame();
-    $a.game.run();
     $a.screen.changePage($a.gamePage);
+    $a.stage.run();
 
     return false;
   }
