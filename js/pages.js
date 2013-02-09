@@ -21,7 +21,18 @@ $a.Page = (function(){
       cls.SIZE[0],
       cls.SIZE[1] - $a.Navigator.SIZE[1]
     ]);
-    this._view.append(this._bodyBox.getView());
+    this.getView().append(this._bodyBox.getView());
+  }
+
+  cls.prototype._createTitleView = function(){
+    return $('<div>').css({
+      position: 'absolute',
+      width: this.getWidth(),
+      height: 48,
+      lineHeight: '48px',
+      fontSize: $a.fs(15),
+      textAlign: 'center'//,
+    });
   }
 
   cls.prototype.draw = function(){
@@ -69,11 +80,11 @@ $a.$pages.TopPage = (function(){
         backgroundColor: '#EEE',
         cursor: 'pointer'//,
       })
-      .on('mousedown', { self:self }, __ONTOUCHSTART)
+      .on('mousedown', { self:self }, __ONTOUCHBUTTON)
     ;
   }
 
-  function __ONTOUCHSTART(evt){
+  function __ONTOUCHBUTTON(evt){
     var self = evt.data.self;
     $a.screen.changePage($a.stageselectionPage);
     return false;
@@ -94,6 +105,8 @@ $a.$pages.StageselectionPage = (function(){
 //{{{
   var cls = function(){
     this.hasNavigator = true;
+
+    this._buttonViews = {};
   }
   $f.inherit(cls, new $a.Page(), $a.Page);
 
@@ -101,15 +114,75 @@ $a.$pages.StageselectionPage = (function(){
 
     self._setBodyBox();
 
-    self._view
-      .css({
-      })
-      .on('mousedown', { self:self }, __ONTOUCHSTART)
-    ;
+    self._titleView = self._createTitleView()
+      .text('- Stage selection -')
+      .appendTo(self.getView());
+
+    var buttonTop = 90;
+    var buttonSize = [120, 60];
+    var borderWidth = 1;
+    var spacing = 20;
+    var buttonDataList = [
+      ['basic', '基本'],
+      ['intrigue', '陰謀'],
+      ['seaside', '海辺']//,
+    ];
+    _.each(buttonDataList, function(data, idx){
+      var buttonKey = data[0];
+      var buttonLabel = data[1];
+
+      var frame = $('<div>').css({
+        position: 'absolute',
+        top: buttonTop + (buttonSize[1] + spacing) * idx - borderWidth,
+        left: (self.getWidth() - buttonSize[0]) / 2,
+        width: buttonSize[0],
+        height: buttonSize[1],
+        border: borderWidth + 'px solid #000',
+        cursor: 'pointer'//,
+      }).on('mousedown', { self:self, buttonKey:buttonKey }, __ONTOUCHBUTTON);
+
+      var label = $('<div>').css({
+        position: 'absolute',
+        width: buttonSize[0] / 2,
+        height: buttonSize[1],
+        lineHeight: buttonSize[1] + 'px',
+        fontSize: $a.fs(15),
+        textAlign: 'center'//,
+      }).text(buttonLabel);
+
+      var scoreHeader = $('<div>').css({
+        position: 'absolute',
+        left: buttonSize[0] / 2,
+        width: buttonSize[0] / 2,
+        height: 20,
+        lineHeight: '20px',
+        fontSize: $a.fs(10),
+        textAlign: 'center'//,
+      }).text('Score');
+
+      var score = $('<div>');
+
+      frame.append(label).append(scoreHeader).append(score);
+      self._bodyBox.getView().append(frame);
+
+      self._buttonViews[buttonKey] = {
+        frame: frame,
+        label: label,
+        scoreHeader: scoreHeader,
+        score: score//,
+      }
+    });
   }
 
-  function __ONTOUCHSTART(evt){
+  function __ONTOUCHBUTTON(evt){
     var self = evt.data.self;
+    var buttonKey = evt.data.buttonKey;
+
+    if (_.indexOf(['basic'], buttonKey) < 0) {
+      alert('Sorry, this is not implement');
+      return false;
+    }
+
     $a.screen.changePage($a.gamePage);
     return false;
   }
