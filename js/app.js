@@ -381,16 +381,16 @@ $a.Cards = (function(){
     }
   }
 
-  cls.prototype.add = function(card){
+  cls.prototype.pushed = function(card){
     this._cards.push(card);
   }
 
-  cls.prototype.stack = function(card){
+  cls.prototype.stacked = function(card){
     this._cards.unshift(card);
   }
 
-  cls.prototype.pop = function(){
-    return this._cards.pop();
+  cls.prototype.pulled = function(){
+    return this._cards.shift();
   }
 
   cls.prototype.remove = function(card){
@@ -409,20 +409,25 @@ $a.Cards = (function(){
     return this._cards.length;
   }
 
-  cls.prototype.dealTo = function(cards, count){
+  cls.prototype.dealTo = function(toCards, count){
     var self = this;
     _.times(count, function(){
-      var card = self.pop();
-      cards.add(card);
+      toCards.pushed(self.pulled());
     });
   }
 
-  cls.prototype.dumpTo = function(cards){
+  cls.prototype.dumpTo = function(toCards){
     var self = this;
     var copiedCards = this._cards.slice(); // For index change by removing
     _.each(copiedCards, function(card){
       self.remove(card);
-      cards.stack(card);
+      toCards.stacked(card);
+    });
+  }
+
+  cls.prototype.findDataByCardType = function(cardType){
+    return _.filter(this._cards, function(card){
+      return card.hasCardType(cardType);
     });
   }
 
@@ -515,12 +520,12 @@ $a.HandCards = (function(){
 
   cls.prototype.throwCard = function(card){
     this.remove(card);
-    $a.talonCards.stack(card);
+    $a.talonCards.stacked(card);
   }
 
   cls.prototype.destroyCard = function(card){
     this.remove(card);
-    $a.trashCards.stack(card);
+    $a.trashCards.stacked(card);
   }
 
   cls.prototype.reset = function(){

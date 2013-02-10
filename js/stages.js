@@ -218,7 +218,8 @@ $a.$stages.BasicStage = (function(){
       'SmithyCard',
       'FestivalCard',
       'LaboratoryCard',
-      'MarketCard'//,
+      'MarketCard',
+      'MineCard'//,
     ];
   }
   $f.inherit(cls, new $a.Stage(), $a.Stage);

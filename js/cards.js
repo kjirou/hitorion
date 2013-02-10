@@ -105,6 +105,10 @@ $a.Card = (function(){
     return this._cardTypes[0];
   }
 
+  cls.prototype.hasCardType = function(cardType){
+    return _.indexOf(this._cardTypes, cardType) >= 0;
+  }
+
   cls.prototype.getTitle = function(){ return this._title; }
   cls.prototype.getCost = function(){ return this._cost; }
   cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
@@ -323,6 +327,7 @@ $a.$cards.RemodelCard = (function(){
 
       var maxGainableCardCost = card.getCost() + 2;
       $a.handCards.destroyCard(card);
+      $a.statusBox.draw();
       $a.handBox.draw();
       $a.trashCardsBox.draw();
 
@@ -332,16 +337,15 @@ $a.$cards.RemodelCard = (function(){
 
       var signal2 = $.Deferred();
       $f.waitChoice($a.kingdomCards.getData(), signal2);
-
       $.when(signal2).done(function(wantedCard){
 
         if (wantedCard.getCost() <= maxGainableCardCost) {
           $a.talonCards.addNewCard(wantedCard.className, { stack:true })
           $a.statusBox.draw();
           $a.talonCardsBox.draw();
-          $a.pagechangerBox.draw();
         }
         $a.mainBox.changePage('hand');
+        $a.pagechangerBox.draw();
         d.resolve();
 
       });
@@ -416,6 +420,67 @@ $a.$cards.MarketCard = (function(){
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
+  return cls;
+//}}}
+}());
+
+$a.$cards.MineCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '鉱山';
+    this._cost = 5;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var d = $.Deferred();
+
+    var treasures = $a.handCards.findDataByCardType('treasure');
+
+    var signal;
+    if (treasures.length > 0) {
+      alert('廃棄する財宝カードを選んで下さい');
+      signal = $.Deferred();
+      $f.waitChoice(treasures, signal);
+    } else {
+      alert('財宝カードがありません');
+      d.resolve();
+      return;
+    }
+
+    $.when(signal).done(function(card){
+
+      var maxGainableCardCost = card.getCost() + 3;
+
+      $a.handCards.destroyCard(card);
+      $a.statusBox.draw();
+      $a.handBox.draw();
+      $a.trashCardsBox.draw();
+
+      $a.mainBox.changePage('kingdom');
+      $a.pagechangerBox.draw();
+      alert($f.format('{0} コスト以下の財宝カードを手札に加えられます', maxGainableCardCost));
+
+      var signal2 = $.Deferred();
+      $f.waitChoice($a.kingdomCards.findDataByCardType('treasure'), signal2);
+      $.when(signal2).done(function(wantedCard){
+
+        if (wantedCard.getCost() <= maxGainableCardCost) {
+          $a.handCards.addNewCard(wantedCard.className)
+          $a.statusBox.draw();
+          $a.handBox.draw();
+        }
+        $a.mainBox.changePage('hand');
+        $a.pagechangerBox.draw();
+        d.resolve();
+
+      });
+
+    });
+
+    return d;
+  }
   return cls;
 //}}}
 }());
