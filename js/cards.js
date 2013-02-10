@@ -310,6 +310,35 @@ $a.$cards.WorkshopCard = (function(){
 //
 // 4 cost
 //
+$a.$cards.MoneylenderCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '金貸し';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var coin1s = _.filter($a.handCards.getData(), function(card){
+      return card instanceof $a.$cards.Coin1Card;
+    });
+
+    if (coin1s.length > 0) {
+      $a.handCards.throwCard(coin1s[0]);
+      $a.game.modifyCoinCorrection(3);
+      $a.statusBox.draw();
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+    } else {
+      alert('銅貨がありません');
+    }
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.RemodelCard = (function(){
 //{{{
   var cls = function(){
