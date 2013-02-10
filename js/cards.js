@@ -291,11 +291,13 @@ $a.$cards.WorkshopCard = (function(){
     var signal = $.Deferred();
     $f.waitChoice($a.kingdomCards.getData(), signal);
     $.when(signal).done(function(card){
-      if (card.getCost() <= 4)
+      if (card.getCost() <= 4) {
         $a.talonCards.addNewCard(card.className, { stack:true })
         $a.statusBox.draw();
         $a.talonCardsBox.draw();
-        $a.pagechangerBox.draw();
+      }
+      $a.mainBox.changePage('hand');
+      $a.pagechangerBox.draw();
       d.resolve();
     });
     return d;
