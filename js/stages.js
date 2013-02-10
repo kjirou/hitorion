@@ -147,6 +147,8 @@ $a.Stage = (function(){
       $a.player.saveStageData();
     }
 
+    alert($f.format('スコアは {0} 点でした', score));
+
     // TODO: Post score to runking
 
     // TODO: Tweet

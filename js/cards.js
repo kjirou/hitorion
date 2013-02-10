@@ -328,7 +328,7 @@ $a.$cards.RemodelCard = (function(){
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
-      alert('獲得するカードを選んで下さい');
+      alert($f.format('{0} コスト以下のカードを獲得できます', maxGainableCardCost));
 
       var signal2 = $.Deferred();
       $f.waitChoice($a.kingdomCards.getData(), signal2);
@@ -341,6 +341,7 @@ $a.$cards.RemodelCard = (function(){
           $a.talonCardsBox.draw();
           $a.pagechangerBox.draw();
         }
+        $a.mainBox.changePage('hand');
         d.resolve();
 
       });
