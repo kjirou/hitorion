@@ -626,9 +626,48 @@ $a.Navigator = (function(){
   function __INITIALIZE(self){
     self.setZIndex($a.Screen.ZINDEXES.NAVIGATOR);
 
-    self._view.css({
-      backgroundColor: 'yellow'
-    });
+    self._helpButtonView = self._createButtonView(154, 'Help')
+      .css({
+        top: 3,
+        left: 3
+      })
+      .attr({
+        target: '_blank',
+        href: 'http://hitorion.kjirou.net/doc/'
+      })
+      .appendTo(self.getView())
+    ;
+
+    self._rankingButtonView = self._createButtonView(154, 'Ranking')
+      .css({
+        top: 3,
+        right: 3
+      })
+      .attr({
+        target: '_blank',
+        href: 'http://hitorion.kjirou.net/ranking/'
+      })
+      .appendTo(self.getView())
+    ;
+  }
+
+  cls.prototype._createButtonView = function(width, label){
+    return $('<a>')
+      .css({
+        display: 'block',
+        position: 'absolute',
+        width: width,
+        height: 40,
+        lineHeight: '40px',
+        fontSize: $a.fs(12),
+        color: '#000',
+        border: '1px solid #000',
+        textDecoration: 'none',
+        textAlign: 'center'//,
+      })
+      .attr('href', 'javascript:void(0);')
+      .text(label)
+    ;
   }
 
   cls.create = function(){
