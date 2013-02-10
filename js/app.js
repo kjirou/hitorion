@@ -633,7 +633,7 @@ $a.Navigator = (function(){
       })
       .attr({
         target: '_blank',
-        href: 'http://hitorion.kjirou.net/doc/'
+        href: 'http://hitorion.kjirou.net/help/'
       })
       .appendTo(self.getView())
     ;
