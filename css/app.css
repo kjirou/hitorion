@@ -33,6 +33,10 @@ img {
 
 /* ------------------------ */
 
+body {
+  background-color: #EEE;
+}
+
 #game_container {
   position: relative;
   margin: 0 auto 0 auto;

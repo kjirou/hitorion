@@ -65,26 +65,50 @@ $a.$pages.TopPage = (function(){
 
   function __INITIALIZE(self){
 
-    self._titleView = $('<div />')
+    self._titleView = $('<div>')
       .css({
         position: 'absolute',
-        top: 180,
+        top: 100,
         width: '100%',
         height: 32,
         lineHeight: '32px',
-        fontSize: $a.fs(15),
+        fontSize: $a.fs(18),
         textAlign: 'center'//,
       })
       .text('- Hitorion -')
-      .appendTo(self._view)
+      .appendTo(self.getView())
     ;
 
-    self._view
+    self._descView = $('<div>')
       .css({
-        backgroundColor: '#EEE',
-        cursor: 'pointer'//,
+        position: 'absolute',
+        top: 160,
+        width: '100%',
+        height: 32,
+        lineHeight: '16px',
+        fontSize: $a.fs(12),
+        textAlign: 'center'//,
+      })
+      .text('The Dominion there is not an enemy')
+      .appendTo(self.getView())
+    ;
+
+    self._startView = $('<div>')
+      .css({
+        position: 'absolute',
+        top: 250,
+        left: 80,
+        width: 160,
+        height: 45,
+        lineHeight: '45px',
+        fontSize: $a.fs(15),
+        border: '1px solid #000',
+        cursor: 'pointer',
+        textAlign: 'center'//,
       })
       .on('mousedown', { self:self }, __ONTOUCHBUTTON)
+      .text('Start')
+      .appendTo(self.getView())
     ;
   }
 

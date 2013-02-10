@@ -7,22 +7,14 @@
 // $ = jQuery, _ = Underscore.js
 // $e = Environments, $c = Consts, $a = Application,
 // $f = Functions, $d = Debug print
-var $e, $c, $a; // $, _, $f, $d are already existed
-
-
-$e = {
-//{{{
-    debug: true,
-    mediaUrl: '.',
-    sfSize: [320, 416]//,
-//}}}
-};
+var $c, $a; // $, _, $f, $d, $e are already existed
 
 
 $c = {
 //{{{
   VERSION: '0.0.1',
-  CSS_PREFIX: 'htr-'
+  CSS_PREFIX: 'htr-',
+  SF_SIZE: [320, 416]//,
 //}}}
 };
 
@@ -548,11 +540,17 @@ $a.Screen = (function(){
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [0, 0];
-  cls.SIZE = $e.sfSize.slice(); // Must sync to CSS
+  cls.SIZE = $c.SF_SIZE.slice(); // Must sync to CSS
 
   cls.ZINDEXES = {
     COVER: 99999,
     NAVIGATOR: 100
+  }
+
+  function __INITIALIZE(self){
+    self.getView().css({
+      backgroundColor: '#FFF'
+    });
   }
 
   cls.prototype.changePage = function(page){
@@ -607,6 +605,7 @@ $a.Screen = (function(){
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
+    __INITIALIZE(obj);
     return obj;
   }
 
