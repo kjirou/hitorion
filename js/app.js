@@ -638,7 +638,7 @@ $a.Navigator = (function(){
       })
       .attr({
         target: '_blank',
-        href: 'http://hitorion.kjirou.net/help/'
+        href: $e.baseUrl + '/help/'
       })
       .appendTo(self.getView())
     ;
@@ -650,7 +650,7 @@ $a.Navigator = (function(){
       })
       .attr({
         target: '_blank',
-        href: 'http://hitorion.kjirou.net/ranking/'
+        href: $e.baseUrl + '/ranking/'
       })
       .appendTo(self.getView())
     ;
