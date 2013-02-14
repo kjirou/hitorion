@@ -25,12 +25,10 @@ $a.Stage = (function(){
     // Each game settings
     self._rounds = [];
     var roundsDataList = [
-      //['1st', 1],
-      //['2nd', 1],
-      //['3rd', 1]//,
-      ['1st', 12],
-      ['2nd', 14],
-      ['3rd', 16]//,
+      ['1st', 1]//,
+      //['1st', 12],
+      //['2nd', 14],
+      //['3rd', 16]//,
     ];
     _.each(roundsDataList, function(data, idx){
       self._rounds.push({
@@ -138,6 +136,7 @@ $a.Stage = (function(){
   }
 
   cls.prototype._finish = function(){
+    var self = this;
 
     var myData = $a.Stage.getData()[this.className];
 
@@ -149,14 +148,45 @@ $a.Stage = (function(){
 
     alert($f.format('スコアは {0} 点でした', score));
 
-    // TODO: Post score to runking
+    // Post score
+    this._runPostingScore().done(function(){
 
-    // TODO: Tweet
+      // TODO: Tweet
 
-    $a.stage = null;
+      $a.stage = null;
 
-    $a.stageselectionPage.draw();
-    $a.screen.changePage($a.stageselectionPage);
+      $a.stageselectionPage.draw();
+      $a.screen.changePage($a.stageselectionPage);
+    });
+  }
+
+  cls.prototype._runPostingScore = function(){
+    var d = $.Deferred();
+
+    var yourname, comment;
+    if (confirm('スコアを送信しますか?')) {
+
+      yourname = prompt('お名前は?(12文字)', 'Unknown');
+      comment = prompt('コメントを一言!(32文字)', '');
+
+      $.ajax({
+        url: $e.baseUrl + '/easyscorekeeper/api.php',
+        dataType: 'jsonp',
+        jsonp: 'c',
+        data: {
+          u: yourname.slice(0, 12),
+          score: this._summaryTotalScore(),
+          comment: comment.slice(0, 32),
+          category: this.className
+        }
+      }).done(function(){
+        d.resolve();
+      });
+    } else {
+      d.resolve();
+    }
+
+    return d;
   }
 
   cls.initializeClassBasedDatalyzerMixin($a.$stages, cls, function(klass, className){
