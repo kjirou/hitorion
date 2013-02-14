@@ -110,6 +110,12 @@ $f.nl2br = function(str){
   return str.replace(/(?:\r\n|\n|\r)/g, '<br />');
 }
 
+$f.argumentsToArray = function(args){
+  var arr = [], i;
+  for (i = 0; i < args.length; i += 1) { arr.push(args[i]) }
+  return arr;
+}
+
 /** For jQuery.Deferred.then */
 $f.wait = function(ms){
   return function(){
@@ -121,12 +127,6 @@ $f.wait = function(ms){
   }
 }
 
-$f.argumentsToArray = function(args){
-  var arr = [], i;
-  for (i = 0; i < args.length; i += 1) { arr.push(args[i]) }
-  return arr;
-}
-
 /**
  * Wait until choice by player
  *
@@ -136,7 +136,37 @@ $f.argumentsToArray = function(args){
  *           when the player touch a one of signalables.
  */
 $f.waitChoice = function(signalables, signal){
+  signal = signal || $.Deferred();
   _.each(signalables, function(v){ v.setSignal(signal); });
+  return signal;
+}
+
+/**
+ * Wait until multipul choices by player
+ *
+ * selector: See source
+ * finisher: See source, sorry
+ */
+$f.waitChoices = function(signalables, selector, finisher){
+  var d = $.Deferred();
+  var selectedList = [];
+
+  var looped = function(){
+    $f.waitChoice(signalables).then(function(choiced){
+
+      selector(choiced, selectedList);
+
+      if (finisher(choiced, selectedList) === false) {
+        setTimeout(looped, 1);
+      } else {
+        d.resolve(selectedList);
+      }
+
+    });
+  }
+  setTimeout(looped, 1);
+
+  return d;
 }
 
 

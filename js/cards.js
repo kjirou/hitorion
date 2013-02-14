@@ -17,12 +17,18 @@ $a.Card = (function(){
     this._coin = 0;
 
     this.className = undefined;
+    this._isSelected = false;
   }
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
   $f.mixin(cls, new $f.SignalableMixin());
 
   cls.POS = [0, 0];
   cls.SIZE = [60, 60];
+
+  cls.STYLES = {
+    TITLE_COLOR: '#000',
+    SELECTED_TITLE_COLOR: 'red'
+  };
 
   function __INITIALIZE(self){
 
@@ -69,6 +75,25 @@ $a.Card = (function(){
     this._view.css({
       backgroundColor: bgColor
     });
+
+    this._drawSelectedState();
+  }
+
+  cls.prototype._drawSelectedState = function(){
+    if (this._isSelected) {
+      this._titleView.css('color', cls.STYLES.SELECTED_TITLE_COLOR);
+    } else {
+      this._titleView.css('color', cls.STYLES.TITLE_COLOR);
+    }
+  }
+
+  cls.prototype.toSelected = function(){
+    this._isSelected = true;
+    this._drawSelectedState();
+  }
+  cls.prototype.toUnselected = function(){
+    this._isSelected = false;
+    this._drawSelectedState();
   }
 
   /**
@@ -218,6 +243,40 @@ $a.$cards.Victorypoints6Card = (function(){
 
 
 //
+// 2 cost
+//
+$a.$cards.CellarCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '地下貯蔵庫';
+    this._cost = 2;
+    this._actionCount = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var d = $.Deferred();
+
+    this._actBuffing();
+
+    alert('捨てるカードを選んでください');
+    $a.screen.waitChoiceCards($a.handCards.getData()).then(function(cards){
+      _.each(cards, function(card){ $a.handCards.throwCard(card); });
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+      d.resolve();
+    });
+
+    return d;
+
+  }
+  return cls;
+//}}}
+}());
+
+
+//
 // 3 cost
 //
 $a.$cards.ChancellorCard = (function(){
@@ -283,14 +342,14 @@ $a.$cards.WorkshopCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
+    var d = $.Deferred();
+
     $a.mainBox.changePage('kingdom');
     $a.pagechangerBox.draw();
-    alert('4コスト以下のカードを1枚取得できます');
 
-    var d = $.Deferred();
-    var signal = $.Deferred();
-    $f.waitChoice($a.kingdomCards.getData(), signal);
-    $.when(signal).done(function(card){
+    alert('4 コスト以下のカードを獲得できます');
+    $f.waitChoice($a.kingdomCards.getData()).then(function(card){
+
       if (card.getCost() <= 4) {
         $a.talonCards.addNewCard(card.className, { stack:true })
         $a.statusBox.draw();
@@ -298,8 +357,10 @@ $a.$cards.WorkshopCard = (function(){
       }
       $a.mainBox.changePage('hand');
       $a.pagechangerBox.draw();
+
       d.resolve();
     });
+
     return d;
   }
   return cls;
@@ -345,6 +406,8 @@ $a.$cards.FeastCard = (function(){
       d.resolve();
 
     });
+
+    return d;
 
   }
   return cls;

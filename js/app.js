@@ -627,6 +627,51 @@ $a.Screen = (function(){
     return d;
   }
 
+  /**
+   * Wait multipul card choices
+   *
+   * @example
+   *   --------
+   *   waitChoiceCards(handCards).then(function(selectedCards){
+   *     // do something ..
+   *   });
+   *   --------
+   * @return deferred
+   */
+  cls.prototype.waitChoiceCards = function(selectableCards){
+
+    var signalables = selectableCards.slice();
+    signalables.push($a.mainBox);
+
+    var selector = function(choiced, selectedList){
+
+      if (choiced instanceof $a.Card === false) return;
+
+      var _selectedList = selectedList.slice();  // Keep for re-drawing cards
+      var idx = _.indexOf(selectedList, choiced);
+      if (idx >= 0) {
+        selectedList.splice(idx, 1);
+        choiced.toUnselected();
+      } else {
+        selectedList.push(choiced);
+        choiced.toSelected();
+      }
+    }
+
+    var finisher = function(choiced, selectedList){
+      if (choiced instanceof $a.Card === false) {
+        _.each(selectedList, function(card){
+          card.toUnselected();
+        });
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    return $f.waitChoices(signalables, selector, finisher);
+  }
+
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
@@ -745,7 +790,7 @@ $a.MainBox = (function(){
         color: '#666',
         textAlign: 'center'//,
       })
-      .text('フェーズ終了は空き部分をタッチ')
+      .text('フェーズ終了や選択決定は空き部分をタッチ')
       .appendTo(self._view);
   }
 

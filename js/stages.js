@@ -243,6 +243,7 @@ $a.$stages.BasicStage = (function(){
 //{{{
   var cls = function(){
     this._buyableCards = [
+      'CellarCard',
       'ChancellorCard',
       'VillageCard',
       'WoodcutterCard',
@@ -251,6 +252,7 @@ $a.$stages.BasicStage = (function(){
       'MoneylenderCard',
       'RemodelCard',
       'SmithyCard',
+      'ThroneroomCard',
       'FestivalCard',
       'LaboratoryCard',
       'LibraryCard',
