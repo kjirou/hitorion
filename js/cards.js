@@ -444,6 +444,50 @@ $a.$cards.SmithyCard = (function(){
 //}}}
 }());
 
+$a.$cards.ThroneroomCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '玉座の間';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    // TODO: More tests
+
+    var d = $.Deferred();
+
+    var signal = $.Deferred();
+    var actions = $a.handCards.findDataByCardType('action');
+    if (actions.length === 0) {
+      alert('アクションカードがありません');
+      return;
+    }
+
+    alert('使用するカードを選んで下さい');
+    $f.waitChoice(actions, signal);
+    $.when(signal).done(function(card){
+
+      $a.handCards.throwCard(card);
+      $a.handBox.draw();
+      $a.talonCardsBox.draw();
+      $a.pagechangerBox.draw();
+
+      card.act().then(function(){
+        return card.act();
+      }).then(function(){
+        d.resolve();
+      });
+
+    });
+
+    return d;
+  }
+  return cls;
+//}}}
+}());
+
 
 //
 // 5 cost
@@ -484,7 +528,7 @@ $a.$cards.LibraryCard = (function(){
   var cls = function(){
     this._cardTypes = ['action'];
     this._title = '書庫';
-    this._cost = 1;
+    this._cost = 5;
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
