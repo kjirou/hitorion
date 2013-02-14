@@ -136,7 +136,10 @@ $a.Card = (function(){
 
   cls.prototype.getTitle = function(){ return this._title; }
   cls.prototype.getCost = function(){ return this._cost; }
-  cls.prototype.getVictoryPoints = function(){ return this._victoryPoints; }
+  cls.prototype.getVictoryPoints = function(){
+    if (_.isFunction(this._victoryPoints)) return this._victoryPoints();
+    return this._victoryPoints;
+  }
   cls.prototype.getCoin = function(){ return this._coin; }
 
   cls.prototype.isBuyable = function(){
@@ -411,6 +414,21 @@ $a.$cards.FeastCard = (function(){
     return d;
 
   }
+  return cls;
+//}}}
+}());
+
+$a.$cards.GardensCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['victory'];
+    this._title = '庭園';
+    this._cost = 4;
+    this._victoryPoints = function(){
+      return ~~($a.game.getTotalCardCount() / 10);
+    }
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
 }());

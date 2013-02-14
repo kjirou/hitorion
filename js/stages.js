@@ -249,6 +249,7 @@ $a.$stages.BasicStage = (function(){
       'WoodcutterCard',
       'WorkshopCard',
       'FeastCard',
+      'GardensCard',
       'MoneylenderCard',
       'RemodelCard',
       'SmithyCard',
