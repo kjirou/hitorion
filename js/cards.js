@@ -310,6 +310,47 @@ $a.$cards.WorkshopCard = (function(){
 //
 // 4 cost
 //
+$a.$cards.FeastCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '祝宴';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var d = $.Deferred();
+
+    $a.talonCards.destroyCard(this);
+    $a.handBox.draw();
+    $a.trashCardsBox.draw();
+    $a.pagechangerBox.draw();
+
+    $a.mainBox.changePage('kingdom');
+    $a.pagechangerBox.draw();
+    alert('5 コスト以下のカードを獲得できます');
+
+    var signal = $.Deferred();
+    $f.waitChoice($a.kingdomCards.getData(), signal);
+    $.when(signal).done(function(wantedCard){
+
+      if (wantedCard.getCost() <= 5) {
+        $a.talonCards.addNewCard(wantedCard.className, { stack:true })
+        $a.statusBox.draw();
+        $a.talonCardsBox.draw();
+      }
+      $a.mainBox.changePage('hand');
+      $a.pagechangerBox.draw();
+      d.resolve();
+
+    });
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.MoneylenderCard = (function(){
 //{{{
   var cls = function(){

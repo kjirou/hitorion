@@ -424,6 +424,12 @@ $a.Cards = (function(){
     });
   }
 
+  cls.prototype.destroyCard = function(card){
+    // Can't use by trashCards itself
+    this.remove(card);
+    $a.trashCards.stacked(card);
+  }
+
   cls.prototype.dumpTo = function(toCards){
     var self = this;
     var copiedCards = this._cards.slice(); // For index change by removing
@@ -529,11 +535,6 @@ $a.HandCards = (function(){
   cls.prototype.throwCard = function(card){
     this.remove(card);
     $a.talonCards.stacked(card);
-  }
-
-  cls.prototype.destroyCard = function(card){
-    this.remove(card);
-    $a.trashCards.stacked(card);
   }
 
   cls.prototype.reset = function(){
