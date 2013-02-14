@@ -25,10 +25,10 @@ $a.Stage = (function(){
     // Each game settings
     self._rounds = [];
     var roundsDataList = [
-      ['1st', 1]//,
-      //['1st', 12],
-      //['2nd', 14],
-      //['3rd', 16]//,
+      //['1st', 1]//,
+      ['1st', 12],
+      ['2nd', 14],
+      ['3rd', 16]//,
     ];
     _.each(roundsDataList, function(data, idx){
       self._rounds.push({
@@ -166,7 +166,8 @@ $a.Stage = (function(){
     var yourname, comment;
     if (confirm('スコアを送信しますか?')) {
 
-      yourname = prompt('お名前は?(12文字)', 'Unknown');
+      yourname = prompt('お名前は?(12文字)', $a.player.getUsername());
+      $a.player.saveUsername(yourname);
       comment = prompt('コメントを一言!(32文字)', '');
 
       $.ajax({

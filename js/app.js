@@ -83,6 +83,14 @@ $a.Player = (function(){
     this._saveStorage('stage', cleanedData);
   }
 
+  cls.prototype.getUsername = function(){
+    return this._getStorage('username') || 'Unknown';
+  }
+
+  cls.prototype.saveUsername = function(username){
+    return this._saveStorage('username', username);
+  }
+
   cls.create = function(){
     var obj = new this();
     __INITIALIZE(obj);
