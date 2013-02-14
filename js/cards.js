@@ -262,7 +262,8 @@ $a.$cards.CellarCard = (function(){
 
     alert('捨てるカードを選んでください');
     $a.screen.waitChoiceCards($a.handCards.getData()).then(function(cards){
-      _.each(cards, function(card){ $a.handCards.throwCard(card); });
+      $a.handCards.throwCards(cards);
+      $a.handCards.pullCards(cards.length);
       $a.handBox.draw();
       $a.pagechangerBox.draw();
       d.resolve();

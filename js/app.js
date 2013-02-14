@@ -547,6 +547,11 @@ $a.HandCards = (function(){
     $a.talonCards.stacked(card);
   }
 
+  cls.prototype.throwCards = function(cards){
+    var self = this;
+    _.each(cards, function(card){ self.throwCard(card); });
+  }
+
   cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
     this.pullCards(5);
