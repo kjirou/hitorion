@@ -30,6 +30,7 @@ $a = {
   kingdomCards: null,
   deckCards: null,
   talonCards: null,
+  tmpCards: null,
   trashCards: null,
   handCards: null,
   screen: undefined,
@@ -417,6 +418,10 @@ $a.Cards = (function(){
     return this._cards.length;
   }
 
+  cls.prototype.getLastCard = function(){
+    return this._cards[this._cards.length - 1];
+  }
+
   cls.prototype.dealTo = function(toCards, count){
     var self = this;
     _.times(count, function(){
@@ -424,8 +429,13 @@ $a.Cards = (function(){
     });
   }
 
+  cls.prototype.moveCard = function(card, toCards){
+    this.remove(card);
+    toCards.stacked(card);
+  }
+
   cls.prototype.destroyCard = function(card){
-    // Can't use by trashCards itself
+    // FIXME: Can't use by trashCards itself
     this.remove(card);
     $a.trashCards.stacked(card);
   }

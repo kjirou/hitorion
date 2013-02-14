@@ -479,6 +479,39 @@ $a.$cards.LaboratoryCard = (function(){
 //}}}
 }());
 
+$a.$cards.LibraryCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '書庫';
+    this._cost = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var card;
+    while (true) {
+      if ($a.handCards.count() >= 7) {
+        break;
+      }
+      $a.handCards.pullCards(1);
+      $a.handBox.draw();
+      card = $a.handCards.getLastCard();
+      if (card.hasCardType('action')) {
+        if (confirm($f.format('{0} を無視しますか?', card.getTitle()))) {
+          $a.handCards.moveCard(card, $a.tmpCards);
+          $a.handBox.draw();
+        }
+      }
+    }
+    $a.tmpCards.dumpTo($a.talonCards);
+    $a.pagechangerBox.draw();
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.MarketCard = (function(){
 //{{{
   var cls = function(){

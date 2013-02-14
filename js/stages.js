@@ -56,6 +56,7 @@ $a.Stage = (function(){
     allCards = allCards.concat($a.deckCards.getData().slice());
     allCards = allCards.concat($a.talonCards.getData().slice());
     allCards = allCards.concat($a.trashCards.getData().slice());
+    allCards = allCards.concat($a.tmpCards.getData().slice());
     allCards = allCards.concat($a.handCards.getData().slice());
     _.each(allCards, function(card){ card.destroy(); });
 
@@ -81,6 +82,7 @@ $a.Stage = (function(){
     $a.deckCards.reset();
     $a.talonCards = $a.Cards.create();
     $a.trashCards = $a.Cards.create();
+    $a.tmpCards = $a.Cards.create();
     $a.handCards = $a.HandCards.create();
     $a.handCards.reset();
 
@@ -245,11 +247,13 @@ $a.$stages.BasicStage = (function(){
       'VillageCard',
       'WoodcutterCard',
       'WorkshopCard',
+      'FeastCard',
       'MoneylenderCard',
       'RemodelCard',
       'SmithyCard',
       'FestivalCard',
       'LaboratoryCard',
+      'LibraryCard',
       'MarketCard',
       'MineCard'//,
     ];
