@@ -615,7 +615,7 @@ $a.$cards.LibraryCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
-    // TODO: Modify to perform only once shuffling cards
+    // FIXME: Modify to perform only once shuffling cards
 
     var card;
     while (true) {
@@ -711,6 +711,46 @@ $a.$cards.MineCard = (function(){
       });
 
     });
+
+    return d;
+  }
+  return cls;
+//}}}
+}());
+
+
+//
+// 6 cost
+//
+$a.$cards.AdventurerCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '冒険者';
+    this._cost = 6;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var d = $.Deferred();
+
+    var treasureCount = 0;
+
+    // FIXME: Modify to perform only once shuffling cards
+    alert('財宝カードが2枚出るまでめくります');
+    var looped = function(){
+      $a.handCards.pullCards(1);
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+      var card = $a.handCards.getLastCard();
+      if (card.hasCardType('treasure')) treasureCount += 1;
+      if (treasureCount >= 2) {
+        d.resolve();
+      } else {
+        setTimeout(looped, 500);
+      }
+    }
+    setTimeout(looped, 1);
 
     return d;
   }
