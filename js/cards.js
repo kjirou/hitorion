@@ -743,7 +743,11 @@ $a.$cards.AdventurerCard = (function(){
       $a.handBox.draw();
       $a.pagechangerBox.draw();
       var card = $a.handCards.getLastCard();
-      if (card.hasCardType('treasure')) treasureCount += 1;
+      if (card.hasCardType('treasure')) {
+        treasureCount += 1;
+      } else {
+        $a.handCards.remove(card);
+      }
       if (treasureCount >= 2) {
         d.resolve();
       } else {
