@@ -913,6 +913,29 @@ $a.KingdomBox = (function(){
   cls.SIZE = $a.HandBox.SIZE.slice();
 
   function __INITIALIZE(self){
+    self._helpButtonView = $('<a>')
+      .css({
+        display: 'block',
+        position: 'absolute',
+        right: 0,
+        width: 56,
+        height: 56,
+        lineHeight: '56px',
+        fontSize: $a.fs(12),
+        border: '1px solid #000',
+        color: '#000',
+        textDecoration: 'none',
+        cursor: 'pointer',
+        textAlign: 'center'
+      })
+      .attr({
+        target: '_blank',
+        href: $e.baseUrl + '/help/'
+      })
+      .text('Help')
+      .on('mousedown', { self:self }, __ONHELPBUTTONTOUCH)
+      .appendTo(self.getView())
+    ;
   }
 
   cls.prototype.draw = function(){
@@ -930,6 +953,11 @@ $a.KingdomBox = (function(){
       card.getView().show();
       self.getView().append(card.getView());
     });
+  }
+
+  function __ONHELPBUTTONTOUCH(evt){
+    evt.stopPropagation();
+    return false;
   }
 
   cls.create = function(){
