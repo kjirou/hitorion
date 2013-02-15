@@ -920,6 +920,10 @@ $a.KingdomBox = (function(){
     $f.Box.prototype.draw.apply(this);
 
     var coords = $f.squaring([60, 60], cls.SIZE, 3);
+    // FIXME: Bad logic
+    coords.splice(8, 2);
+    coords.splice(3, 2);
+
     _.each($a.kingdomCards.getData(), function(card, idx){
       card.setPos(coords[idx]);
       card.draw();
