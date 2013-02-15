@@ -615,6 +615,8 @@ $a.$cards.LibraryCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
+    // TODO: Modify to perform only once shuffling cards
+
     var card;
     while (true) {
       if ($a.handCards.count() >= 7) {
