@@ -155,6 +155,9 @@ $a.$pages.StageselectionPage = (function(){
     });
     _.each(stageDataList, function(data, idx){
 
+      var labelColor = '#000';
+      if (data.className !== 'BasicStage') labelColor = '#999';
+
       var frame = $('<div>').css({
         position: 'absolute',
         top: buttonTop + (buttonSize[1] + spacing) * idx - borderWidth,
@@ -171,6 +174,7 @@ $a.$pages.StageselectionPage = (function(){
         height: buttonSize[1],
         lineHeight: buttonSize[1] + 'px',
         fontSize: $a.fs(15),
+        color: labelColor,
         textAlign: 'center'//,
       }).text(data.label);
 
@@ -236,7 +240,7 @@ $a.$pages.StageselectionPage = (function(){
     var stageClassName = evt.data.stageClassName;
 
     if (_.indexOf(['BasicStage'], stageClassName) < 0) {
-      alert('Sorry, this is not implement');
+      alert('すみません, まだ作成していません');
       return false;
     }
 
