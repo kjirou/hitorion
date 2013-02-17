@@ -3,6 +3,9 @@ $a.Page = (function(){
 //{{{
   var cls = function(){
 
+    // Set for each sub-class
+    this._backgroundImageUrl = null;
+
     this._bodyBox = null;
 
     this.hasNavigator = false;
@@ -35,6 +38,7 @@ $a.Page = (function(){
       height: 48,
       lineHeight: '48px',
       fontSize: $a.fs(15),
+      fontFamily: 'serif',
       textAlign: 'center'//,
     });
   }
@@ -44,6 +48,14 @@ $a.Page = (function(){
     if (this._bodyBox !== null) {
       this._bodyBox.draw();
     }
+
+    var styles = {};
+    if (this._backgroundImageUrl !== null) {
+      styles.background = 'url(' + this._backgroundImageUrl + ')';
+    } else {
+      styles.background = 'none';
+    }
+    this.getView().css(styles);
   }
 
   cls.create = function(){
@@ -60,6 +72,7 @@ $a.Page = (function(){
 $a.$pages.TopPage = (function(){
 //{{{
   var cls = function(){
+    this._backgroundImageUrl = $e.mediaUrl + '/img/bg-toppage.jpg'
   }
   $f.inherit(cls, new $a.Page(), $a.Page);
 
@@ -73,6 +86,7 @@ $a.$pages.TopPage = (function(){
         height: 32,
         lineHeight: '32px',
         fontSize: $a.fs(18),
+        fontFamily: 'serif',
         textAlign: 'center'//,
       })
       .text('- Hitorion -')
@@ -87,6 +101,7 @@ $a.$pages.TopPage = (function(){
         height: 32,
         lineHeight: '16px',
         fontSize: $a.fs(12),
+        fontFamily: 'serif',
         textAlign: 'center'//,
       })
       .text('The Dominion there is not an enemy')
@@ -102,6 +117,7 @@ $a.$pages.TopPage = (function(){
         height: 45,
         lineHeight: '45px',
         fontSize: $a.fs(15),
+        fontFamily: 'serif',
         border: '1px solid #000',
         cursor: 'pointer',
         textAlign: 'center'//,
