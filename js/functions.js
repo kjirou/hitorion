@@ -116,6 +116,38 @@ $f.argumentsToArray = function(args){
   return arr;
 }
 
+$f.getBrowser = function(){
+    var browsers = [
+        ['ipad', /iPad/],
+        ['iphone', /iPhone/],
+        ['android', /Android/],
+        ['ie9', /MSIE 9\./],
+        ['ie8', /MSIE 8\./],
+        ['ie7', /MSIE 7\./],
+        ['ie6', /MSIE 6\./],
+        ['chrome', /Chrome/],
+        ['firefox', /Firefox/],
+        ['safari', /Safari/],
+        ['opera', /Opera/]//,
+    ];
+    var i;
+    for (i = 0; i < browsers.length; i++) {
+        if (browsers[i][1].test(window.navigator.userAgent)) return browsers[i][0];
+    };
+    return 'unknown';
+}
+
+$f.isPCBrowser = function(){
+  var browsers = ['ie9', 'ie8', 'ie7', 'ie6', 'chrome', 'firefox', 'safari', 'opera'];
+  var browser = $f.getBrowser();
+  var i;
+  for (i = 0; i < browsers.length; i++) {
+    if (browser === browsers[i]) return true;
+  }
+  return false;
+}
+
+
 /** For jQuery.Deferred.then */
 $f.wait = function(ms){
   return function(){

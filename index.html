@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Hitorion</title>
-  <meta name="description" content="">
+  <meta name="description" content="The Dominion there is not an enemy">
   <meta name="author" content="kjirou">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="css/app.css">
   <script type="text/javascript" src="js/underscore-min.js"></script>
   <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="js/functions.js?v=0.0.1"></script>
-  <script type="text/javascript" src="js/env.js?v=0.0.1"></script>
-  <script type="text/javascript" src="js/app.js?v=0.0.1"></script>
-  <script type="text/javascript" src="js/cards.js?v=0.0.1"></script>
-  <script type="text/javascript" src="js/pages.js?v=0.0.1"></script>
-  <script type="text/javascript" src="js/stages.js?v=0.0.1"></script>
+  <link rel="stylesheet" type="text/css" href="css/app.css?v=1.0.0">
+  <script type="text/javascript" src="js/functions.js?v=1.0.0"></script>
+  <script type="text/javascript" src="js/env.js?v=1.0.0"></script>
+  <script type="text/javascript" src="js/app.js?v=1.0.0"></script>
+  <script type="text/javascript" src="js/cards.js?v=1.0.0"></script>
+  <script type="text/javascript" src="js/pages.js?v=1.0.0"></script>
+  <script type="text/javascript" src="js/stages.js?v=1.0.0"></script>
   <script type="text/javascript">
     $(document).ready(function(){
       $a.init();
@@ -25,5 +25,53 @@
 
 <body>
   <div id="game_container"></div>
+  <div id="social_buttons" style="display:none;"></div>
+  <script id="social_buttons_data" type="text/x-hitorion_commentouted_html">
+
+    <!-- Twitter -->
+    <div id="my_twitter_button">
+      <a href="https://twitter.com/share" class="twitter-share-button" data-via="kjirou" data-lang="ja">ツイート</a>
+      <__script__>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</__script__>
+    </div>
+    <!-- /Twitter -->
+
+    <!-- Facebook -->
+    <div id="my_facebook_button">
+      <div id="fb-root" style="display:none;"></div>
+      <__script__>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/ja_JP/all.js#xfbml=1&appId=377930135587320";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</__script__>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-width="120" data-show-faces="false"></div>
+    </div>
+    <!-- /Facebook -->
+
+    <!-- Hatebu -->
+    <div id="my_hatebu_button">
+      <a href="http://b.hatena.ne.jp/entry/http://hitorion.intergames.jp/" class="hatena-bookmark-button" data-hatena-bookmark-title="Hitorion" data-hatena-bookmark-layout="simple-balloon" title="このエントリーをはてなブックマークに追加"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><__script__ type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></__script__>
+    </div>
+    <!-- /Hatebu -->
+
+    <!-- Google Plus -->
+    <div id="my_googleplus_button">
+      <!-- Place this tag in your head or just before your close body tag. -->
+      <__script__ type="text/javascript" src="https://apis.google.com/js/plusone.js"></__script__>
+      <!-- Place this tag where you want the +1 button to render. -->
+      <div class="g-plusone" data-size="medium" data-annotation="none"></div>
+    </div>
+    <!-- /Google Plus -->
+
+  </script>
+  <script type="text/javascript">
+  (function(){
+    if ($f.isPCBrowser() === false) return;
+    var dataText = $('#social_buttons_data').text();
+    dataText = dataText.replace(/__script__/g, 'script');
+    $('#social_buttons').html(dataText).show();
+  }());
+  </script>
 </body>
 </html>
