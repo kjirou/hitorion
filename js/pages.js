@@ -104,7 +104,7 @@ $a.$pages.TopPage = (function(){
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .text('The Dominion there is not an enemy')
+      .html('The Dominion there is not an enemy<br />(v' + $c.VERSION + ')')
       .appendTo(self.getView())
     ;
 
@@ -124,6 +124,22 @@ $a.$pages.TopPage = (function(){
       })
       .on('mousedown', { self:self }, __ONTOUCHBUTTON)
       .text('Start')
+      .appendTo(self.getView())
+    ;
+
+    self._newsView = $('<div>')
+      .css({
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: 48,
+        lineHeight: '12px',
+        fontSize: $a.fs(10),
+        fontFamily: 'serif',
+        textAlign: 'center'//,
+      })
+      .text('[v1.0.1] 王座＞祝宴時に落ちるバグを修正')
       .appendTo(self.getView())
     ;
   }

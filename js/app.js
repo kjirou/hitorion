@@ -12,7 +12,7 @@ var $c, $a; // $, _, $f, $d, $e are already existed
 
 $c = {
 //{{{
-  VERSION: '1.0.0',
+  VERSION: '1.0.1',
   CSS_PREFIX: 'htr-',
   SF_SIZE: [320, 416]//,
 //}}}
@@ -710,8 +710,12 @@ $a.Navigator = (function(){
         left: 3
       })
       .attr({
-        target: '_blank',
-        href: $e.baseUrl + '/help/'
+        //target: '_blank',
+        //href: $e.baseUrl + '/help/'
+        href: 'javascript:void(0);'
+      })
+      .on('mousedown', {}, function(){
+        window.open($e.baseUrl + '/help/', 'hitorion');
       })
       .appendTo(self.getView())
     ;
@@ -722,8 +726,12 @@ $a.Navigator = (function(){
         right: 3
       })
       .attr({
-        target: '_blank',
-        href: $e.baseUrl + '/ranking/'
+        //target: '_blank',
+        //href: $e.baseUrl + '/ranking/'
+        href: 'javascript:void(0);'
+      })
+      .on('mousedown', {}, function(){
+        window.open($e.baseUrl + '/ranking/', 'hitorion');
       })
       .appendTo(self.getView())
     ;
