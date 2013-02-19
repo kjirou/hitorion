@@ -2,8 +2,7 @@
 $a.Card = (function(){
 //{{{
   var cls = function(){
-    /** Array of 'victory', 'treasure', 'action', 'reaction', 'attack'.
-      Currently used 'victory' or 'treasure' or 'action', and always only one. */
+    /** Array of 'victory', 'treasure', 'action', 'reaction', 'attack' */
     this._cardTypes = undefined;
 
     this._title = undefined;
@@ -33,6 +32,9 @@ $a.Card = (function(){
   function __INITIALIZE(self){
 
     self.className = $f.getMyName($a.$cards, self.__myClass__);
+
+    // For compounded type
+    self._cardTypes.sort();
 
     self._view
       .addClass($c.CSS_PREFIX + 'card')
@@ -66,6 +68,8 @@ $a.Card = (function(){
       bgColor = '#f9ca58';
     } else if (this.getCardType() === 'action') {
       bgColor = '#839c9d';
+    } else if (this.getCardType() === 'action-victory') {
+      bgColor = '#829f83';
     }
 
     this._titleView.text(this._title);
@@ -125,9 +129,11 @@ $a.Card = (function(){
     $a.pagechangerBox.draw();
   }
 
+  /** 'action' || 'treasure' || 'victory' ||
+    'action-victory' */
   cls.prototype.getCardType = function(){
-    // Card types are currently always only one
-    return this._cardTypes[0];
+    if (this._cardTypes.length === 1) return this._cardTypes[0];
+    return this._cardTypes.join('-');
   }
 
   cls.prototype.hasCardType = function(cardType){
@@ -283,6 +289,8 @@ $a.$cards.CellarCard = (function(){
 //
 // 3 cost
 //
+
+// Basic
 $a.$cards.ChancellorCard = (function(){
 //{{{
   var cls = function(){
@@ -367,6 +375,23 @@ $a.$cards.WorkshopCard = (function(){
 
     return d;
   }
+  return cls;
+//}}}
+}());
+
+// Intrigue
+$a.$cards.GreathallCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action', 'victory'];
+    this._title = '大広間';
+    this._cost = 3;
+    this._card = 1;
+    this._actionCount = 1;
+    this._victoryPoints = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = cls.prototype._actBuffing;
   return cls;
 //}}}
 }());
@@ -473,15 +498,23 @@ $a.$cards.RemodelCard = (function(){
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
+    return cls.removel(2);
+  }
+
+  cls.removel = function(bonus){
+
+    // TODO: None test
+    if ($a.handCards.getData().length === 0) {
+      alert('カードがありません');
+      return;
+    }
 
     var d = $.Deferred();
+
     alert('廃棄するカードを選んで下さい');
-    var signal = $.Deferred();
-    $f.waitChoice($a.handCards.getData(), signal);
+    $f.waitChoice($a.handCards.getData()).done(function(card){
 
-    $.when(signal).done(function(card){
-
-      var maxGainableCardCost = card.getCost() + 2;
+      var maxGainableCardCost = card.getCost() + bonus;
       $a.handCards.destroyCard(card);
       $a.statusBox.draw();
       $a.handBox.draw();
@@ -491,9 +524,7 @@ $a.$cards.RemodelCard = (function(){
       $a.pagechangerBox.draw();
       alert($f.format('{0} コスト以下のカードを獲得できます', maxGainableCardCost));
 
-      var signal2 = $.Deferred();
-      $f.waitChoice($a.kingdomCards.getData(), signal2);
-      $.when(signal2).done(function(wantedCard){
+      $f.waitChoice($a.kingdomCards.getData()).done(function(wantedCard){
 
         if (wantedCard.getCost() <= maxGainableCardCost) {
           $a.talonCards.addNewCard(wantedCard.className, { stack:true })
@@ -510,6 +541,7 @@ $a.$cards.RemodelCard = (function(){
 
     return d;
   }
+
   return cls;
 //}}}
 }());
@@ -574,6 +606,8 @@ $a.$cards.ThroneroomCard = (function(){
 //
 // 5 cost
 //
+
+// Basic
 $a.$cards.FestivalCard = (function(){
 //{{{
   var cls = function(){
@@ -693,11 +727,9 @@ $a.$cards.MineCard = (function(){
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
-      alert($f.format('{0} コスト以下の財宝カードを手札に加えられます', maxGainableCardCost));
 
-      var signal2 = $.Deferred();
-      $f.waitChoice($a.kingdomCards.findDataByCardType('treasure'), signal2);
-      $.when(signal2).done(function(wantedCard){
+      alert($f.format('{0} コスト以下の財宝カードを手札に加えられます', maxGainableCardCost));
+      $f.waitChoice($a.kingdomCards.findDataByCardType('treasure')).done(function(wantedCard){
 
         if (wantedCard.getCost() <= maxGainableCardCost) {
           $a.handCards.addNewCard(wantedCard.className)
@@ -713,6 +745,25 @@ $a.$cards.MineCard = (function(){
     });
 
     return d;
+  }
+  return cls;
+//}}}
+}());
+
+// Intrigue
+$a.$cards.UpgradeCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '改良';
+    this._cost = 5;
+    this._card = 1;
+    this._actionCount = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+    this._actBuffing();
+    return $a.$cards.RemodelCard.removel(1);
   }
   return cls;
 //}}}
