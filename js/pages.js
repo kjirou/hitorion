@@ -255,7 +255,7 @@ $a.$pages.StageselectionPage = (function(){
     var self = evt.data.self;
     var stageClassName = evt.data.stageClassName;
 
-    if (_.indexOf(['BasicStage'], stageClassName) < 0) {
+    if (_.indexOf(['BasicStage'], stageClassName) < 0 && $e.debug !== true) {
       alert('すみません, まだ作成していません');
       return false;
     }

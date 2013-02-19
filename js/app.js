@@ -390,6 +390,10 @@ $a.Cards = (function(){
     }
   }
 
+  cls.prototype.has = function(card){
+    return _.indexOf(this._cards, card) >= 0;
+  }
+
   cls.prototype.pushed = function(card){
     this._cards.push(card);
   }

@@ -387,7 +387,11 @@ $a.$cards.FeastCard = (function(){
 
     var d = $.Deferred();
 
-    $a.talonCards.destroyCard(this);
+    // Usally, talonCards has this card always.
+    //   This check is for the ThroneroomCard.
+    if ($a.talonCards.has(this)) {
+      $a.talonCards.destroyCard(this);
+    }
     $a.handBox.draw();
     $a.trashCardsBox.draw();
     $a.pagechangerBox.draw();
@@ -396,9 +400,7 @@ $a.$cards.FeastCard = (function(){
     $a.pagechangerBox.draw();
     alert('5 コスト以下のカードを獲得できます');
 
-    var signal = $.Deferred();
-    $f.waitChoice($a.kingdomCards.getData(), signal);
-    $.when(signal).done(function(wantedCard){
+    $f.waitChoice($a.kingdomCards.getData()).done(function(wantedCard){
 
       if (wantedCard.getCost() <= 5) {
         $a.talonCards.addNewCard(wantedCard.className, { stack:true })
@@ -540,7 +542,6 @@ $a.$cards.ThroneroomCard = (function(){
 
     var d = $.Deferred();
 
-    var signal = $.Deferred();
     var actions = $a.handCards.findDataByCardType('action');
     if (actions.length === 0) {
       alert('アクションカードがありません');
@@ -548,8 +549,7 @@ $a.$cards.ThroneroomCard = (function(){
     }
 
     alert('使用するカードを選んで下さい');
-    $f.waitChoice(actions, signal);
-    $.when(signal).done(function(card){
+    $f.waitChoice(actions).done(function(card){
 
       $a.handCards.throwCard(card);
       $a.handBox.draw();

@@ -294,6 +294,23 @@ $a.$stages.SeasideStage = (function(){
 //{{{
   var cls = function(){
     this._buyableCards = [
+      'CellarCard',
+      'ChancellorCard',
+      'VillageCard',
+      //'WoodcutterCard',
+      'WorkshopCard',
+      'FeastCard',
+      //'GardensCard',
+      //'MoneylenderCard',
+      'RemodelCard',
+      //'SmithyCard',
+      'ThroneroomCard',
+      //'FestivalCard',
+      //'LaboratoryCard',
+      'LibraryCard',
+      //'MarketCard',
+      'MineCard',
+      'AdventurerCard'//,
     ];
   }
   $f.inherit(cls, new $a.Stage(), $a.Stage);
