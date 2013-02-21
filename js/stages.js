@@ -313,7 +313,8 @@ $a.$stages.SeasideStage = (function(){
       'AdventurerCard',
 
       'GreathallCard',
-      'UpgradeCard'//,
+      'UpgradeCard',
+      'NoblesCard'//,
     ];
   }
   $f.inherit(cls, new $a.Stage(), $a.Stage);

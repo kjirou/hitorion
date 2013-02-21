@@ -812,3 +812,40 @@ $a.$cards.AdventurerCard = (function(){
   return cls;
 //}}}
 }());
+
+// Intrigue
+$a.$cards.NoblesCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '貴族';
+    this._cost = 6;
+    this._victoryPoints = 2;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var effectType = null; // 1=Card+3 2=Action+2
+    var cnt = 0;
+    while (effectType === null) {
+      if (cnt % 2) {
+        if (confirm('カードを 3 枚引きますか?')) effectType = 1;
+      } else {
+        if (confirm('アクションを 2 増加しますか?')) effectType = 2;
+      }
+      cnt += 1;
+    }
+
+    if (effectType === 1) {
+      $a.handCards.pullCards(3);
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+    } else {
+      $a.game.modifyActionCount(2);
+    }
+    $a.statusBox.draw();
+
+  }
+  return cls;
+//}}}
+}());
