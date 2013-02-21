@@ -139,7 +139,7 @@ $a.$pages.TopPage = (function(){
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .text('[v1.0.1] 王座＞祝宴時に落ちるバグを修正')
+      .html('[v1.0.2]ランキング名に日本語が入らなかったのを修正<br />[v1.0.1] 王座＞祝宴時に落ちるバグを修正')
       .appendTo(self.getView())
     ;
   }
