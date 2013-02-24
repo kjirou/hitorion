@@ -311,7 +311,7 @@ $a.Game = (function(){
 
   cls.prototype.getCurrentPhaseType = function(){ return this._currentPhaseType }
 
-  cls.prototype._mergePlayersCardData = function(){
+  cls.prototype.getPlayersCardData = function(){
     var cards = [];
     cards = cards.concat($a.deckCards.getData())
     cards = cards.concat($a.talonCards.getData())
@@ -320,11 +320,11 @@ $a.Game = (function(){
   }
 
   cls.prototype.getTotalCardCount = function(){
-    return this._mergePlayersCardData().length;
+    return this.getPlayersCardData().length;
   }
 
   cls.prototype.summaryVictoryPoints = function(){
-    return _.reduce(this._mergePlayersCardData(), function(memo, card){
+    return _.reduce(this.getPlayersCardData(), function(memo, card){
       return memo + card.getVictoryPoints();
     }, 0);
   }

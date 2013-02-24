@@ -8,7 +8,7 @@ $a.Card = (function(){
     this._title = undefined;
     this._description = null;
     this._cost = 0;
-    this._victoryPoints = 0;
+    this._victoryPoints = 0;  // int or func(){ return int; }
     this._card = 0;
     this._actionCount = 0;
     this._buyCount = 0;
@@ -811,6 +811,23 @@ $a.$cards.MineCard = (function(){
 }());
 
 // Intrigue
+$a.$cards.DukeCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['victory'];
+    this._title = '公爵';
+    this._cost = 5;
+    this._victoryPoints = function(){
+      return _.filter($a.game.getPlayersCardData(), function(card){
+        return card.className === 'Victorypoints3Card';
+      }).length;
+    }
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  return cls;
+//}}}
+}());
+
 $a.$cards.TradingpostCard = (function(){
 //{{{
   var cls = function(){
