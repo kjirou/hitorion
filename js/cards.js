@@ -602,6 +602,33 @@ $a.$cards.ThroneroomCard = (function(){
 //}}}
 }());
 
+// Intrigue
+$a.$cards.ConspiratorCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '共謀者';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    $a.game.modifyCoinCorrection(2);
+
+    if ($a.game.getUsedActionCardCount() >= 3) {
+      $a.game.modifyActionCount(1);
+      $a.handCards.pullCards(1);
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+    }
+
+    $a.statusBox.draw();
+
+  }
+  return cls;
+//}}}
+}());
+
 
 //
 // 5 cost
