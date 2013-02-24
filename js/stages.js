@@ -304,17 +304,18 @@ $a.$stages.SeasideStage = (function(){
       //'MoneylenderCard',
       //'RemodelCard',
       //'SmithyCard',
-      'ThroneroomCard',
+      //'ThroneroomCard',
       //'FestivalCard',
-      //'LaboratoryCard',
-      'LibraryCard',
+      'LaboratoryCard',
+      //'LibraryCard',
       //'MarketCard',
       //'MineCard',
-      'AdventurerCard',
+      //'AdventurerCard',
 
       'GreathallCard',
       'ConspiratorCard',
       'UpgradeCard',
+      'TradingpostCard',
       'NoblesCard'//,
     ];
   }

@@ -687,6 +687,23 @@ $a.Screen = (function(){
     return $f.waitChoices(signalables, selector, finisher);
   }
 
+  cls.prototype.waitChoiceCardsWithLimit = function(selectableCards, minCount, maxCount){
+    var self = this;
+    var d = $.Deferred();
+    function process(){
+      self.waitChoiceCards(selectableCards).then(function(cards){
+        if (cards.length >= minCount && cards.length <= maxCount) {
+          d.resolve(cards);
+        } else {
+          alert('枚数が不正です');
+          setTimeout(process, 1);
+        }
+      });
+    }
+    setTimeout(process, 1);
+    return d;
+  }
+
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);

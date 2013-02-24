@@ -778,6 +778,43 @@ $a.$cards.MineCard = (function(){
 }());
 
 // Intrigue
+$a.$cards.TradingpostCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '交易場';
+    this._cost = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    if ($a.handCards.count() < 2) {
+      $a.handCards.dumpTo($a.trashCards);
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+      return;
+    }
+
+    var d = $.Deferred();
+
+    alert('廃棄するカードを 2 枚選んでください');
+    $a.screen.waitChoiceCardsWithLimit(
+      $a.handCards.getData(), 2, 2
+    ).then(function(cards){
+      _.each(cards, function(card){
+        $a.handCards.destroyCard(card);
+      });
+      $a.handCards.addNewCard('Coin2Card');
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+      d.resolve();
+    });
+
+    return d;
+  }
+  return cls;
+//}}}
+}());
 $a.$cards.UpgradeCard = (function(){
 //{{{
   var cls = function(){
