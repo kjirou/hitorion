@@ -312,10 +312,11 @@ $a.$stages.SeasideStage = (function(){
       //'MineCard',
       //'AdventurerCard',
 
+      'StewardCard',
       //'GreathallCard',
       'ConspiratorCard',
       'MiningvillageCard',
-      'DukeCard',
+      //'DukeCard',
       'UpgradeCard',
       'TradingpostCard',
       'NoblesCard'//,

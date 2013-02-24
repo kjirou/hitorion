@@ -704,6 +704,28 @@ $a.Screen = (function(){
     return d;
   }
 
+  cls.prototype.waitChoiceAndDestroingHandCards = function(cardCount){
+
+    if ($a.handCards.count() < cardCount) {
+      $a.handCards.dumpTo($a.trashCards);
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+      return $.Deferred.resolve();
+    }
+
+    alert($f.format('廃棄するカードを {0} 枚選んでください', cardCount));
+    return $a.screen.waitChoiceCardsWithLimit(
+      $a.handCards.getData(), cardCount, cardCount
+    ).then(function(cards){
+      _.each(cards, function(card){
+        $a.handCards.destroyCard(card);
+      });
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
+    });
+
+  }
+
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);

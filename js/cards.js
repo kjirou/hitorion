@@ -398,6 +398,39 @@ $a.$cards.GreathallCard = (function(){
 //}}}
 }());
 
+$a.$cards.StewardCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '執事';
+    this._cost = 3;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    while (true) {
+      if (confirm('カードを 2 枚引きますか?')) {
+        $a.handCards.pullCards(2);
+        $a.handBox.draw();
+        $a.pagechangerBox.draw();
+        $a.statusBox.draw();
+        return;
+      } else if (confirm('アクションを 2 増加しますか?')) {
+        $a.game.modifyActionCount(2);
+        $a.statusBox.draw();
+        return;
+      } else if (confirm('カードを 2 枚廃棄しますか?')) {
+        return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
+          $a.statusBox.draw();
+        });
+      }
+    }
+
+  }
+  return cls;
+//}}}
+}());
+
 
 //
 // 4 cost
@@ -838,29 +871,12 @@ $a.$cards.TradingpostCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
-    if ($a.handCards.count() < 2) {
-      $a.handCards.dumpTo($a.trashCards);
-      $a.handBox.draw();
-      $a.pagechangerBox.draw();
-      return;
-    }
-
-    var d = $.Deferred();
-
-    alert('廃棄するカードを 2 枚選んでください');
-    $a.screen.waitChoiceCardsWithLimit(
-      $a.handCards.getData(), 2, 2
-    ).then(function(cards){
-      _.each(cards, function(card){
-        $a.handCards.destroyCard(card);
-      });
+    return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
       $a.handCards.addNewCard('Coin2Card');
       $a.handBox.draw();
       $a.pagechangerBox.draw();
-      d.resolve();
     });
 
-    return d;
   }
   return cls;
 //}}}
