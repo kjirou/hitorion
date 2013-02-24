@@ -669,6 +669,41 @@ $a.$cards.ThroneroomCard = (function(){
 }());
 
 // Intrigue
+$a.$cards.BaronCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '男爵';
+    this._cost = 4;
+    this._buyCount = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    this._actBuffing();
+
+    var targets = $a.handCards.findDataByClassName('Victorypoints1Card');
+    if (
+      targets.length > 0 &&
+      confirm('屋敷を廃棄して 4 コインを取得しますか?')
+    ) {
+      $a.game.modifyCoinCorrection(4);
+      $a.handCards.destroyCard(targets[0]);
+      $a.handBox.draw();
+      $a.trashCardsBox.draw();
+    } else {
+      $a.talonCards.addNewCard('Victorypoints1Card');
+      $a.talonCardsBox.draw();
+    }
+
+    $a.statusBox.draw();
+    $a.pagechangerBox.draw();
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.ConspiratorCard = (function(){
 //{{{
   var cls = function(){

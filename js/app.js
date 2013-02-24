@@ -465,6 +465,12 @@ $a.Cards = (function(){
     });
   }
 
+  cls.prototype.findDataByClassName = function(className){
+    return _.filter(this._cards, function(card){
+      return card.className === className;
+    });
+  }
+
   cls.create = function(){
     var obj = new this();
     __INITIALIZE(obj);
