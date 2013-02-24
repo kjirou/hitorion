@@ -254,6 +254,8 @@ $a.$cards.Victorypoints6Card = (function(){
 //
 // 2 cost
 //
+
+// Basic
 $a.$cards.CellarCard = (function(){
 //{{{
   var cls = function(){
@@ -400,6 +402,8 @@ $a.$cards.GreathallCard = (function(){
 //
 // 4 cost
 //
+
+// Basic
 $a.$cards.FeastCard = (function(){
 //{{{
   var cls = function(){
@@ -456,6 +460,35 @@ $a.$cards.GardensCard = (function(){
     }
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
+  return cls;
+//}}}
+}());
+
+$a.$cards.MiningvillageCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '鉱山の村';
+    this._cost = 4;
+    this._card = 1;
+    this._actionCount = 2;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    this._actBuffing();
+
+    // This check is for the ThroneroomCard
+    if ($a.talonCards.has(this)) {
+      if (confirm('このカードを廃棄して 2 コイン取得しますか?')) {
+        $a.game.modifyCoinCorrection(2);
+        $a.talonCards.destroyCard(this);
+        $a.trashCardsBox.draw();
+        $a.pagechangerBox.draw();
+      }
+    }
+
+  }
   return cls;
 //}}}
 }());
@@ -815,6 +848,7 @@ $a.$cards.TradingpostCard = (function(){
   return cls;
 //}}}
 }());
+
 $a.$cards.UpgradeCard = (function(){
 //{{{
   var cls = function(){
@@ -837,6 +871,8 @@ $a.$cards.UpgradeCard = (function(){
 //
 // 6 cost
 //
+
+// Basic
 $a.$cards.AdventurerCard = (function(){
 //{{{
   var cls = function(){

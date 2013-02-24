@@ -295,16 +295,16 @@ $a.$stages.SeasideStage = (function(){
   var cls = function(){
     this._buyableCards = [
       'CellarCard',
-      'ChancellorCard',
+      //'ChancellorCard',
       'VillageCard',
       //'WoodcutterCard',
-      'WorkshopCard',
+      //'WorkshopCard',
       //'FeastCard',
       //'GardensCard',
       //'MoneylenderCard',
       //'RemodelCard',
       //'SmithyCard',
-      //'ThroneroomCard',
+      'ThroneroomCard',
       //'FestivalCard',
       'LaboratoryCard',
       //'LibraryCard',
@@ -314,6 +314,7 @@ $a.$stages.SeasideStage = (function(){
 
       'GreathallCard',
       'ConspiratorCard',
+      'MiningvillageCard',
       'UpgradeCard',
       'TradingpostCard',
       'NoblesCard'//,
