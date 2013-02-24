@@ -783,7 +783,7 @@ $a.$cards.TradingpostCard = (function(){
   var cls = function(){
     this._cardTypes = ['action'];
     this._title = '交易場';
-    this._cost = 1;
+    this._cost = 5;
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
