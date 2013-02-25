@@ -139,7 +139,7 @@ $a.$pages.TopPage = (function(){
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .html('[v1.0.2]ランキング名に日本語が入らなかったのを修正<br />[v1.0.1] 王座＞祝宴時に落ちるバグを修正')
+      .html('[v1.0.3]残り山札を超えてカードを引くと落ちる点を修正<br />[v1.0.3]1ターン内で同アクションカードが何度も使える点を修正<br />[v1.0.3]金貸しが銅貨を廃棄していなかった点を修正')
       .appendTo(self.getView())
     ;
   }

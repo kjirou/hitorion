@@ -449,10 +449,9 @@ $a.$cards.FeastCard = (function(){
 
     var d = $.Deferred();
 
-    // Usally, talonCards has this card always.
-    //   This check is for the ThroneroomCard.
-    if ($a.talonCards.has(this)) {
-      $a.talonCards.destroyCard(this);
+    // This check is for the ThroneroomCard
+    if ($a.playareaCards.has(this)) {
+      $a.playareaCards.destroyCard(this);
     }
     $a.handBox.draw();
     $a.trashCardsBox.draw();
@@ -512,11 +511,10 @@ $a.$cards.MiningvillageCard = (function(){
     this._actBuffing();
 
     // This check is for the ThroneroomCard
-    if ($a.talonCards.has(this)) {
+    if ($a.playareaCards.has(this)) {
       if (confirm('このカードを廃棄して 2 コイン取得しますか?')) {
         $a.game.modifyCoinCorrection(2);
-        $a.talonCards.destroyCard(this);
-        $a.trashCardsBox.draw();
+        $a.playareaCards.destroyCard(this);
         $a.pagechangerBox.draw();
       }
     }
@@ -541,7 +539,7 @@ $a.$cards.MoneylenderCard = (function(){
     });
 
     if (coin1s.length > 0) {
-      $a.handCards.throwCard(coin1s[0]);
+      $a.handCards.destroyCard(coin1s[0]);
       $a.game.modifyCoinCorrection(3);
       $a.statusBox.draw();
       $a.handBox.draw();
@@ -649,9 +647,8 @@ $a.$cards.ThroneroomCard = (function(){
     alert('使用するカードを選んで下さい');
     $f.waitChoice(actions).done(function(card){
 
-      $a.handCards.throwCard(card);
+      $a.handCards.useActionCard(card);
       $a.handBox.draw();
-      $a.talonCardsBox.draw();
       $a.pagechangerBox.draw();
 
       card.act().then(function(){

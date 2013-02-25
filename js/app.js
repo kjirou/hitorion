@@ -12,7 +12,7 @@ var $c, $a; // $, _, $f, $d, $e are already existed
 
 $c = {
 //{{{
-  VERSION: '1.0.2',
+  VERSION: '1.0.3',
   CSS_PREFIX: 'htr-',
   SF_SIZE: [320, 416]//,
 //}}}
@@ -545,15 +545,14 @@ $a.DeckCards = (function(){
     'Victorypoints1Card', 'Victorypoints1Card', 'Victorypoints1Card'//,
   ];
 
-  cls.prototype.reshuffle = function(){
-    $a.playareaCards.dumpTo(this);
+  cls.prototype._reshuffle = function(){
     $a.talonCards.dumpTo(this);
     this.shuffle();
   }
 
   cls.prototype.autoReshuffle = function(){
     if (this.count() > 0 || this._doneReshuffled) return;
-    this.reshuffle();
+    this._reshuffle();
     this._doneReshuffled = true;
   }
 
