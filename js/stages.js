@@ -60,6 +60,7 @@ $a.Stage = (function(){
     allCards = allCards.concat($a.deckCards.getData().slice());
     allCards = allCards.concat($a.talonCards.getData().slice());
     allCards = allCards.concat($a.trashCards.getData().slice());
+    allCards = allCards.concat($a.playareaCards.getData().slice());
     allCards = allCards.concat($a.tmpCards.getData().slice());
     allCards = allCards.concat($a.handCards.getData().slice());
     _.each(allCards, function(card){ card.destroy(); });
@@ -89,6 +90,7 @@ $a.Stage = (function(){
     $a.tmpCards = $a.Cards.create();
     $a.handCards = $a.HandCards.create();
     $a.handCards.reset();
+    $a.playareaCards = $a.PlayareaCards.create();
 
     $a.statusBox.draw();
     $a.mainBox.draw();

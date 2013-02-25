@@ -30,6 +30,7 @@ $a = {
   kingdomCards: null,
   deckCards: null,
   talonCards: null,
+  playareaCards: null,
   tmpCards: null,
   trashCards: null,
   handCards: null,
@@ -154,27 +155,38 @@ $a.Game = (function(){
     var self = this;
     var d = $.Deferred();
     $.Deferred().resolve().then(function(){
+
       self._currentPhaseType = 'action';
+
       $a.statusBox.draw();
       $a.mainBox.changePage('hand');
       $a.pagechangerBox.draw();
+
       return self._runActionPhase();
     }).then(function(){
       $d('Ended action phase');
+
       self._currentPhaseType = 'buy';
+
       $a.statusBox.draw();
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
+
       return self._runBuyPhase();
     }).then(function(){
       $d('Ended buy phase');
+
       self._resetStatuses();
+      $a.deckCards.resetDoneReshuffled();
+      $a.playareaCards.reset();
       $a.handCards.reset();
+
       $a.statusBox.draw();
       $a.handBox.draw();
       $a.deckCardsBox.draw();
       $a.talonCardsBox.draw();
       $a.pagechangerBox.draw();
+
       d.resolve();
     });
     return d;
@@ -209,14 +221,12 @@ $a.Game = (function(){
 
     var d = $.Deferred();
 
-    var signal = $.Deferred();
     var signalables = [$a.mainBox];
-    if ($a.game.getActionCount() > 0) {// Can't choice
+    if ($a.game.getActionCount() > 0) {
       signalables = signalables.concat($a.handCards.getData());
     }
-    $f.waitChoice(signalables, signal);
 
-    $.when(signal).done(function(signaler){
+    $f.waitChoice(signalables).done(function(signaler){
 
       // Is touched statusBox
       if (signaler instanceof $a.Card === false) {
@@ -226,7 +236,7 @@ $a.Game = (function(){
         // Is actable card
         if (signaler.isActable()) {
           $a.game.modifyUsedActionCardCount(1);
-          $a.handCards.throwCard(signaler);
+          $a.handCards.useActionCard(signaler);
           $a.statusBox.draw();
           $a.handBox.draw();
           $a.talonCardsBox.draw();
@@ -524,13 +534,30 @@ $a.KingdomCards = (function(){
 
 $a.DeckCards = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){
+    /** Does this cards have be reshuffled in a turn */
+    this._doneReshuffled = false;
+  }
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.__DEFAULT_CARDS = [
     'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card', 'Coin1Card',
     'Victorypoints1Card', 'Victorypoints1Card', 'Victorypoints1Card'//,
   ];
+
+  cls.prototype.reshuffle = function(){
+    $a.playareaCards.dumpTo(this);
+    $a.talonCards.dumpTo(this);
+    this.shuffle();
+  }
+
+  cls.prototype.autoReshuffle = function(){
+    if (this.count() > 0 || this._doneReshuffled) return;
+    this.reshuffle();
+    this._doneReshuffled = true;
+  }
+
+  cls.prototype.resetDoneReshuffled = function(){ this._doneReshuffled = false; }
 
   cls.prototype.reset = function(){
     var self = this;
@@ -551,11 +578,13 @@ $a.HandCards = (function(){
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.prototype.pullCards = function(cardCount){
-    if ($a.deckCards.count() < cardCount) {
-      $a.talonCards.shuffle();
-      $a.talonCards.dealTo($a.deckCards, $a.talonCards.count());
-    }
-    $a.deckCards.dealTo(this, cardCount);
+    var self = this;
+    _.times(cardCount, function(){
+      $a.deckCards.autoReshuffle();
+      if ($a.deckCards.count() > 0) {
+        $a.deckCards.dealTo(self, 1);
+      }
+    });
   }
 
   cls.prototype.throwCard = function(card){
@@ -568,9 +597,28 @@ $a.HandCards = (function(){
     _.each(cards, function(card){ self.throwCard(card); });
   }
 
+  cls.prototype.useActionCard = function(card){
+    this.remove(card);
+    $a.playareaCards.stacked(card);
+  }
+
   cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
     this.pullCards(5);
+  }
+
+  return cls;
+//}}}
+}());
+
+
+$a.PlayareaCards = (function(){
+//{{{
+  var cls = function(){}
+  $f.inherit(cls, new $a.Cards(), $a.Cards);
+
+  cls.prototype.reset = function(){
+    this.dumpTo($a.talonCards);
   }
 
   return cls;
