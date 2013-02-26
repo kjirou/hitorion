@@ -861,6 +861,7 @@ $a.$cards.ScoutCard = (function(){
     this._cardTypes = ['action'];
     this._title = '偵察員';
     this._cost = 4;
+    this._actionCount = 1;
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
