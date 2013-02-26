@@ -133,13 +133,13 @@ $a.$pages.TopPage = (function(){
         bottom: 0,
         left: 0,
         width: '100%',
-        height: 48,
+        height: 72,
         lineHeight: '12px',
         fontSize: $a.fs(10),
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .html('[v1.0.3]残り山札を超えてカードを引くと落ちる点を修正<br />[v1.0.3]1ターン内で同アクションカードが何度も使える点を修正<br />[v1.0.3]金貸しが銅貨を廃棄していなかった点を修正')
+      .html('[v1.0.5]<strong style="color:red;">陰謀ステージを一部作成しました</strong><br />[v1.0.5]捨札/廃棄を見えるようにした<br />[v1.0.5]冒険者がカードを廃棄していたバグを修正')
       .appendTo(self.getView())
     ;
   }
@@ -188,7 +188,7 @@ $a.$pages.StageselectionPage = (function(){
     _.each(stageDataList, function(data, idx){
 
       var labelColor = '#000';
-      if (data.className !== 'BasicStage') labelColor = '#999';
+      if (data.className === 'SeasideStage') labelColor = '#999';
 
       var frame = $('<div>').css({
         position: 'absolute',
@@ -271,9 +271,13 @@ $a.$pages.StageselectionPage = (function(){
     var self = evt.data.self;
     var stageClassName = evt.data.stageClassName;
 
-    if (_.indexOf(['BasicStage'], stageClassName) < 0 && $e.debug !== true) {
-      alert('すみません, まだ作成していません');
-      return false;
+    if ($e.debug === false) {
+      if (stageClassName === 'IntrigueStage') {
+        alert('テスト中で一部カードだけしかありません\nスコアは反映されません');
+      } else if (stageClassName === 'SeasideStage') {
+        alert('まだ作成していません');
+        return false;
+      }
     }
 
     $a.stage = $a.$stages[stageClassName].create();
