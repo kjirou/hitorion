@@ -298,6 +298,32 @@ $a.$cards.CellarCard = (function(){
 }());
 
 // Intrigue
+$a.$cards.CourtyardCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '中庭';
+    this._cost = 2;
+    this._card = 3;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    this._actBuffing();
+
+    alert('山札へ戻すカードを選んで下さい');
+    return $f.waitChoice($a.handCards.getData()).done(function(card){
+      $a.handCards.moveCard(card, $a.deckCards, { stack:true });
+      $a.handBox.draw();
+      $a.deckCardsBox.draw();
+      $a.pagechangerBox.draw();
+    });
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.PawnCard = (function(){
 //{{{
   var cls = function(){

@@ -300,7 +300,7 @@ $a.$stages.SeasideStage = (function(){
       //'ChancellorCard',
       //'VillageCard',
       //'WoodcutterCard',
-      'WorkshopCard',
+      //'WorkshopCard',
       //'FeastCard',
       //'GardensCard',
       //'MoneylenderCard',
@@ -314,6 +314,7 @@ $a.$stages.SeasideStage = (function(){
       //'MineCard',
       //'AdventurerCard',
 
+      'CourtyardCard',
       //'PawnCard',
       //'StewardCard',
       //'GreathallCard',
