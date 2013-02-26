@@ -61,7 +61,7 @@ $a.Stage = (function(){
     allCards = allCards.concat($a.talonCards.getData().slice());
     allCards = allCards.concat($a.trashCards.getData().slice());
     allCards = allCards.concat($a.playareaCards.getData().slice());
-    allCards = allCards.concat($a.tmpCards.getData().slice());
+    allCards = allCards.concat($a.asideCards.getData().slice());
     allCards = allCards.concat($a.handCards.getData().slice());
     _.each(allCards, function(card){ card.destroy(); });
 
@@ -87,7 +87,7 @@ $a.Stage = (function(){
     $a.deckCards.reset();
     $a.talonCards = $a.Cards.create();
     $a.trashCards = $a.Cards.create();
-    $a.tmpCards = $a.Cards.create();
+    $a.asideCards = $a.Cards.create();
     $a.handCards = $a.HandCards.create();
     $a.handCards.reset();
     $a.playareaCards = $a.PlayareaCards.create();
@@ -301,7 +301,7 @@ $a.$stages.SeasideStage = (function(){
       'VillageCard',
       //'WoodcutterCard',
       //'WorkshopCard',
-      'FeastCard',
+      //'FeastCard',
       //'GardensCard',
       'MoneylenderCard',
       //'RemodelCard',
@@ -309,7 +309,7 @@ $a.$stages.SeasideStage = (function(){
       'ThroneroomCard',
       //'FestivalCard',
       'LaboratoryCard',
-      //'LibraryCard',
+      'LibraryCard',
       //'MarketCard',
       //'MineCard',
       //'AdventurerCard',

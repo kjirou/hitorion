@@ -31,7 +31,7 @@ $a = {
   deckCards: null,
   talonCards: null,
   playareaCards: null,
-  tmpCards: null,
+  asideCards: null,
   trashCards: null,
   handCards: null,
   screen: undefined,

@@ -786,12 +786,12 @@ $a.$cards.LibraryCard = (function(){
       card = $a.handCards.getLastCard();
       if (card.hasCardType('action')) {
         if (confirm($f.format('{0} を無視しますか?', card.getTitle()))) {
-          $a.handCards.moveCard(card, $a.tmpCards);
+          $a.handCards.moveCard(card, $a.asideCards);
           $a.handBox.draw();
         }
       }
     }
-    $a.tmpCards.dumpTo($a.talonCards);
+    $a.asideCards.dumpTo($a.talonCards);
     $a.pagechangerBox.draw();
 
   }
