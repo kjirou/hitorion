@@ -413,11 +413,14 @@ $a.Cards = (function(){
     }, options || {});
 
     var card = $a.$cards[cardClassName].create();
+
     if (opts.stack) {
       this._cards.unshift(card);
     } else {
       this._cards.push(card);
     }
+
+    return card;
   }
 
   cls.prototype.has = function(card){
@@ -458,9 +461,13 @@ $a.Cards = (function(){
 
   cls.prototype.dealTo = function(toCards, count){
     var self = this;
+    var dealedCards = [];
     _.times(count, function(){
-      toCards.pushed(self.pulled());
+      var card = self.pulled();
+      toCards.pushed(card);
+      dealedCards.push(card);
     });
+    return dealedCards;
   }
 
   cls.prototype.moveCard = function(card, toCards, options){
@@ -497,7 +504,8 @@ $a.Cards = (function(){
     _.times(cardCount, function(){
       $a.deckCards.autoReshuffle();
       if ($a.deckCards.count() > 0) {
-        $a.deckCards.dealTo(self, 1);
+        var card = $a.deckCards.dealTo(self, 1)[0];
+        card.turnedUp();
       }
     });
   }
@@ -581,6 +589,7 @@ $a.DeckCards = (function(){
   cls.prototype._reshuffle = function(){
     $a.talonCards.dumpTo(this);
     this.shuffle();
+    _.each(this.getData(), function(card){ card.turnedDown(); });
   }
 
   cls.prototype.autoReshuffle = function(){
@@ -598,7 +607,8 @@ $a.DeckCards = (function(){
   cls.prototype.reset = function(){
     var self = this;
     _.each(cls.__DEFAULT_CARDS, function(cardClassName){
-      self.addNewCard(cardClassName);
+      var card = self.addNewCard(cardClassName);
+      card.turnedDown();
     });
     this.shuffle();
   }

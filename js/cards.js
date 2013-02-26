@@ -17,6 +17,7 @@ $a.Card = (function(){
 
     this.className = undefined;
     this._isSelected = false;
+    this._isTurnedDown = false;
   }
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
   $f.mixin(cls, new $f.SignalableMixin());
@@ -61,6 +62,15 @@ $a.Card = (function(){
   cls.prototype.draw = function(){
     $f.Sprite.prototype.draw.apply(this);
 
+    if (this._isTurnedDown) {
+      this._view.css({
+        backgroundColor: '#ccc'
+      });
+      this._titleView.text('');
+      this._costView.text('');
+      return;
+    }
+
     var bgColor;
     if (this.getCardType() === 'victory') {
       bgColor = '#76bc75';
@@ -98,6 +108,13 @@ $a.Card = (function(){
   cls.prototype.toUnselected = function(){
     this._isSelected = false;
     this._drawSelectedState();
+  }
+
+  cls.prototype.turnedUp = function(){
+    this._isTurnedDown = false;
+  }
+  cls.prototype.turnedDown = function(){
+    this._isTurnedDown = true;
   }
 
   /**
