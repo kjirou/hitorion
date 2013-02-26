@@ -82,12 +82,19 @@ $a.Card = (function(){
       bgColor = '#829f83';
     }
 
+    var opacity = 1.0;
+    // FIXME: Dirty implementation
+    if ($a.asideCards.has(this)) {
+      opacity = 0.5;
+    }
+
     this._titleView.text(this._title);
 
     this._costView.text(this._cost + ' cost');
 
     this._view.css({
-      backgroundColor: bgColor
+      backgroundColor: bgColor,
+      opacity: opacity
     });
 
     this._drawSelectedState();
@@ -302,9 +309,7 @@ $a.$cards.CellarCard = (function(){
     $a.screen.waitChoiceCards($a.handCards.getData()).then(function(cards){
       $a.handCards.throwCards(cards);
       $a.handCards.pullCards(cards.length);
-      $a.handBox.draw();
-      $a.othercardsBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
       d.resolve();
     });
 
@@ -333,7 +338,7 @@ $a.$cards.CourtyardCard = (function(){
     return $f.waitChoice($a.handCards.getData()).done(function(card){
       $a.handCards.moveCard(card, $a.deckCards, { stack:true });
       $a.handBox.draw();
-      $a.deckCardsBox.draw();
+      $a.othercardsBox.draw();
       $a.pagechangerBox.draw();
     });
 
@@ -391,6 +396,7 @@ $a.$cards.PawnCard = (function(){
     });
     $a.statusBox.draw();
     $a.handBox.draw();
+    $a.othercardsBox.draw();
     $a.pagechangerBox.draw();
 
   }
@@ -416,10 +422,9 @@ $a.$cards.ChancellorCard = (function(){
   cls.prototype._act = function(){
     this._actBuffing();
     if (confirm('山札を捨て札にしますか？')) {
+      _.each($a.deckCards.getData(), function(card){ card.turnedUp(); });
       $a.deckCards.dumpTo($a.talonCards);
-      $a.statusBox.draw();
-      $a.othercardsBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
     }
   }
   return cls;
@@ -464,29 +469,33 @@ $a.$cards.WorkshopCard = (function(){
     this._cost = 3;
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
-  cls.prototype._act = function(){
 
-    var d = $.Deferred();
+  cls.prototype._act = function(){
 
     $a.mainBox.changePage('kingdom');
     $a.pagechangerBox.draw();
 
-    alert('4 コスト以下のカードを獲得できます');
+    return cls.gainCard(4);
+  }
+
+  cls.gainCard = function(maxCost){
+    var d = $.Deferred();
+
+    alert(maxCost + ' コスト以下のカードを獲得できます');
     $f.waitChoice($a.kingdomCards.getData()).then(function(card){
 
-      if (card.getCost() <= 4) {
+      if (card.getCost() <= maxCost) {
         $a.talonCards.addNewCard(card.className, { stack:true })
-        $a.statusBox.draw();
-        $a.othercardsBox.draw();
       }
       $a.mainBox.changePage('hand');
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
 
-      d.resolve();
+      d.resolve(card);
     });
 
     return d;
   }
+
   return cls;
 //}}}
 }());
@@ -522,6 +531,7 @@ $a.$cards.StewardCard = (function(){
       if (confirm('カードを 2 枚引きますか?')) {
         $a.handCards.pullCards(2);
         $a.handBox.draw();
+        $a.othercardsBox.draw();
         $a.pagechangerBox.draw();
         $a.statusBox.draw();
         return;
@@ -532,6 +542,8 @@ $a.$cards.StewardCard = (function(){
       } else if (confirm('カードを 2 枚廃棄しますか?')) {
         return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
           $a.statusBox.draw();
+          $a.othercardsBox.draw();
+          $a.pagechangerBox.draw();
         });
       }
     }
@@ -557,35 +569,16 @@ $a.$cards.FeastCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
-    var d = $.Deferred();
-
     // This check is for the ThroneroomCard
     if ($a.playareaCards.has(this)) {
       $a.playareaCards.destroyCard(this);
     }
-    $a.handBox.draw();
-    $a.trashCardsBox.draw();
-    $a.pagechangerBox.draw();
+    $a.screen.drawGameScene();
 
     $a.mainBox.changePage('kingdom');
     $a.pagechangerBox.draw();
-    alert('5 コスト以下のカードを獲得できます');
 
-    $f.waitChoice($a.kingdomCards.getData()).done(function(wantedCard){
-
-      if (wantedCard.getCost() <= 5) {
-        $a.talonCards.addNewCard(wantedCard.className, { stack:true })
-        $a.statusBox.draw();
-        $a.othercardsBox.draw();
-      }
-      $a.mainBox.changePage('hand');
-      $a.pagechangerBox.draw();
-      d.resolve();
-
-    });
-
-    return d;
-
+    return $a.$cards.WorkshopCard.gainCard(5);
   }
   return cls;
 //}}}
@@ -650,38 +643,26 @@ $a.$cards.RemodelCard = (function(){
 
   cls.removel = function(bonus){
 
-    // TODO: None test
+    var d = $.Deferred();
+
     if ($a.handCards.getData().length === 0) {
       alert('カードがありません');
       return;
     }
-
-    var d = $.Deferred();
 
     alert('廃棄するカードを選んで下さい');
     $f.waitChoice($a.handCards.getData()).done(function(card){
 
       var maxGainableCardCost = card.getCost() + bonus;
       $a.handCards.destroyCard(card);
-      $a.statusBox.draw();
-      $a.handBox.draw();
-      $a.othercardsBox.draw();
+
+      $a.screen.drawGameScene();
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
-      alert($f.format('{0} コスト以下のカードを獲得できます', maxGainableCardCost));
 
-      $f.waitChoice($a.kingdomCards.getData()).done(function(wantedCard){
-
-        if (wantedCard.getCost() <= maxGainableCardCost) {
-          $a.talonCards.addNewCard(wantedCard.className, { stack:true })
-          $a.statusBox.draw();
-          $a.othercardsBox.draw();
-        }
-        $a.mainBox.changePage('hand');
-        $a.pagechangerBox.draw();
+      $a.$cards.WorkshopCard.gainCard(maxGainableCardCost).done(function(){
         d.resolve();
-
       });
 
     });
@@ -717,33 +698,30 @@ $a.$cards.ThroneroomCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
-    // TODO: More tests
-
-    var d = $.Deferred();
-
     var actions = $a.handCards.findDataByCardType('action');
     if (actions.length === 0) {
       alert('アクションカードがありません');
       return;
     }
 
+    var d = $.Deferred();
+
     alert('使用するカードを選んで下さい');
     $f.waitChoice(actions).done(function(card){
 
       $a.handCards.useActionCard(card);
-      $a.handBox.draw();
-      $a.othercardsBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
 
-      card.act().then(function(){
-        return card.act();
-      }).then(function(){
-        d.resolve();
+      card.act().done(function(){
+        card.act().done(function(){
+          d.resolve();
+        });
       });
 
     });
 
     return d;
+
   }
   return cls;
 //}}}
@@ -770,15 +748,11 @@ $a.$cards.BaronCard = (function(){
     ) {
       $a.game.modifyCoinCorrection(4);
       $a.handCards.destroyCard(targets[0]);
-      $a.handBox.draw();
-      $a.trashCardsBox.draw();
     } else {
       $a.talonCards.addNewCard('Victorypoints1Card');
-      $a.talonCardsBox.draw();
     }
 
-    $a.statusBox.draw();
-    $a.pagechangerBox.draw();
+    $a.screen.drawGameScene();
 
   }
   return cls;
@@ -798,13 +772,11 @@ $a.$cards.ConspiratorCard = (function(){
     $a.game.modifyCoinCorrection(2);
 
     if ($a.game.countTotalUsedActionCount() >= 3) {
-      $a.game.modifyActionCount(1);
       $a.handCards.pullCards(1);
-      $a.handBox.draw();
-      $a.pagechangerBox.draw();
+      $a.game.modifyActionCount(1);
     }
 
-    $a.statusBox.draw();
+    $a.screen.drawGameScene();
 
   }
   return cls;
@@ -839,24 +811,17 @@ $a.$cards.IronworksCard = (function(){
     $a.mainBox.changePage('kingdom');
     $a.pagechangerBox.draw();
 
-    alert('4 コスト以下のカードを獲得できます');
-    $f.waitChoice($a.kingdomCards.getData()).then(function(card){
+    $a.$cards.WorkshopCard.gainCard(4).done(function(card){
 
-      if (card.getCost() <= 4) {
-        $a.talonCards.addNewCard(card.className, { stack:true })
+      if (card.hasCardType('action')) $a.game.modifyActionCount(1);
+      if (card.hasCardType('treasure')) $a.game.modifyCoinCorrection(1);
+      if (card.hasCardType('victory')) $a.handCards.pullCards(1);
 
-        if (card.hasCardType('action')) $a.game.modifyActionCount(1);
-        if (card.hasCardType('treasure')) $a.game.modifyCoinCorrection(1);
-        if (card.hasCardType('victory')) $a.handCards.pullCards(1);
-
-        $a.statusBox.draw();
-        $a.handBox.draw();
-        $a.talonCardsBox.draw();
-      }
       $a.mainBox.changePage('hand');
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
 
       d.resolve();
+
     });
 
     return d;
@@ -884,7 +849,7 @@ $a.$cards.MiningvillageCard = (function(){
       if (confirm('このカードを廃棄して 2 コイン取得しますか?')) {
         $a.game.modifyCoinCorrection(2);
         $a.playareaCards.destroyCard(this);
-        $a.pagechangerBox.draw();
+        $a.screen.drawGameScene();
       }
     }
 
@@ -922,8 +887,8 @@ $a.$cards.ScoutCard = (function(){
       $f.waitChoice($a.asideCards.getData().slice()).done(function(card){
 
         $a.asideCards.moveCard(card, $a.deckCards, { stack:true });
-        $a.handBox.draw();
-        $a.pagechangerBox.draw();
+        card.turnedDown();
+        $a.screen.drawGameScene();
 
         if ($a.asideCards.count() > 0) {
           setTimeout(process, 1);
@@ -1001,8 +966,7 @@ $a.$cards.LibraryCard = (function(){
       $a.asideCards.pullCards(1);
       card = $a.asideCards.getLastCard();
 
-      $a.handBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
 
       if (
         card.hasCardType('action') &&
@@ -1011,16 +975,12 @@ $a.$cards.LibraryCard = (function(){
         /* no process */
       } else {
         $a.asideCards.moveCard(card, $a.handCards);
-        $a.statusBox.draw();
-        $a.handBox.draw();
-        $a.pagechangerBox.draw();
+        $a.screen.drawGameScene();
       }
     }
 
     $a.asideCards.dumpTo($a.talonCards);
-    $a.handBox.draw();
-    $a.othercardsBox.draw();
-    $a.pagechangerBox.draw();
+    $a.screen.drawGameScene();
 
   }
   return cls;
@@ -1072,11 +1032,9 @@ $a.$cards.MineCard = (function(){
     $.when(signal).done(function(card){
 
       var maxGainableCardCost = card.getCost() + 3;
-
       $a.handCards.destroyCard(card);
-      $a.statusBox.draw();
-      $a.handBox.draw();
-      $a.othercardsBox.draw();
+
+      $a.screen.drawGameScene();
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
@@ -1086,11 +1044,10 @@ $a.$cards.MineCard = (function(){
 
         if (wantedCard.getCost() <= maxGainableCardCost) {
           $a.handCards.addNewCard(wantedCard.className)
-          $a.statusBox.draw();
-          $a.handBox.draw();
         }
         $a.mainBox.changePage('hand');
-        $a.pagechangerBox.draw();
+        $a.screen.drawGameScene();
+
         d.resolve();
 
       });
@@ -1133,8 +1090,7 @@ $a.$cards.TradingpostCard = (function(){
 
     return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
       $a.handCards.addNewCard('Coin2Card');
-      $a.handBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
     });
 
   }
@@ -1191,10 +1147,7 @@ $a.$cards.AdventurerCard = (function(){
       $a.handCards.pullCards(1);
 
       // Must not draw after throwing card for animation.
-      $a.statusBox.draw();
-      $a.handBox.draw();
-      $a.othercardsBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
 
       var card = $a.handCards.getLastCard();
       if (card.hasCardType('treasure')) {
@@ -1204,10 +1157,7 @@ $a.$cards.AdventurerCard = (function(){
       }
 
       if (treasureCount >= 2) {
-        $a.statusBox.draw();
-        $a.handBox.draw();
-        $a.othercardsBox.draw();
-        $a.pagechangerBox.draw();
+        $a.screen.drawGameScene();
         d.resolve();
       } else {
         setTimeout(looped, 500);
@@ -1246,12 +1196,10 @@ $a.$cards.NoblesCard = (function(){
 
     if (effectType === 1) {
       $a.handCards.pullCards(3);
-      $a.handBox.draw();
-      $a.pagechangerBox.draw();
     } else {
       $a.game.modifyActionCount(2);
     }
-    $a.statusBox.draw();
+    $a.screen.drawGameScene();
 
   }
   return cls;

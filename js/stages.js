@@ -282,6 +282,20 @@ $a.$stages.IntrigueStage = (function(){
 //{{{
   var cls = function(){
     this._buyableCards = [
+      'CourtyardCard',
+      'PawnCard',
+      'StewardCard',
+      'GreathallCard',
+      'BaronCard',
+      'ConspiratorCard',
+      'CoppersmithCard',
+      'IronworksCard',
+      'ScoutCard',
+      'MiningvillageCard',
+      'DukeCard',
+      'UpgradeCard',
+      'TradingpostCard',
+      'NoblesCard'//,
     ];
   }
   $f.inherit(cls, new $a.Stage(), $a.Stage);
@@ -296,7 +310,7 @@ $a.$stages.SeasideStage = (function(){
 //{{{
   var cls = function(){
     this._buyableCards = [
-      'CellarCard',
+      //'CellarCard',
       //'ChancellorCard',
       //'VillageCard',
       //'WoodcutterCard',
@@ -304,29 +318,29 @@ $a.$stages.SeasideStage = (function(){
       //'FeastCard',
       //'GardensCard',
       //'MoneylenderCard',
-      //'RemodelCard',
+      'RemodelCard',
       //'SmithyCard',
       'ThroneroomCard',
       //'FestivalCard',
       'LaboratoryCard',
       //'LibraryCard',
       //'MarketCard',
-      //'MineCard',
+      'MineCard',
       //'AdventurerCard',
 
       'CourtyardCard',
       //'PawnCard',
-      //'StewardCard',
+      'StewardCard',
       //'GreathallCard',
       //'BaronCard',
-      'ConspiratorCard',
-      'CoppersmithCard',
+      //'ConspiratorCard',
+      //'CoppersmithCard',
       'IronworksCard',
-      //'ScoutCard',
-      'MiningvillageCard',
+      'ScoutCard',
+      //'MiningvillageCard',
       //'DukeCard',
-      //'UpgradeCard',
-      'TradingpostCard',
+      'UpgradeCard',
+      //'TradingpostCard',
       'NoblesCard'//,
     ];
   }

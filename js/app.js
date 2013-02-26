@@ -686,6 +686,14 @@ $a.Screen = (function(){
     });
   }
 
+  /** Useful drawing set in game */
+  cls.prototype.drawGameScene = function(){
+    $a.statusBox.draw();
+    $a.handBox.draw();
+    $a.othercardsBox.draw();
+    $a.pagechangerBox.draw();
+  }
+
   cls.prototype.changePage = function(page){
     // TODO: Add fadeIn/Out version
     var d = $.Deferred();
@@ -723,9 +731,9 @@ $a.Screen = (function(){
         height: this.getHeight(),
         zIndex: cls.ZINDEXES.COVER//,
       })
-      .fadeIn(1000, function(){
+      .fadeIn(500, function(){
         setTimeout(function(){
-          view.fadeOut(1000, function(){
+          view.fadeOut(500, function(){
             view.remove();
             d.resolve();
           })
@@ -1044,12 +1052,6 @@ $a.HandBox = (function(){
     _.each(cards, function(card, idx){
       card.setPos(coords[idx]);
       card.draw();
-      // FIXME: Dirty implementation
-      if ($a.asideCards.has(card)) {
-        card.getView().css('opacity', 0.5);
-      } else {
-        card.getView().css('opacity', 1.0);
-      }
       card.getView().show();
       self.getView().append(card.getView());
     });
