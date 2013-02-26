@@ -530,14 +530,11 @@ $a.$cards.StewardCard = (function(){
     while (true) {
       if (confirm('カードを 2 枚引きますか?')) {
         $a.handCards.pullCards(2);
-        $a.handBox.draw();
-        $a.othercardsBox.draw();
-        $a.pagechangerBox.draw();
-        $a.statusBox.draw();
+        $a.screen.drawGameScene();
         return;
-      } else if (confirm('アクションを 2 増加しますか?')) {
-        $a.game.modifyActionCount(2);
-        $a.statusBox.draw();
+      } else if (confirm('コインを 2 増加しますか?')) {
+        $a.game.modifyCoinCorrection(2);
+        $a.screen.drawGameScene();
         return;
       } else if (confirm('カードを 2 枚廃棄しますか?')) {
         return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
