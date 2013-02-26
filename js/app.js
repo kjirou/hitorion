@@ -116,7 +116,7 @@ $a.Game = (function(){
     this._actionCount = undefined;
     this._buyCount = undefined;
     this._coinCorrection = undefined;
-    this._usedActionCardCount = undefined;
+    this._usedActionCardCounts = undefined;
   }
 
   function __INITIALIZE(self){
@@ -235,7 +235,6 @@ $a.Game = (function(){
       } else {
         // Is actable card
         if (signaler.isActable()) {
-          $a.game.modifyUsedActionCardCount(1);
           $a.handCards.useActionCard(signaler);
           $a.statusBox.draw();
           $a.handBox.draw();
@@ -344,7 +343,7 @@ $a.Game = (function(){
     this._actionCount = 1;
     this._buyCount = 1;
     this._coinCorrection = 0;
-    this._usedActionCardCount = 0;
+    this._usedActionCardCounts = {};
   }
 
   cls.prototype.getActionCount = function(){ return this._actionCount; }
@@ -365,8 +364,22 @@ $a.Game = (function(){
   }
   cls.prototype.modifyCoinCorrection = function(value){ this._coinCorrection += value; }
 
-  cls.prototype.getUsedActionCardCount = function(){ return this._usedActionCardCount; }
-  cls.prototype.modifyUsedActionCardCount = function(value) { this._usedActionCardCount += value; }
+  cls.prototype.increaseUsedActionCardCount = function(cardClassName){
+    if (cardClassName in this._usedActionCardCounts) {
+      this._usedActionCardCounts[cardClassName] += 1;
+    } else {
+      this._usedActionCardCounts[cardClassName] = 1;
+    }
+  }
+  cls.prototype.countUsedActionCount = function(cardClassName){
+    return this._usedActionCardCounts[cardClassName] || 0;
+  }
+  cls.prototype.countTotalUsedActionCount = function(){
+    var values =  _.values(this._usedActionCardCounts);
+    return _.reduce(values, function(memo, value){
+      return memo + value;
+    }, 0);
+  }
 
   cls.create = function(maxTrun){
     var obj = new this();

@@ -108,6 +108,7 @@ $a.Card = (function(){
   cls.prototype._act = null;
 
   cls.prototype.act = function(){
+    $a.game.increaseUsedActionCardCount(this.className);
     return this._act() || $.Deferred().resolve();
   }
 
@@ -146,7 +147,16 @@ $a.Card = (function(){
     if (_.isFunction(this._victoryPoints)) return this._victoryPoints();
     return this._victoryPoints;
   }
-  cls.prototype.getCoin = function(){ return this._coin; }
+  cls.prototype.getCoin = function(){
+    var coin = this._coin;
+    if (
+      this.className === 'Coin1Card' &&
+      $a.game.countUsedActionCount('CoppersmithCard') > 0
+    ) {
+      coin += $a.game.countUsedActionCount('CoppersmithCard');
+    }
+    return coin;
+  }
 
   cls.prototype.isBuyable = function(){
     return this._cost <= $a.game.getCoin();
@@ -770,7 +780,7 @@ $a.$cards.ConspiratorCard = (function(){
 
     $a.game.modifyCoinCorrection(2);
 
-    if ($a.game.getUsedActionCardCount() >= 3) {
+    if ($a.game.countTotalUsedActionCount() >= 3) {
       $a.game.modifyActionCount(1);
       $a.handCards.pullCards(1);
       $a.handBox.draw();
@@ -779,6 +789,60 @@ $a.$cards.ConspiratorCard = (function(){
 
     $a.statusBox.draw();
 
+  }
+  return cls;
+//}}}
+}());
+
+$a.$cards.CoppersmithCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '銅細工師';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = cls.prototype._actBuffing;
+  return cls;
+//}}}
+}());
+
+$a.$cards.IronworksCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '鉄工所';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var d = $.Deferred();
+
+    $a.mainBox.changePage('kingdom');
+    $a.pagechangerBox.draw();
+
+    alert('4 コスト以下のカードを獲得できます');
+    $f.waitChoice($a.kingdomCards.getData()).then(function(card){
+
+      if (card.getCost() <= 4) {
+        $a.talonCards.addNewCard(card.className, { stack:true })
+
+        if (card.hasCardType('action')) $a.game.modifyActionCount(1);
+        if (card.hasCardType('treasure')) $a.game.modifyCoinCorrection(1);
+        if (card.hasCardType('victory')) $a.handCards.pullCards(1);
+
+        $a.statusBox.draw();
+        $a.handBox.draw();
+        $a.talonCardsBox.draw();
+      }
+      $a.mainBox.changePage('hand');
+      $a.pagechangerBox.draw();
+
+      d.resolve();
+    });
+
+    return d;
   }
   return cls;
 //}}}
