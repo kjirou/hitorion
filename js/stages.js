@@ -298,9 +298,9 @@ $a.$stages.SeasideStage = (function(){
     this._buyableCards = [
       'CellarCard',
       //'ChancellorCard',
-      'VillageCard',
+      //'VillageCard',
       //'WoodcutterCard',
-      //'WorkshopCard',
+      'WorkshopCard',
       //'FeastCard',
       //'GardensCard',
       'MoneylenderCard',
@@ -318,9 +318,10 @@ $a.$stages.SeasideStage = (function(){
       //'GreathallCard',
       //'BaronCard',
       //'ConspiratorCard',
+      'ScoutCard',
       'MiningvillageCard',
       //'DukeCard',
-      'UpgradeCard',
+      //'UpgradeCard',
       'TradingpostCard',
       'NoblesCard'//,
     ];

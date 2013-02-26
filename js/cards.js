@@ -727,6 +727,55 @@ $a.$cards.ConspiratorCard = (function(){
 //}}}
 }());
 
+$a.$cards.ScoutCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '偵察員';
+    this._cost = 4;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    $a.asideCards.pullCards(4);
+    _.each($a.asideCards.getData().slice(), function(card){
+      if (card.hasCardType('victory')) {
+        $a.asideCards.moveCard(card, $a.handCards);
+      }
+    });
+
+    $a.handBox.draw();
+    $a.pagechangerBox.draw();
+
+    if ($a.asideCards.count() === 0) return;
+
+    var d = $.Deferred();
+
+    alert('山札へ戻す順に選択して下さい');
+    var process = function(){
+      $f.waitChoice($a.asideCards.getData().slice()).done(function(card){
+
+        $a.asideCards.moveCard(card, $a.deckCards, { stack:true });
+        $a.handBox.draw();
+        $a.pagechangerBox.draw();
+
+        if ($a.asideCards.count() > 0) {
+          setTimeout(process, 1);
+        } else {
+          d.resolve();
+        }
+
+      });
+    }
+    setTimeout(process, 1);
+
+    return d;
+
+  }
+  return cls;
+//}}}
+}());
+
 
 //
 // 5 cost
