@@ -287,6 +287,63 @@ $a.$cards.CellarCard = (function(){
 //}}}
 }());
 
+// Intrigue
+$a.$cards.PawnCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '手先';
+    this._cost = 2;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    var effectTypes = ['card', 'action', 'buy', 'coin'];
+    var choices = [];
+    var cnt = 0;
+    var currentType;
+    while (choices.length < 2) {
+
+      currentType = effectTypes[cnt % effectTypes.length];
+      cnt += 1;
+      if (_.indexOf(choices, currentType) > -1) {
+        continue;
+      }
+
+      if (currentType === 'card') {
+        if (confirm('カードを 1 枚引きますか?')) choices.push('card');
+      } else if (currentType === 'action') {
+        if (confirm('アクションを 1 増加しますか?')) choices.push('action');
+      } else if (currentType === 'buy') {
+        if (confirm('購入を 1 増加しますか?')) choices.push('buy');
+      } else if (currentType === 'coin') {
+        if (confirm('コインを 1 増加しますか?')) choices.push('coin');
+      } else {
+        throw Error('PawnCard._act: Invalid situation'); // For infinity loop
+      }
+
+    }
+
+    _.each(choices, function(effectType){
+      if (effectType === 'card') {
+        $a.handCards.pullCards(1);
+      } else if (effectType === 'action') {
+        $a.game.modifyActionCount(1);
+      } else if (effectType === 'buy') {
+        $a.game.modifyBuyCount(1);
+      } else if (effectType === 'coin') {
+        $a.game.modifyCoinCorrection(1);
+      }
+    });
+    $a.statusBox.draw();
+    $a.handBox.draw();
+    $a.pagechangerBox.draw();
+
+  }
+  return cls;
+//}}}
+}());
+
 
 //
 // 3 cost
