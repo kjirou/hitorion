@@ -325,6 +325,7 @@ $a.Game = (function(){
     var cards = [];
     cards = cards.concat($a.deckCards.getData())
     cards = cards.concat($a.talonCards.getData())
+    cards = cards.concat($a.playareaCards.getData())
     cards = cards.concat($a.handCards.getData())
     return cards;
   }
@@ -1426,7 +1427,8 @@ $a.PagechangerBox = (function(){
         buttonView.text('購入');
       } else if (buttonKey === 'othercards') {
         buttonView.text(
-          $f.format('山札{0}/捨札{1}', $a.deckCards.count(), $a.talonCards.count())
+          $f.format('山{0}/捨{1}/場{2}',
+            $a.deckCards.count(), $a.talonCards.count(), $a.playareaCards.count())
         );
       }
       // Selected color
