@@ -450,9 +450,17 @@ $a.Cards = (function(){
     });
   }
 
-  cls.prototype.moveCard = function(card, toCards){
+  cls.prototype.moveCard = function(card, toCards, options){
+    var opts = _.extend({
+      stack: false
+    }, options || {});
+
     this.remove(card);
-    toCards.stacked(card);
+    if (opts.stack) {
+      toCards.stacked(card);
+    } else {
+      toCards.pushed(card);
+    }
   }
 
   cls.prototype.destroyCard = function(card){
@@ -467,6 +475,17 @@ $a.Cards = (function(){
     _.each(copiedCards, function(card){
       self.remove(card);
       toCards.stacked(card);
+    });
+  }
+
+  cls.prototype.pullCards = function(cardCount){
+    // FIXME: Can't use by deckCards itself
+    var self = this;
+    _.times(cardCount, function(){
+      $a.deckCards.autoReshuffle();
+      if ($a.deckCards.count() > 0) {
+        $a.deckCards.dealTo(self, 1);
+      }
     });
   }
 
@@ -557,6 +576,10 @@ $a.DeckCards = (function(){
     this._doneReshuffled = true;
   }
 
+  cls.prototype.isEmpty = function(){
+    return this._doneReshuffled && this.count() === 0;
+  }
+
   cls.prototype.resetDoneReshuffled = function(){ this._doneReshuffled = false; }
 
   cls.prototype.reset = function(){
@@ -576,16 +599,6 @@ $a.HandCards = (function(){
 //{{{
   var cls = function(){}
   $f.inherit(cls, new $a.Cards(), $a.Cards);
-
-  cls.prototype.pullCards = function(cardCount){
-    var self = this;
-    _.times(cardCount, function(){
-      $a.deckCards.autoReshuffle();
-      if ($a.deckCards.count() > 0) {
-        $a.deckCards.dealTo(self, 1);
-      }
-    });
-  }
 
   cls.prototype.throwCard = function(card){
     this.remove(card);
@@ -994,10 +1007,19 @@ $a.HandBox = (function(){
       $(e).hide();
     });
 
+    // asideCards are shown in here too
+    var cards = $a.handCards.getData().concat($a.asideCards.getData());
+
     var coords = $f.squaring([60, 60], cls.SIZE, 3);
-    _.each($a.handCards.getData(), function(card, idx){
+    _.each(cards, function(card, idx){
       card.setPos(coords[idx]);
       card.draw();
+      // FIXME: Dirty implementation
+      if ($a.asideCards.has(card)) {
+        card.getView().css('opacity', 0.5);
+      } else {
+        card.getView().css('opacity', 1.0);
+      }
       card.getView().show();
       self.getView().append(card.getView());
     });

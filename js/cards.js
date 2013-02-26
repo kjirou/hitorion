@@ -774,24 +774,32 @@ $a.$cards.LibraryCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
-    // FIXME: Modify to perform only once shuffling cards
+    // FIXME: Can't choice putting action card to talonCards directly
 
     var card;
     while (true) {
-      if ($a.handCards.count() >= 7) {
+
+      if ($a.handCards.count() >= 7 || $a.deckCards.isEmpty()) {
         break;
       }
-      $a.handCards.pullCards(1);
+
+      $a.asideCards.pullCards(1);
       $a.handBox.draw();
-      card = $a.handCards.getLastCard();
-      if (card.hasCardType('action')) {
-        if (confirm($f.format('{0} を無視しますか?', card.getTitle()))) {
-          $a.handCards.moveCard(card, $a.asideCards);
-          $a.handBox.draw();
-        }
+      card = $a.asideCards.getLastCard();
+
+      if (
+        card.hasCardType('action') &&
+        confirm($f.format('{0} を無視しますか?', card.getTitle()))
+      ) {
+        /* no process */
+      } else {
+        $a.asideCards.moveCard(card, $a.handCards);
+        $a.handBox.draw();
       }
     }
+
     $a.asideCards.dumpTo($a.talonCards);
+    $a.handBox.draw();
     $a.pagechangerBox.draw();
 
   }
