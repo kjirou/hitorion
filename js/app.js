@@ -501,13 +501,17 @@ $a.Cards = (function(){
   cls.prototype.pullCards = function(cardCount){
     // FIXME: Can't use by deckCards itself
     var self = this;
+    var pulledCards = [];
     _.times(cardCount, function(){
       $a.deckCards.autoReshuffle();
+      var card;
       if ($a.deckCards.count() > 0) {
-        var card = $a.deckCards.dealTo(self, 1)[0];
+        card = $a.deckCards.dealTo(self, 1)[0];
         card.turnedUp();
+        pulledCards.push(card);
       }
     });
+    return pulledCards;
   }
 
   cls.prototype.findDataByCardType = function(cardType){
@@ -816,6 +820,29 @@ $a.Screen = (function(){
 
   }
 
+  cls.hideCardViews = function(containerView){
+    // FIXME:
+    //
+    // 手札や山札などの各カードコンテナ内にある
+    // 全カードビューを非表示にする関数。
+    //
+    // 全カードコンテナは、必ず以下のフローで描画している
+    // 1)まず、この関数で自分の配下にあるカードビューを全て消す
+    // 2)データ上本当にそこにあるカードだけを、改めてappendして表示する
+    //
+    // 例えば、一度手札に入って描画されたカードは、手札から無くなった後も
+    // 非表示でコンテナ内に存在していて、
+    // 山札その他で表示が必要な時に、山札側でappendされることで無くなる。
+    //
+    // 本当はカードデータと同期させて、データ移動時にビューの場所も変えるのが一番良いが、
+    // 現在はカードの所属を変える処理が一つの場所を通ってないので、
+    // 対応コスト高いので止めた。
+    //
+    containerView.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
+      $(e).hide();
+    });
+  }
+
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
@@ -1008,27 +1035,7 @@ $a.HandBox = (function(){
     var self = this;
     $f.Box.prototype.draw.apply(this);
 
-    // FIXME:
-    // 一度手札に入って描画されたカードは、手札から無くなった後も
-    // 非表示でこの要素内に存在し、また手札に入ったら表示している。
-    //
-    // 本来はカードデータと同期させて、全削除と再描画を行うのが良いが
-    // 今回は card をオブジェクトとして使い回す設計であるため、
-    // card._view.remove をしてしまうと、jQueryのイベントが消えてしまう。
-    // そのために、この様な処理にした。
-    //
-    // 別解としては:
-    // a)捨て札や廃棄札用の隠し要素を作り、そこへappendToする
-    //   appendToならイベントは消えない
-    //   ..これが一番良さそう
-    // b)カードをオブジェクトで持たず、クラス名で持つ
-    //   ..何かわかり難くなりそうでNG
-    // c)イベントまで含めてカードの再描画処理をする
-    //   ..これが一番綺麗そうだが、_view再描画は基底クラスに入っているため
-    //     _viewではなくその中に一要素を作ってそれを書き直すことになる
-    this._view.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
-      $(e).hide();
-    });
+    $a.Screen.hideCardViews(this.getView());
 
     // asideCards are shown in here too
     var cards = $a.handCards.getData().concat($a.asideCards.getData());
@@ -1136,12 +1143,16 @@ $a.OthercardsBox = (function(){
   cls.POS = $a.HandBox.POS.slice();
   cls.SIZE = $a.HandBox.SIZE.slice();
 
-  function __INITIALIZE(self){
+  cls.prototype.draw = function(){
+    $f.Box.prototype.draw.apply(this);
+
+    $a.deckCardsBox.draw();
+    $a.talonCardsBox.draw();
+    $a.trashCardsBox.draw();
   }
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
-    __INITIALIZE(obj);
     return obj;
   }
 
@@ -1202,6 +1213,22 @@ $a.CardsBox = (function(){
     ;
   }
 
+  cls.prototype.draw = function(){
+    $f.Box.prototype.draw.apply(this);
+
+    $a.Screen.hideCardViews(this.getView());
+  }
+
+  cls.prototype._drawSurfaceCard = function(cards){
+    if (cards.count() === 0) return;
+    var surfaceCard = cards.getData()[0];
+    surfaceCard.setPos([0, 60]);
+    surfaceCard.draw();
+    this.getView().append(
+      surfaceCard.getView().show()
+    );
+  }
+
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
@@ -1225,13 +1252,11 @@ $a.DeckCardsBox = (function(){
   cls.SIZE = [120, 60];
 
   cls.prototype.draw = function(){
-    var self = this;
     $a.CardsBox.prototype.draw.apply(this);
 
     this._titleView.text('山札');
     this._counterView.text($a.deckCards.count());
-
-    // TODO: Display card object
+    this._drawSurfaceCard($a.deckCards);
   }
 
   return cls;
@@ -1256,8 +1281,7 @@ $a.TalonCardsBox = (function(){
 
     this._titleView.text('捨札');
     this._counterView.text($a.talonCards.count());
-
-    // TODO: Display card object
+    this._drawSurfaceCard($a.talonCards);
   }
 
   return cls;
@@ -1282,8 +1306,7 @@ $a.TrashCardsBox = (function(){
 
     this._titleView.text('廃棄');
     this._counterView.text($a.trashCards.count());
-
-    // TODO: Display card object
+    this._drawSurfaceCard($a.trashCards);
   }
 
   return cls;

@@ -303,6 +303,7 @@ $a.$cards.CellarCard = (function(){
       $a.handCards.throwCards(cards);
       $a.handCards.pullCards(cards.length);
       $a.handBox.draw();
+      $a.othercardsBox.draw();
       $a.pagechangerBox.draw();
       d.resolve();
     });
@@ -417,8 +418,7 @@ $a.$cards.ChancellorCard = (function(){
     if (confirm('山札を捨て札にしますか？')) {
       $a.deckCards.dumpTo($a.talonCards);
       $a.statusBox.draw();
-      $a.deckCardsBox.draw();
-      $a.talonCardsBox.draw();
+      $a.othercardsBox.draw();
       $a.pagechangerBox.draw();
     }
   }
@@ -477,7 +477,7 @@ $a.$cards.WorkshopCard = (function(){
       if (card.getCost() <= 4) {
         $a.talonCards.addNewCard(card.className, { stack:true })
         $a.statusBox.draw();
-        $a.talonCardsBox.draw();
+        $a.othercardsBox.draw();
       }
       $a.mainBox.changePage('hand');
       $a.pagechangerBox.draw();
@@ -576,7 +576,7 @@ $a.$cards.FeastCard = (function(){
       if (wantedCard.getCost() <= 5) {
         $a.talonCards.addNewCard(wantedCard.className, { stack:true })
         $a.statusBox.draw();
-        $a.talonCardsBox.draw();
+        $a.othercardsBox.draw();
       }
       $a.mainBox.changePage('hand');
       $a.pagechangerBox.draw();
@@ -606,34 +606,6 @@ $a.$cards.GardensCard = (function(){
 //}}}
 }());
 
-$a.$cards.MiningvillageCard = (function(){
-//{{{
-  var cls = function(){
-    this._cardTypes = ['action'];
-    this._title = '鉱山の村';
-    this._cost = 4;
-    this._card = 1;
-    this._actionCount = 2;
-  }
-  $f.inherit(cls, new $a.Card(), $a.Card);
-  cls.prototype._act = function(){
-
-    this._actBuffing();
-
-    // This check is for the ThroneroomCard
-    if ($a.playareaCards.has(this)) {
-      if (confirm('このカードを廃棄して 2 コイン取得しますか?')) {
-        $a.game.modifyCoinCorrection(2);
-        $a.playareaCards.destroyCard(this);
-        $a.pagechangerBox.draw();
-      }
-    }
-
-  }
-  return cls;
-//}}}
-}());
-
 $a.$cards.MoneylenderCard = (function(){
 //{{{
   var cls = function(){
@@ -653,6 +625,7 @@ $a.$cards.MoneylenderCard = (function(){
       $a.game.modifyCoinCorrection(3);
       $a.statusBox.draw();
       $a.handBox.draw();
+      $a.othercardsBox.draw();
       $a.pagechangerBox.draw();
     } else {
       alert('銅貨がありません');
@@ -692,7 +665,7 @@ $a.$cards.RemodelCard = (function(){
       $a.handCards.destroyCard(card);
       $a.statusBox.draw();
       $a.handBox.draw();
-      $a.trashCardsBox.draw();
+      $a.othercardsBox.draw();
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
@@ -703,7 +676,7 @@ $a.$cards.RemodelCard = (function(){
         if (wantedCard.getCost() <= maxGainableCardCost) {
           $a.talonCards.addNewCard(wantedCard.className, { stack:true })
           $a.statusBox.draw();
-          $a.talonCardsBox.draw();
+          $a.othercardsBox.draw();
         }
         $a.mainBox.changePage('hand');
         $a.pagechangerBox.draw();
@@ -759,6 +732,7 @@ $a.$cards.ThroneroomCard = (function(){
 
       $a.handCards.useActionCard(card);
       $a.handBox.draw();
+      $a.othercardsBox.draw();
       $a.pagechangerBox.draw();
 
       card.act().then(function(){
@@ -891,6 +865,34 @@ $a.$cards.IronworksCard = (function(){
 //}}}
 }());
 
+$a.$cards.MiningvillageCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '鉱山の村';
+    this._cost = 4;
+    this._card = 1;
+    this._actionCount = 2;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    this._actBuffing();
+
+    // This check is for the ThroneroomCard
+    if ($a.playareaCards.has(this)) {
+      if (confirm('このカードを廃棄して 2 コイン取得しますか?')) {
+        $a.game.modifyCoinCorrection(2);
+        $a.playareaCards.destroyCard(this);
+        $a.pagechangerBox.draw();
+      }
+    }
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.ScoutCard = (function(){
 //{{{
   var cls = function(){
@@ -997,8 +999,10 @@ $a.$cards.LibraryCard = (function(){
       }
 
       $a.asideCards.pullCards(1);
-      $a.handBox.draw();
       card = $a.asideCards.getLastCard();
+
+      $a.handBox.draw();
+      $a.pagechangerBox.draw();
 
       if (
         card.hasCardType('action') &&
@@ -1007,12 +1011,15 @@ $a.$cards.LibraryCard = (function(){
         /* no process */
       } else {
         $a.asideCards.moveCard(card, $a.handCards);
+        $a.statusBox.draw();
         $a.handBox.draw();
+        $a.pagechangerBox.draw();
       }
     }
 
     $a.asideCards.dumpTo($a.talonCards);
     $a.handBox.draw();
+    $a.othercardsBox.draw();
     $a.pagechangerBox.draw();
 
   }
@@ -1069,7 +1076,7 @@ $a.$cards.MineCard = (function(){
       $a.handCards.destroyCard(card);
       $a.statusBox.draw();
       $a.handBox.draw();
-      $a.trashCardsBox.draw();
+      $a.othercardsBox.draw();
 
       $a.mainBox.changePage('kingdom');
       $a.pagechangerBox.draw();
@@ -1173,19 +1180,34 @@ $a.$cards.AdventurerCard = (function(){
 
     var treasureCount = 0;
 
-    // FIXME: Modify to perform only once shuffling cards
-    alert('財宝カードが2枚出るまでめくります');
+    alert('財宝カードが 2 枚出るまで引きます');
     var looped = function(){
+
+      if ($a.deckCards.isEmpty()) {
+        d.resolve();
+        return;
+      }
+
       $a.handCards.pullCards(1);
+
+      // Must not draw after throwing card for animation.
+      $a.statusBox.draw();
       $a.handBox.draw();
+      $a.othercardsBox.draw();
       $a.pagechangerBox.draw();
+
       var card = $a.handCards.getLastCard();
       if (card.hasCardType('treasure')) {
         treasureCount += 1;
       } else {
-        $a.handCards.remove(card);
+        $a.handCards.throwCard(card);
       }
+
       if (treasureCount >= 2) {
+        $a.statusBox.draw();
+        $a.handBox.draw();
+        $a.othercardsBox.draw();
+        $a.pagechangerBox.draw();
         d.resolve();
       } else {
         setTimeout(looped, 500);
