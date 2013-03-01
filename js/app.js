@@ -552,8 +552,9 @@ $a.KingdomCards = (function(){
     _.each(this._choicedCardClassNames, function(cardClassName){
       self.addNewCard(cardClassName);
     });
-    // TODO: Add second-sort by card's english title
     this._cards.sort(function(a, b){
+      return a.className > b.className;
+    }).sort(function(a, b){
       return a.getCost() - b.getCost();
     });
 
