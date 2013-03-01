@@ -1298,7 +1298,6 @@ $a.$cards.HaremCard = (function(){
     this._victoryPoints = 2;
   }
   $f.inherit(cls, new $a.Card(), $a.Card);
-  cls.prototype._act = cls.prototype._actBuffing;
   return cls;
 //}}}
 }());
