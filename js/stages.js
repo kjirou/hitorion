@@ -340,8 +340,9 @@ $a.$stages.SeasideStage = (function(){
       'ScoutCard',
       //'MiningvillageCard',
       //'DukeCard',
-      'UpgradeCard',
+      //'UpgradeCard',
       //'TradingpostCard',
+      'HaremCard',
       'NoblesCard'//,
     ];
   }

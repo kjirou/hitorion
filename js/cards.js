@@ -80,6 +80,8 @@ $a.Card = (function(){
       bgColor = '#839c9d';
     } else if (this.getCardType() === 'action-victory') {
       bgColor = '#829f83';
+    } else if (this.getCardType() === 'treasure-victory') {
+      bgColor = '#999d76';
     }
 
     var opacity = 1.0;
@@ -155,7 +157,7 @@ $a.Card = (function(){
   }
 
   /** 'action' || 'treasure' || 'victory' ||
-    'action-victory' */
+    'action-victory', 'treasure-victory' */
   cls.prototype.getCardType = function(){
     if (this._cardTypes.length === 1) return this._cardTypes[0];
     return this._cardTypes.join('-');
@@ -1233,6 +1235,21 @@ $a.$cards.AdventurerCard = (function(){
 }());
 
 // Intrigue
+$a.$cards.HaremCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['treasure', 'victory'];
+    this._title = 'ハーレム';
+    this._cost = 6;
+    this._coin = 2;
+    this._victoryPoints = 2;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = cls.prototype._actBuffing;
+  return cls;
+//}}}
+}());
+
 $a.$cards.NoblesCard = (function(){
 //{{{
   var cls = function(){
