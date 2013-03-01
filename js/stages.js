@@ -282,20 +282,30 @@ $a.$stages.IntrigueStage = (function(){
 //{{{
   var cls = function(){
     this._buyableCards = [
+
       'CourtyardCard',
       'PawnCard',
-      'StewardCard',
+
       'GreathallCard',
+      'ShantytownCard',
+      'StewardCard',
+      'WishingwellCard',
+
       'BaronCard',
+      'BridgeCard',
       'ConspiratorCard',
       'CoppersmithCard',
       'IronworksCard',
-      'ScoutCard',
       'MiningvillageCard',
+      'ScoutCard',
+
       'DukeCard',
-      'UpgradeCard',
       'TradingpostCard',
+      'UpgradeCard',
+
+      'HaremCard',
       'NoblesCard'//,
+
     ];
   }
   $f.inherit(cls, new $a.Stage(), $a.Stage);

@@ -139,7 +139,7 @@ $a.$pages.TopPage = (function(){
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .html('[v1.0.5]<strong style="color:red;">陰謀ステージを一部作成しました</strong><br />[v1.0.5]捨札/廃棄を見えるようにした<br />[v1.0.5]冒険者がカードを廃棄していたバグを修正')
+      .html('[v1.1.0] <strong style="color:red;">陰謀ステージを作成しました!</strong>')
       .appendTo(self.getView())
     ;
   }
@@ -272,9 +272,7 @@ $a.$pages.StageselectionPage = (function(){
     var stageClassName = evt.data.stageClassName;
 
     if ($e.debug === false) {
-      if (stageClassName === 'IntrigueStage') {
-        alert('テスト中で一部カードだけしかありません\nスコアは反映されません');
-      } else if (stageClassName === 'SeasideStage') {
+      if (stageClassName === 'SeasideStage') {
         alert('まだ作成していません');
         return false;
       }
