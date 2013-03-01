@@ -526,6 +526,33 @@ $a.$cards.GreathallCard = (function(){
 //}}}
 }());
 
+$a.$cards.ShantytownCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '貧民街';
+    this._cost = 3;
+    this._actionCount = 2;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    this._actBuffing();
+
+    if (
+      _.any($a.handCards.getData(), function(card){
+        return card.hasCardType('action');
+      }) === false
+    ) {
+      $a.handCards.pullCards(2);
+      $a.screen.drawGameScene();
+    }
+
+  }
+  return cls;
+//}}}
+}());
+
 $a.$cards.StewardCard = (function(){
 //{{{
   var cls = function(){

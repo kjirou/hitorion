@@ -318,7 +318,7 @@ $a.$stages.SeasideStage = (function(){
       //'FeastCard',
       //'GardensCard',
       //'MoneylenderCard',
-      'RemodelCard',
+      //'RemodelCard',
       //'SmithyCard',
       'ThroneroomCard',
       //'FestivalCard',
@@ -330,6 +330,7 @@ $a.$stages.SeasideStage = (function(){
 
       'CourtyardCard',
       //'PawnCard',
+      'ShantytownCard',
       'StewardCard',
       'WishingwellCard',
       //'GreathallCard',
