@@ -1,0 +1,27 @@
+{
+  "name": "hitorion",
+  "version": "1.1.0",
+  "description": "The Dominion there is not an enemy",
+  "main": "none",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "none"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kjirou/hitorion.git"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "kjirou",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "23c4063f510c0822b085779f1b4745124966cda2",
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib": "~0.4.0"
+  }
+}
