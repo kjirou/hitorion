@@ -181,11 +181,8 @@ $a.Game = (function(){
       $a.playareaCards.reset();
       $a.handCards.reset();
 
-      $a.statusBox.draw();
-      $a.handBox.draw();
-      $a.deckCardsBox.draw();
-      $a.talonCardsBox.draw();
-      $a.pagechangerBox.draw();
+      $a.screen.drawGameScene();
+      $a.kingdomBox.draw(); // For redrawing cost by using BridgeCard
 
       d.resolve();
     });

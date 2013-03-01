@@ -92,7 +92,7 @@ $a.Card = (function(){
 
     this._titleView.text(this._title);
 
-    this._costView.text(this._cost + ' cost');
+    this._costView.text(this.getCost() + ' cost');
 
     this._view.css({
       backgroundColor: bgColor,
@@ -168,11 +168,18 @@ $a.Card = (function(){
   }
 
   cls.prototype.getTitle = function(){ return this._title; }
-  cls.prototype.getCost = function(){ return this._cost; }
+
+  cls.prototype.getCost = function(){
+    var cost = this._cost;
+    cost -= $a.game.countUsedActionCount('BridgeCard');
+    return (cost > 0)? cost: 0;
+  }
+
   cls.prototype.getVictoryPoints = function(){
     if (_.isFunction(this._victoryPoints)) return this._victoryPoints();
     return this._victoryPoints;
   }
+
   cls.prototype.getCoin = function(){
     var coin = this._coin;
     if (
@@ -185,7 +192,7 @@ $a.Card = (function(){
   }
 
   cls.prototype.isBuyable = function(){
-    return this._cost <= $a.game.getCoin();
+    return this.getCost() <= $a.game.getCoin();
   }
 
   function __ONMOUSEDOWN(evt){
@@ -816,6 +823,25 @@ $a.$cards.BaronCard = (function(){
 
     $a.screen.drawGameScene();
 
+  }
+  return cls;
+//}}}
+}());
+
+$a.$cards.BridgeCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '橋';
+    this._cost = 4;
+    this._buyCount = 1;
+    this._coinCorrection = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+    this._actBuffing();
+    $a.screen.drawGameScene();
+    $a.kingdomBox.draw();
   }
   return cls;
 //}}}
