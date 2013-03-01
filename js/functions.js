@@ -148,15 +148,12 @@ $f.isPCBrowser = function(){
 }
 
 
-/** For jQuery.Deferred.then */
 $f.wait = function(ms){
-  return function(){
-    var d = $.Deferred();
-    setTimeout(function(){
-      d.resolve();
-    }, ms);
-    return d;
-  }
+  var d = $.Deferred();
+  setTimeout(function(){
+    d.resolve();
+  }, ms);
+  return d;
 }
 
 /**

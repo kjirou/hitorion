@@ -550,6 +550,69 @@ $a.$cards.StewardCard = (function(){
 //}}}
 }());
 
+$a.$cards.WishingwellCard = (function(){
+//{{{
+  var cls = function(){
+    this._cardTypes = ['action'];
+    this._title = '願いの井戸';
+    this._cost = 3;
+    this._card = 1;
+    this._actionCount = 1;
+  }
+  $f.inherit(cls, new $a.Card(), $a.Card);
+  cls.prototype._act = function(){
+
+    this._actBuffing();
+
+    var openableCards = $a.deckCards.getOpenableCards(1);
+    if (openableCards.length === 0) {
+      alert('山札がありません');
+      return;
+    }
+
+    $a.mainBox.changePage('kingdom');
+    $a.pagechangerBox.draw();
+
+    var d = $.Deferred();
+
+    alert('山札の一番上のカードを予測して下さい');
+    $f.waitChoice($a.kingdomCards.getData()).done(function(card){
+
+      $a.mainBox.changePage('othercards');
+      $a.pagechangerBox.draw();
+
+      $f.wait(500).done(function(){
+
+        var surfaceCard = openableCards[0];
+        surfaceCard.turnedUp();
+        $a.othercardsBox.draw();
+
+        $f.wait(1000).done(function(){
+
+          if (card.className === surfaceCard.className) {
+            alert('おめでとうございます!');
+            $a.handCards.pullCards(1);
+          } else {
+            surfaceCard.turnedDown();
+          }
+
+          $a.mainBox.changePage('hand');
+          $a.screen.drawGameScene();
+          d.resolve();
+
+        });
+
+      });
+
+    });
+
+    return d;
+
+  }
+  return cls;
+//}}}
+}());
+
 
 //
 // 4 cost

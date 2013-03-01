@@ -597,9 +597,25 @@ $a.DeckCards = (function(){
   }
 
   cls.prototype.autoReshuffle = function(){
-    if (this.count() > 0 || this._doneReshuffled) return;
-    this._reshuffle();
-    this._doneReshuffled = true;
+    if (this.count() === 0 && this._doneReshuffled === false) {
+      this._reshuffle();
+      this._doneReshuffled = true;
+    }
+  }
+
+  // FIXME:
+  // 2 枚以上を公開する場合は、1 枚ずつ引いて公開し、
+  // 足りなければ山札をシャッフルするという手順である必要がある。
+  // ただし現在は、autoReshuffleの条件分岐が_cardsの枚数を見ているので、
+  // 公開したカードを一時的に_cardsから除外しないと条件分岐が動かない。
+  // 複数枚公開したときのUIも無いので、保留。
+  // とりあえず、陰謀までは、複数枚公開するアクションは無い。
+  cls.prototype.getOpenableCards = function(cardCount){
+    if (cardCount > 1) {
+      throw new Error('DeckCards.getOpenableCards: Not implemented case');
+    }
+    this.autoReshuffle(cardCount);
+    return this.getData().slice(0, cardCount);
   }
 
   cls.prototype.isEmpty = function(){
