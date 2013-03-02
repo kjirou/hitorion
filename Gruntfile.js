@@ -4,6 +4,17 @@ module.exports = function(grunt){
 
     pkg: grunt.file.readJSON('package.json'),
 
+    cssmin: {
+      all: {
+        // Can't use "{src:[..], dest:'..'}" format
+        files: {
+          'css/all.min.css': [
+            'css/app.css'
+          ]
+        }
+      }
+    },
+
     // ref) http://www.jshint.com/docs/
     jshint: {
 
@@ -61,15 +72,26 @@ module.exports = function(grunt){
     watch: {
       js: {
         files: '<%= jshint.files %>',
-        tasks: ['jshint', 'concat', 'uglify']
+        tasks: [
+          'cssmin',
+          'jshint',
+          'concat'
+        ]
       }
     }
 
   });
 
   grunt.loadNpmTasks('grunt-contrib');
+  grunt.loadNpmTasks('grunt-contrib-mincss');
 
   grunt.registerTask('default', [
+    'cssmin',
+    'jshint',
+    'concat'
+  ]);
+  grunt.registerTask('release', [
+    'cssmin',
     'jshint',
     'concat',
     'uglify'
