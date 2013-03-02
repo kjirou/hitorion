@@ -18,7 +18,7 @@ $a.Card = (function(){
     this.className = undefined;
     this._isSelected = false;
     this._isTurnedDown = false;
-  }
+  };
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
   $f.mixin(cls, new $f.SignalableMixin());
 
@@ -100,7 +100,7 @@ $a.Card = (function(){
     });
 
     this._drawSelectedState();
-  }
+  };
 
   cls.prototype._drawSelectedState = function(){
     if (this._isSelected) {
@@ -108,23 +108,23 @@ $a.Card = (function(){
     } else {
       this._titleView.css('color', cls.STYLES.TITLE_COLOR);
     }
-  }
+  };
 
   cls.prototype.toSelected = function(){
     this._isSelected = true;
     this._drawSelectedState();
-  }
+  };
   cls.prototype.toUnselected = function(){
     this._isSelected = false;
     this._drawSelectedState();
-  }
+  };
 
   cls.prototype.turnedUp = function(){
     this._isTurnedDown = false;
-  }
+  };
   cls.prototype.turnedDown = function(){
     this._isTurnedDown = true;
-  }
+  };
 
   /**
    * null = It is not actable.
@@ -136,11 +136,11 @@ $a.Card = (function(){
   cls.prototype.act = function(){
     $a.game.increaseUsedActionCardCount(this.className);
     return this._act() || $.Deferred().resolve();
-  }
+  };
 
   cls.prototype.isActable = function(){
     return this._act !== null;
-  }
+  };
 
   cls.prototype._actBuffing = function(){
 
@@ -154,31 +154,31 @@ $a.Card = (function(){
     $a.statusBox.draw();
     $a.handBox.draw();
     $a.pagechangerBox.draw();
-  }
+  };
 
   /** 'action' || 'treasure' || 'victory' ||
     'action-victory', 'treasure-victory' */
   cls.prototype.getCardType = function(){
     if (this._cardTypes.length === 1) return this._cardTypes[0];
     return this._cardTypes.join('-');
-  }
+  };
 
   cls.prototype.hasCardType = function(cardType){
     return _.indexOf(this._cardTypes, cardType) >= 0;
-  }
+  };
 
-  cls.prototype.getTitle = function(){ return this._title; }
+  cls.prototype.getTitle = function(){ return this._title; };
 
   cls.prototype.getCost = function(){
     var cost = this._cost;
     cost -= $a.game.countUsedActionCount('BridgeCard');
     return (cost > 0)? cost: 0;
-  }
+  };
 
   cls.prototype.getVictoryPoints = function(){
     if (_.isFunction(this._victoryPoints)) return this._victoryPoints();
     return this._victoryPoints;
-  }
+  };
 
   cls.prototype.getCoin = function(){
     var coin = this._coin;
@@ -189,11 +189,11 @@ $a.Card = (function(){
       coin += $a.game.countUsedActionCount('CoppersmithCard');
     }
     return coin;
-  }
+  };
 
   cls.prototype.isBuyable = function(){
     return this.getCost() <= $a.game.getCoin();
-  }
+  };
 
   function __ONMOUSEDOWN(evt){
     var self = evt.data.self;
@@ -222,7 +222,7 @@ $a.$cards.Coin1Card = (function(){
     this._cardTypes = ['treasure'];
     this._title = '銅貨';
     this._coin = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -235,7 +235,7 @@ $a.$cards.Coin2Card = (function(){
     this._title = '銀貨';
     this._cost = 3;
     this._coin = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -248,7 +248,7 @@ $a.$cards.Coin3Card = (function(){
     this._title = '金貨';
     this._cost = 6;
     this._coin = 3;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -261,7 +261,7 @@ $a.$cards.Victorypoints1Card = (function(){
     this._title = '屋敷';
     this._cost = 2;
     this._victoryPoints = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -274,7 +274,7 @@ $a.$cards.Victorypoints3Card = (function(){
     this._title = '公領';
     this._cost = 5;
     this._victoryPoints = 3;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -287,7 +287,7 @@ $a.$cards.Victorypoints6Card = (function(){
     this._title = '属州';
     this._cost = 8;
     this._victoryPoints = 6;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -306,7 +306,7 @@ $a.$cards.CellarCard = (function(){
     this._title = '地下貯蔵庫';
     this._cost = 2;
     this._actionCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -324,7 +324,7 @@ $a.$cards.CellarCard = (function(){
 
     return d;
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -337,7 +337,7 @@ $a.$cards.CourtyardCard = (function(){
     this._title = '中庭';
     this._cost = 2;
     this._card = 3;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -351,7 +351,7 @@ $a.$cards.CourtyardCard = (function(){
       $a.pagechangerBox.draw();
     });
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -362,7 +362,7 @@ $a.$cards.PawnCard = (function(){
     this._cardTypes = ['action'];
     this._title = '手先';
     this._cost = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -408,7 +408,7 @@ $a.$cards.PawnCard = (function(){
     $a.othercardsBox.draw();
     $a.pagechangerBox.draw();
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -426,7 +426,7 @@ $a.$cards.ChancellorCard = (function(){
     this._title = '宰相';
     this._cost = 3;
     this._coinCorrection = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
     this._actBuffing();
@@ -435,7 +435,7 @@ $a.$cards.ChancellorCard = (function(){
       $a.deckCards.dumpTo($a.talonCards);
       $a.screen.drawGameScene();
     }
-  }
+  };
   return cls;
 //}}}
 }());
@@ -448,7 +448,7 @@ $a.$cards.VillageCard = (function(){
     this._cost = 3;
     this._card = 1;
     this._actionCount = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -463,7 +463,7 @@ $a.$cards.WoodcutterCard = (function(){
     this._cost = 3;
     this._coinCorrection = 2;
     this._buyCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -476,7 +476,7 @@ $a.$cards.WorkshopCard = (function(){
     this._cardTypes = ['action'];
     this._title = '工房';
     this._cost = 3;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
 
   cls.prototype._act = function(){
@@ -485,7 +485,7 @@ $a.$cards.WorkshopCard = (function(){
     $a.pagechangerBox.draw();
 
     return cls.gainCard(4);
-  }
+  };
 
   cls.gainCard = function(maxCost){
     var d = $.Deferred();
@@ -494,7 +494,7 @@ $a.$cards.WorkshopCard = (function(){
     $f.waitChoice($a.kingdomCards.getData()).then(function(card){
 
       if (card.getCost() <= maxCost) {
-        $a.talonCards.addNewCard(card.className, { stack:true })
+        $a.talonCards.addNewCard(card.className, { stack:true });
       }
       $a.mainBox.changePage('hand');
       $a.screen.drawGameScene();
@@ -503,7 +503,7 @@ $a.$cards.WorkshopCard = (function(){
     });
 
     return d;
-  }
+  };
 
   return cls;
 //}}}
@@ -519,7 +519,7 @@ $a.$cards.GreathallCard = (function(){
     this._card = 1;
     this._actionCount = 1;
     this._victoryPoints = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -533,7 +533,7 @@ $a.$cards.ShantytownCard = (function(){
     this._title = '貧民街';
     this._cost = 3;
     this._actionCount = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -548,7 +548,7 @@ $a.$cards.ShantytownCard = (function(){
       $a.screen.drawGameScene();
     }
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -559,9 +559,19 @@ $a.$cards.StewardCard = (function(){
     this._cardTypes = ['action'];
     this._title = '執事';
     this._cost = 3;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
+
+    // If you execute this as lambda function in loop,
+    //   then JSHint will alert "Don't make functions within a loop.".
+    var destroy2Cards = function(){
+      return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
+        $a.statusBox.draw();
+        $a.othercardsBox.draw();
+        $a.pagechangerBox.draw();
+      });
+    };
 
     while (true) {
       if (confirm('カードを 2 枚引きますか?')) {
@@ -573,15 +583,11 @@ $a.$cards.StewardCard = (function(){
         $a.screen.drawGameScene();
         return;
       } else if (confirm('カードを 2 枚廃棄しますか?')) {
-        return $a.screen.waitChoiceAndDestroingHandCards(2).then(function(){
-          $a.statusBox.draw();
-          $a.othercardsBox.draw();
-          $a.pagechangerBox.draw();
-        });
+        return destroy2Cards();
       }
     }
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -594,7 +600,7 @@ $a.$cards.WishingwellCard = (function(){
     this._cost = 3;
     this._card = 1;
     this._actionCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -644,7 +650,7 @@ $a.$cards.WishingwellCard = (function(){
 
     return d;
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -661,7 +667,7 @@ $a.$cards.FeastCard = (function(){
     this._cardTypes = ['action'];
     this._title = '祝宴';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -675,7 +681,7 @@ $a.$cards.FeastCard = (function(){
     $a.pagechangerBox.draw();
 
     return $a.$cards.WorkshopCard.gainCard(5);
-  }
+  };
   return cls;
 //}}}
 }());
@@ -688,8 +694,8 @@ $a.$cards.GardensCard = (function(){
     this._cost = 4;
     this._victoryPoints = function(){
       return ~~($a.game.getTotalCardCount() / 10);
-    }
-  }
+    };
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -701,7 +707,7 @@ $a.$cards.MoneylenderCard = (function(){
     this._cardTypes = ['action'];
     this._title = '金貸し';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -720,7 +726,7 @@ $a.$cards.MoneylenderCard = (function(){
       alert('銅貨がありません');
     }
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -731,11 +737,11 @@ $a.$cards.RemodelCard = (function(){
     this._cardTypes = ['action'];
     this._title = '改築';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
     return cls.removel(2);
-  }
+  };
 
   cls.removel = function(bonus){
 
@@ -764,7 +770,7 @@ $a.$cards.RemodelCard = (function(){
     });
 
     return d;
-  }
+  };
 
   return cls;
 //}}}
@@ -777,7 +783,7 @@ $a.$cards.SmithyCard = (function(){
     this._title = '鍛冶屋';
     this._cost = 4;
     this._card = 3;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -790,7 +796,7 @@ $a.$cards.ThroneroomCard = (function(){
     this._cardTypes = ['action'];
     this._title = '玉座の間';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -818,7 +824,7 @@ $a.$cards.ThroneroomCard = (function(){
 
     return d;
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -831,7 +837,7 @@ $a.$cards.BaronCard = (function(){
     this._title = '男爵';
     this._cost = 4;
     this._buyCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -850,7 +856,7 @@ $a.$cards.BaronCard = (function(){
 
     $a.screen.drawGameScene();
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -863,13 +869,13 @@ $a.$cards.BridgeCard = (function(){
     this._cost = 4;
     this._buyCount = 1;
     this._coinCorrection = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
     this._actBuffing();
     $a.screen.drawGameScene();
     $a.kingdomBox.draw();
-  }
+  };
   return cls;
 //}}}
 }());
@@ -880,7 +886,7 @@ $a.$cards.ConspiratorCard = (function(){
     this._cardTypes = ['action'];
     this._title = '共謀者';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -893,7 +899,7 @@ $a.$cards.ConspiratorCard = (function(){
 
     $a.screen.drawGameScene();
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -904,7 +910,7 @@ $a.$cards.CoppersmithCard = (function(){
     this._cardTypes = ['action'];
     this._title = '銅細工師';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -917,7 +923,7 @@ $a.$cards.IronworksCard = (function(){
     this._cardTypes = ['action'];
     this._title = '鉄工所';
     this._cost = 4;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -940,7 +946,7 @@ $a.$cards.IronworksCard = (function(){
     });
 
     return d;
-  }
+  };
   return cls;
 //}}}
 }());
@@ -953,7 +959,7 @@ $a.$cards.MiningvillageCard = (function(){
     this._cost = 4;
     this._card = 1;
     this._actionCount = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -968,7 +974,7 @@ $a.$cards.MiningvillageCard = (function(){
       }
     }
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -980,7 +986,7 @@ $a.$cards.ScoutCard = (function(){
     this._title = '偵察員';
     this._cost = 4;
     this._actionCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -1013,12 +1019,12 @@ $a.$cards.ScoutCard = (function(){
         }
 
       });
-    }
+    };
     setTimeout(process, 1);
 
     return d;
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -1038,7 +1044,7 @@ $a.$cards.FestivalCard = (function(){
     this._actionCount = 2;
     this._buyCount = 1;
     this._coinCorrection = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -1053,7 +1059,7 @@ $a.$cards.LaboratoryCard = (function(){
     this._cost = 5;
     this._card = 2;
     this._actionCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -1066,7 +1072,7 @@ $a.$cards.LibraryCard = (function(){
     this._cardTypes = ['action'];
     this._title = '書庫';
     this._cost = 5;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -1098,7 +1104,7 @@ $a.$cards.LibraryCard = (function(){
     $a.asideCards.dumpTo($a.talonCards);
     $a.screen.drawGameScene();
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -1113,7 +1119,7 @@ $a.$cards.MarketCard = (function(){
     this._actionCount = 1;
     this._buyCount = 1;
     this._coinCorrection = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = cls.prototype._actBuffing;
   return cls;
@@ -1126,7 +1132,7 @@ $a.$cards.MineCard = (function(){
     this._cardTypes = ['action'];
     this._title = '鉱山';
     this._cost = 5;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -1159,7 +1165,7 @@ $a.$cards.MineCard = (function(){
       $f.waitChoice($a.kingdomCards.findDataByCardType('treasure')).done(function(wantedCard){
 
         if (wantedCard.getCost() <= maxGainableCardCost) {
-          $a.handCards.addNewCard(wantedCard.className)
+          $a.handCards.addNewCard(wantedCard.className);
         }
         $a.mainBox.changePage('hand');
         $a.screen.drawGameScene();
@@ -1171,7 +1177,7 @@ $a.$cards.MineCard = (function(){
     });
 
     return d;
-  }
+  };
   return cls;
 //}}}
 }());
@@ -1187,8 +1193,8 @@ $a.$cards.DukeCard = (function(){
       return _.filter($a.game.getPlayersCardData(), function(card){
         return card.className === 'Victorypoints3Card';
       }).length;
-    }
-  }
+    };
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -1200,7 +1206,7 @@ $a.$cards.TradingpostCard = (function(){
     this._cardTypes = ['action'];
     this._title = '交易場';
     this._cost = 5;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -1209,7 +1215,7 @@ $a.$cards.TradingpostCard = (function(){
       $a.screen.drawGameScene();
     });
 
-  }
+  };
   return cls;
 //}}}
 }());
@@ -1222,12 +1228,12 @@ $a.$cards.UpgradeCard = (function(){
     this._cost = 5;
     this._card = 1;
     this._actionCount = 1;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
     this._actBuffing();
     return $a.$cards.RemodelCard.removel(1);
-  }
+  };
   return cls;
 //}}}
 }());
@@ -1244,7 +1250,7 @@ $a.$cards.AdventurerCard = (function(){
     this._cardTypes = ['action'];
     this._title = '冒険者';
     this._cost = 6;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -1278,11 +1284,11 @@ $a.$cards.AdventurerCard = (function(){
       } else {
         setTimeout(looped, 500);
       }
-    }
+    };
     setTimeout(looped, 1);
 
     return d;
-  }
+  };
   return cls;
 //}}}
 }());
@@ -1296,7 +1302,7 @@ $a.$cards.HaremCard = (function(){
     this._cost = 6;
     this._coin = 2;
     this._victoryPoints = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   return cls;
 //}}}
@@ -1309,7 +1315,7 @@ $a.$cards.NoblesCard = (function(){
     this._title = '貴族';
     this._cost = 6;
     this._victoryPoints = 2;
-  }
+  };
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
@@ -1331,7 +1337,7 @@ $a.$cards.NoblesCard = (function(){
     }
     $a.screen.drawGameScene();
 
-  }
+  };
   return cls;
 //}}}
 }());

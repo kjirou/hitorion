@@ -9,14 +9,13 @@ $a.Page = (function(){
     this._bodyBox = null;
 
     this.hasNavigator = false;
-  }
+  };
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [0, 0];
   cls.SIZE = $a.Screen.SIZE.slice();
 
-  function __INITIALIZE(self){
-  }
+  function __INITIALIZE(self){}
 
   cls.prototype._setBodyBox = function(){
     this._bodyBox = $f.Box.create();
@@ -25,11 +24,11 @@ $a.Page = (function(){
       cls.SIZE[1] - $a.Navigator.SIZE[1]
     ]);
     this.getView().append(this._bodyBox.getView());
-  }
+  };
 
   cls.prototype.getBodyBox = function(){
     return this._bodyBox;
-  }
+  };
 
   cls.prototype._createTitleView = function(){
     return $('<div>').css({
@@ -41,7 +40,7 @@ $a.Page = (function(){
       fontFamily: 'serif',
       textAlign: 'center'//,
     });
-  }
+  };
 
   cls.prototype.draw = function(){
     $f.Box.prototype.draw.apply(this);
@@ -56,13 +55,13 @@ $a.Page = (function(){
       styles.background = 'none';
     }
     this.getView().css(styles);
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -72,8 +71,8 @@ $a.Page = (function(){
 $a.$pages.TopPage = (function(){
 //{{{
   var cls = function(){
-    this._backgroundImageUrl = $e.mediaUrl + '/img/bg-toppage.jpg'
-  }
+    this._backgroundImageUrl = $e.mediaUrl + '/img/bg-toppage.jpg';
+  };
   $f.inherit(cls, new $a.Page(), $a.Page);
 
   function __INITIALIZE(self){
@@ -154,7 +153,7 @@ $a.$pages.TopPage = (function(){
     var obj = $a.Page.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -167,7 +166,7 @@ $a.$pages.StageselectionPage = (function(){
     this.hasNavigator = true;
 
     this._buttonViews = {};
-  }
+  };
   $f.inherit(cls, new $a.Page(), $a.Page);
 
   function __INITIALIZE(self){
@@ -239,7 +238,7 @@ $a.$pages.StageselectionPage = (function(){
         label: label,
         scoreHeader: scoreHeader,
         score: score//,
-      }
+      };
     });
 
     self._ruleView = $('<div>')
@@ -265,7 +264,7 @@ $a.$pages.StageselectionPage = (function(){
     _.each($a.Stage.getData(), function(data, className){
       self._buttonViews[className].score.text(data.score);
     });
-  }
+  };
 
   function __ONTOUCHBUTTON(evt){
     var self = evt.data.self;
@@ -289,7 +288,7 @@ $a.$pages.StageselectionPage = (function(){
     var obj = $a.Page.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -298,18 +297,16 @@ $a.$pages.StageselectionPage = (function(){
 
 $a.$pages.GamePage = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $a.Page(), $a.Page);
 
-  function __INITIALIZE(self){
-  }
+  function __INITIALIZE(self){}
 
   cls.create = function(){
     var obj = $a.Page.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}

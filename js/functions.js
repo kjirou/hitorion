@@ -12,7 +12,7 @@ $f.consoleLog = function(){
       return this.console.log(args.join(' '));
     }
   }
-}
+};
 
 /** String formatter like Python 3
     @example format('My name is {0}, {1} years old', 'kjirou', 34)
@@ -29,7 +29,7 @@ $f.format = function() {
     args = args[0];
   }
 
-  result = fmt.replace(/{([^}]+)}/g, function (s, id) {
+  result = fmt.replace(/\{([^}]+)\}/g, function (s, id) {
     var chain = id.split("."), substr, i;
     if (chain.length >= 2) {
       substr = args[chain[0]];
@@ -43,40 +43,40 @@ $f.format = function() {
   });
 
   return result;
-}
+};
 
 $f.mixin = function(SubClass, superObj, SuperClass){
   var k;
   if (superObj !== undefined && superObj !== null) {
     for (k in superObj) {
-      SubClass.prototype[k] = superObj[k]
+      SubClass.prototype[k] = superObj[k];
     }
   }
   if (SuperClass !== undefined && SuperClass !== null) {
     for (k in SuperClass) {
       if (SuperClass.hasOwnProperty(k) && k !== 'prototype') {
-        SubClass[k] = SuperClass[k]
+        SubClass[k] = SuperClass[k];
       }
     }
   }
-}
+};
 $f.inherit = function(SubClass, superObj, SuperClass){
   SubClass.prototype = superObj;
   SubClass.prototype.__myClass__ = SubClass;
   $f.mixin(SubClass, null, SuperClass);
-}
+};
 
 $f.getMyNames = function(scope, obj){
     var list = [], k;
-    for (k in scope) { if (obj === scope[k]) list.push(k) };
+    for (k in scope) { if (obj === scope[k]) list.push(k); }
     return list;
-}
+};
 
 $f.getMyName = function(scope, obj){
     var names = $f.getMyNames(scope, obj);
     if (names.length !== 1) throw new Error('$f.getMyName: Invalid situation');
     return names[0];
-}
+};
 
 /**
  * Return coordinates that is created by dividing large square by same small square
@@ -95,7 +95,7 @@ $f.squaring = function(partSize, targetSize, borderWidth) {
     }
   }
   return coords;
-}
+};
 
 $f.escapeHTML = function(str){
   str = str.replace(/>/g, '&gt;');
@@ -104,17 +104,17 @@ $f.escapeHTML = function(str){
   str = str.replace(/"/g, '&quot;');
   str = str.replace(/'/g, '&#039;');
   return str;
-}
+};
 
 $f.nl2br = function(str){
   return str.replace(/(?:\r\n|\n|\r)/g, '<br />');
-}
+};
 
 $f.argumentsToArray = function(args){
   var arr = [], i;
-  for (i = 0; i < args.length; i += 1) { arr.push(args[i]) }
+  for (i = 0; i < args.length; i += 1) { arr.push(args[i]); }
   return arr;
-}
+};
 
 $f.getBrowser = function(){
     var browsers = [
@@ -133,9 +133,9 @@ $f.getBrowser = function(){
     var i;
     for (i = 0; i < browsers.length; i++) {
         if (browsers[i][1].test(window.navigator.userAgent)) return browsers[i][0];
-    };
+    }
     return 'unknown';
-}
+};
 
 $f.isPCBrowser = function(){
   var browsers = ['ie9', 'ie8', 'ie7', 'ie6', 'chrome', 'firefox', 'safari', 'opera'];
@@ -145,7 +145,7 @@ $f.isPCBrowser = function(){
     if (browser === browsers[i]) return true;
   }
   return false;
-}
+};
 
 
 $f.wait = function(ms){
@@ -154,7 +154,7 @@ $f.wait = function(ms){
     d.resolve();
   }, ms);
   return d;
-}
+};
 
 /**
  * Wait until choice by player
@@ -168,7 +168,7 @@ $f.waitChoice = function(signalables, signal){
   signal = signal || $.Deferred();
   _.each(signalables, function(v){ v.setSignal(signal); });
   return signal;
-}
+};
 
 /**
  * Wait until multipul choices by player
@@ -192,11 +192,11 @@ $f.waitChoices = function(signalables, selector, finisher){
       }
 
     });
-  }
+  };
   setTimeout(looped, 1);
 
   return d;
-}
+};
 
 
 /**
@@ -246,17 +246,17 @@ $f.SignalableMixin = (function(){
   var cls = function(){
     // $.Deferred object || null
     this.__signal = null;
-  }
+  };
 
   cls.prototype.setSignal = function(jqueryDeferred){
     this.__signal = jqueryDeferred;
-  }
+  };
 
   cls.prototype.triggerSignal = function(){
     if (this.__signal !== null && this.__signal.state() === 'pending') {
       this.__signal.resolve(this);
     }
-  }
+  };
 
   return cls;
 //}}}
@@ -265,7 +265,7 @@ $f.SignalableMixin = (function(){
 
 $f.ClassBasedDatalyzerMixin = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){};
 
   function __isSubClass(container, subClassName, superClass){
     if (container.hasOwnProperty(subClassName) === false) return false;
@@ -302,20 +302,20 @@ $f.ClassBasedDatalyzerMixin = (function(){
       container: container,
       superClass: superClass,
       dataFilter: dataFilter//,
-    }
-  }
+    };
+  };
 
   cls.getClassBasedData = function(){
     var tmp = this.__classBasedDatalyzerMixinData;
     return __createClassBasedData(
       tmp.container, tmp.superClass, tmp.dataFilter);
-  }
+  };
 
   cls.getClassBasedDataList = function(){
     var tmp = this.__classBasedDatalyzerMixinData;
     return __createClassBasedDataList(
       tmp.container, tmp.superClass, tmp.dataFilter);
-  }
+  };
 
   return cls;
 //}}}
@@ -354,7 +354,7 @@ $f.Sprite = (function(){
 
         __OBJECTS[self._elementId] = self;
         __CURRENT_OBJECT_ID += 1;
-    };
+    }
 
     cls.prototype.draw = function(){
         this._view.css({
@@ -375,37 +375,37 @@ $f.Sprite = (function(){
         this._view.css({ zIndex:zIndex });
     };
 
-    cls.prototype.getView = function(){ return this._view };
+    cls.prototype.getView = function(){ return this._view; };
 
-    cls.prototype.setPos = function(v){ this._pos = v };
-    cls.prototype.getPos = function(){ return this._pos };
-    cls.prototype.getTop = function(){ return this._pos[0] };
-    cls.prototype.getLeft = function(){ return this._pos[1] };
+    cls.prototype.setPos = function(v){ this._pos = v; };
+    cls.prototype.getPos = function(){ return this._pos; };
+    cls.prototype.getTop = function(){ return this._pos[0]; };
+    cls.prototype.getLeft = function(){ return this._pos[1]; };
 
-    cls.prototype.setSize = function(v){ this._size = v };
-    cls.prototype.getSize = function(){ return this._size };
-    cls.prototype.getWidth = function(){ return this._size[0] };
-    cls.prototype.getHeight = function(){ return this._size[1] };
+    cls.prototype.setSize = function(v){ this._size = v; };
+    cls.prototype.getSize = function(){ return this._size; };
+    cls.prototype.getWidth = function(){ return this._size[0]; };
+    cls.prototype.getHeight = function(){ return this._size[1]; };
 
-    cls.prototype.setZIndex = function(v){ this._zIndex = v };
+    cls.prototype.setZIndex = function(v){ this._zIndex = v; };
 
     cls.prototype.destroy = function(){
       this.getView().remove();
       delete __OBJECTS[this._elementId];
-    }
+    };
 
     cls.getByElementId = function(elementId){
         var obj = __OBJECTS[elementId];
         if (obj === undefined) throw new Error('Sprite.getByElementId: Not found object');
         return obj;
-    }
+    };
 
     cls.create = function(options){
         var obj = new this();
         obj.setOptions(options);
         __INITIALIZE(obj);
         return obj;
-    }
+    };
 
     return cls;
 //}}}
@@ -414,8 +414,7 @@ $f.Sprite = (function(){
 
 $f.Box = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $f.Sprite(), $f.Sprite);
 
   function __INITIALIZE(self){
@@ -440,4 +439,4 @@ $f.Box = (function(){
 $d = function(){
   if ($e.debug === false) return;
   return $f.consoleLog.apply(this, arguments);
-}
+};

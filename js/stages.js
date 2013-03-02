@@ -10,7 +10,7 @@ $a.Stage = (function(){
     this.className = undefined;
     this._rounds = undefined;
     this._currentRoundIndex = 0;
-  }
+  };
   $f.mixin(cls, null, $f.ClassBasedDatalyzerMixin);
 
   // Must set for each sub-class
@@ -50,7 +50,7 @@ $a.Stage = (function(){
     var cards = this._buyableCards.slice();
     cards = _.shuffle(cards);
     return cards.slice(0, count);
-  }
+  };
 
   cls.prototype._cleanGame = function(){
 
@@ -72,7 +72,7 @@ $a.Stage = (function(){
     $a.handCards = null;
 
     $a.game = null;
-  }
+  };
 
   cls.prototype._prepareGame = function(){
 
@@ -102,11 +102,11 @@ $a.Stage = (function(){
     $a.trashCardsBox.draw();
     $a.mainBox.changePage('hand');
     $a.pagechangerBox.draw();
-  }
+  };
 
   cls.prototype.getCurrentRound = function(){
     return this._rounds[this._currentRoundIndex];
-  }
+  };
 
   cls.prototype.run = function(){
     var self = this;
@@ -128,20 +128,20 @@ $a.Stage = (function(){
         }
 
       });
-    }
+    };
 
     setTimeout(process, 1);
-  }
+  };
 
   cls.prototype._isFinishedAllRounds = function(){
     return this._rounds.length <= this._currentRoundIndex;
-  }
+  };
 
   cls.prototype._summaryTotalScore = function(){
     return _.reduce(this._rounds, function(memo, round){
       return memo + round.score;
     }, 0);
-  }
+  };
 
   cls.prototype._finish = function(){
     var self = this;
@@ -166,7 +166,7 @@ $a.Stage = (function(){
       $a.stageselectionPage.draw();
       $a.screen.changePage($a.stageselectionPage);
     });
-  }
+  };
 
   cls.prototype._runPostingScore = function(){
     var d = $.Deferred();
@@ -198,7 +198,7 @@ $a.Stage = (function(){
     }
 
     return d;
-  }
+  };
 
   cls.initializeClassBasedDatalyzerMixin($a.$stages, cls, function(klass, className){
     return {
@@ -212,9 +212,9 @@ $a.Stage = (function(){
   cls.mergeMyData = function(dat, myDat){
     if ('score' in myDat) dat.score = myDat.score;
     return dat;
-  }
+  };
 
-  var __mergedData = undefined;
+  var __mergedData;
 
   cls.initializeData = function(myData){
     __mergedData = {};
@@ -222,11 +222,11 @@ $a.Stage = (function(){
       if (className in myData) cls.mergeMyData(data, myData[className]);
       __mergedData[className] = data;
     });
-  }
+  };
 
   cls.getData = function(){
     return __mergedData;
-  }
+  };
 
   cls.getDataList = function(){
     return _.map(__mergedData, function(data, className){
@@ -234,13 +234,13 @@ $a.Stage = (function(){
     }).sort(function(a, b){
       return a.order - b.order;
     });
-  }
+  };
 
   cls.create = function(){
     var obj = new this();
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -269,7 +269,7 @@ $a.$stages.BasicStage = (function(){
       'MineCard',
       'AdventurerCard'//,
     ];
-  }
+  };
   $f.inherit(cls, new $a.Stage(), $a.Stage);
   cls._label = '基本';
   cls._order = 1;
@@ -307,7 +307,7 @@ $a.$stages.IntrigueStage = (function(){
       'NoblesCard'//,
 
     ];
-  }
+  };
   $f.inherit(cls, new $a.Stage(), $a.Stage);
   cls._label = '陰謀';
   cls._order = 2;
@@ -357,7 +357,7 @@ $a.$stages.SeasideStage = (function(){
       'HaremCard',
       'NoblesCard'//,
     ];
-  }
+  };
   $f.inherit(cls, new $a.Stage(), $a.Stage);
   cls._label = '海辺';
   cls._order = 3;

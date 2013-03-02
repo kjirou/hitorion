@@ -60,8 +60,7 @@ $a = {
 
 $a.Player = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
 
   function __INITIALIZE(self){
     $a.Stage.initializeData(self._getStorage('stage') || {});
@@ -71,11 +70,11 @@ $a.Player = (function(){
     var item = localStorage.getItem(itemKey);
     if (item === null) return null;
     return JSON.parse(item);
-  }
+  };
 
   cls.prototype._saveStorage = function(itemKey, rawObject){
-    localStorage.setItem(itemKey, JSON.stringify(rawObject))
-  }
+    localStorage.setItem(itemKey, JSON.stringify(rawObject));
+  };
 
   cls.prototype.saveStageData = function(){
     var cleanedData = {};
@@ -83,21 +82,21 @@ $a.Player = (function(){
       cleanedData[className] = $a.Stage.mergeMyData({}, data);
     });
     this._saveStorage('stage', cleanedData);
-  }
+  };
 
   cls.prototype.getUsername = function(){
     return this._getStorage('username') || 'Unknown';
-  }
+  };
 
   cls.prototype.saveUsername = function(username){
     return this._saveStorage('username', username);
-  }
+  };
 
   cls.create = function(){
     var obj = new this();
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -117,7 +116,7 @@ $a.Game = (function(){
     this._buyCount = undefined;
     this._coinCorrection = undefined;
     this._usedActionCardCounts = undefined;
-  }
+  };
 
   function __INITIALIZE(self){
     self._resetStatuses();
@@ -141,7 +140,7 @@ $a.Game = (function(){
         }
 
       });
-    }
+    };
 
     var roundNumber = $a.stage.getCurrentRound().roundNumber;
     $a.screen.runShowingRound(roundNumber, this._maxTurn).then(function(){
@@ -149,7 +148,7 @@ $a.Game = (function(){
     });
 
     return d;
-  }
+  };
 
   cls.prototype._runTurn = function(){
     var self = this;
@@ -187,7 +186,7 @@ $a.Game = (function(){
       d.resolve();
     });
     return d;
-  }
+  };
 
   cls.prototype._runActionPhase = function(){
     var self = this;
@@ -208,11 +207,11 @@ $a.Game = (function(){
         setTimeout(process, 1);
 
       });
-    }
+    };
     setTimeout(process, 1);
 
     return phaseEnd;
-  }
+  };
 
   cls.prototype._runWaitingActionSelection = function(){
 
@@ -249,7 +248,7 @@ $a.Game = (function(){
     });
 
     return d;
-  }
+  };
 
   cls.prototype._runBuyPhase = function(){
     var self = this;
@@ -271,11 +270,11 @@ $a.Game = (function(){
         setTimeout(process, 1);
 
       });
-    }
+    };
     setTimeout(process, 1);
 
     return phaseEnd;
-  }
+  };
 
   cls.prototype._runWaitingBuySelection = function(){
 
@@ -310,56 +309,56 @@ $a.Game = (function(){
     });
 
     return d;
-  }
+  };
 
-  cls.prototype.getTurn = function(){ return this._turn; }
-  cls.prototype.getMaxTurn = function(){ return this._maxTurn; }
+  cls.prototype.getTurn = function(){ return this._turn; };
+  cls.prototype.getMaxTurn = function(){ return this._maxTurn; };
 
-  cls.prototype.getCurrentPhaseType = function(){ return this._currentPhaseType }
+  cls.prototype.getCurrentPhaseType = function(){ return this._currentPhaseType; };
 
   cls.prototype.getPlayersCardData = function(){
     var cards = [];
-    cards = cards.concat($a.deckCards.getData())
-    cards = cards.concat($a.talonCards.getData())
-    cards = cards.concat($a.playareaCards.getData())
-    cards = cards.concat($a.handCards.getData())
+    cards = cards.concat($a.deckCards.getData());
+    cards = cards.concat($a.talonCards.getData());
+    cards = cards.concat($a.playareaCards.getData());
+    cards = cards.concat($a.handCards.getData());
     return cards;
-  }
+  };
 
   cls.prototype.getTotalCardCount = function(){
     return this.getPlayersCardData().length;
-  }
+  };
 
   cls.prototype.summaryVictoryPoints = function(){
     return _.reduce(this.getPlayersCardData(), function(memo, card){
       return memo + card.getVictoryPoints();
     }, 0);
-  }
+  };
 
   cls.prototype._resetStatuses = function(){
     this._actionCount = 1;
     this._buyCount = 1;
     this._coinCorrection = 0;
     this._usedActionCardCounts = {};
-  }
+  };
 
-  cls.prototype.getActionCount = function(){ return this._actionCount; }
-  cls.prototype.setActionCount = function(value){ this._actionCount = value; }
-  cls.prototype.modifyActionCount = function(value){ this._actionCount += value; }
+  cls.prototype.getActionCount = function(){ return this._actionCount; };
+  cls.prototype.setActionCount = function(value){ this._actionCount = value; };
+  cls.prototype.modifyActionCount = function(value){ this._actionCount += value; };
 
-  cls.prototype.getBuyCount = function(){ return this._buyCount; }
-  cls.prototype.setBuyCount = function(value){ this._buyCount = value; }
-  cls.prototype.modifyBuyCount = function(value){ this._buyCount += value; }
+  cls.prototype.getBuyCount = function(){ return this._buyCount; };
+  cls.prototype.setBuyCount = function(value){ this._buyCount = value; };
+  cls.prototype.modifyBuyCount = function(value){ this._buyCount += value; };
 
   cls.prototype.getCoin = function(){
     return this.summaryCoin() + this._coinCorrection;
-  }
+  };
   cls.prototype.summaryCoin = function(){
     return _.reduce($a.handCards.getData(), function(memo, card){
       return memo + card.getCoin();
     }, 0);
-  }
-  cls.prototype.modifyCoinCorrection = function(value){ this._coinCorrection += value; }
+  };
+  cls.prototype.modifyCoinCorrection = function(value){ this._coinCorrection += value; };
 
   cls.prototype.increaseUsedActionCardCount = function(cardClassName){
     if (cardClassName in this._usedActionCardCounts) {
@@ -367,23 +366,23 @@ $a.Game = (function(){
     } else {
       this._usedActionCardCounts[cardClassName] = 1;
     }
-  }
+  };
   cls.prototype.countUsedActionCount = function(cardClassName){
     return this._usedActionCardCounts[cardClassName] || 0;
-  }
+  };
   cls.prototype.countTotalUsedActionCount = function(){
     var values =  _.values(this._usedActionCardCounts);
     return _.reduce(values, function(memo, value){
       return memo + value;
     }, 0);
-  }
+  };
 
   cls.create = function(maxTrun){
     var obj = new this();
     obj._maxTurn = maxTrun;
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -394,7 +393,7 @@ $a.Cards = (function(){
 //{{{
   var cls = function(){
     this._cards = undefined;
-  }
+  };
 
   function __INITIALIZE(self){
     self._cards = [];
@@ -402,7 +401,7 @@ $a.Cards = (function(){
 
   cls.prototype.getData = function(){
     return this._cards;
-  }
+  };
 
   cls.prototype.addNewCard = function(cardClassName, options){
     var opts = _.extend({
@@ -418,23 +417,23 @@ $a.Cards = (function(){
     }
 
     return card;
-  }
+  };
 
   cls.prototype.has = function(card){
     return _.indexOf(this._cards, card) >= 0;
-  }
+  };
 
   cls.prototype.pushed = function(card){
     this._cards.push(card);
-  }
+  };
 
   cls.prototype.stacked = function(card){
     this._cards.unshift(card);
-  }
+  };
 
   cls.prototype.pulled = function(){
     return this._cards.shift();
-  }
+  };
 
   cls.prototype.remove = function(card){
     var idx = _.indexOf(this._cards, card);
@@ -442,19 +441,19 @@ $a.Cards = (function(){
       throw Error('Cards.remove: Invalid situation');
     }
     this._cards.splice(idx, 1);
-  }
+  };
 
   cls.prototype.shuffle = function(){
     this._cards = _.shuffle(this._cards);
-  }
+  };
 
   cls.prototype.count = function(){
     return this._cards.length;
-  }
+  };
 
   cls.prototype.getLastCard = function(){
     return this._cards[this._cards.length - 1];
-  }
+  };
 
   cls.prototype.dealTo = function(toCards, count){
     var self = this;
@@ -465,7 +464,7 @@ $a.Cards = (function(){
       dealedCards.push(card);
     });
     return dealedCards;
-  }
+  };
 
   cls.prototype.moveCard = function(card, toCards, options){
     var opts = _.extend({
@@ -478,13 +477,13 @@ $a.Cards = (function(){
     } else {
       toCards.pushed(card);
     }
-  }
+  };
 
   cls.prototype.destroyCard = function(card){
     // FIXME: Can't use by trashCards itself
     this.remove(card);
     $a.trashCards.stacked(card);
-  }
+  };
 
   cls.prototype.dumpTo = function(toCards){
     var self = this;
@@ -493,7 +492,7 @@ $a.Cards = (function(){
       self.remove(card);
       toCards.stacked(card);
     });
-  }
+  };
 
   cls.prototype.pullCards = function(cardCount){
     // FIXME: Can't use by deckCards itself
@@ -509,25 +508,25 @@ $a.Cards = (function(){
       }
     });
     return pulledCards;
-  }
+  };
 
   cls.prototype.findDataByCardType = function(cardType){
     return _.filter(this._cards, function(card){
       return card.hasCardType(cardType);
     });
-  }
+  };
 
   cls.prototype.findDataByClassName = function(className){
     return _.filter(this._cards, function(card){
       return card.className === className;
     });
-  }
+  };
 
   cls.create = function(){
     var obj = new this();
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -538,7 +537,7 @@ $a.KingdomCards = (function(){
 //{{{
   var cls = function(){
     this._choicedCardClassNames = undefined;
-  }
+  };
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.__FIXED_CARDS = [
@@ -562,13 +561,13 @@ $a.KingdomCards = (function(){
     _.each(reversed, function(cardClassName){
       self.addNewCard(cardClassName, { stack:true });
     });
-  }
+  };
 
   cls.create = function(choicedCardClassNames){
     var obj = $a.Cards.create.apply(this);
     obj._choicedCardClassNames = choicedCardClassNames;
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -580,7 +579,7 @@ $a.DeckCards = (function(){
   var cls = function(){
     /** Does this cards have be reshuffled in a turn */
     this._doneReshuffled = false;
-  }
+  };
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.__DEFAULT_CARDS = [
@@ -592,14 +591,14 @@ $a.DeckCards = (function(){
     $a.talonCards.dumpTo(this);
     this.shuffle();
     _.each(this.getData(), function(card){ card.turnedDown(); });
-  }
+  };
 
   cls.prototype.autoReshuffle = function(){
     if (this.count() === 0 && this._doneReshuffled === false) {
       this._reshuffle();
       this._doneReshuffled = true;
     }
-  }
+  };
 
   // FIXME:
   // 2 枚以上を公開する場合は、1 枚ずつ引いて公開し、
@@ -614,13 +613,13 @@ $a.DeckCards = (function(){
     }
     this.autoReshuffle(cardCount);
     return this.getData().slice(0, cardCount);
-  }
+  };
 
   cls.prototype.isEmpty = function(){
     return this._doneReshuffled && this.count() === 0;
-  }
+  };
 
-  cls.prototype.resetDoneReshuffled = function(){ this._doneReshuffled = false; }
+  cls.prototype.resetDoneReshuffled = function(){ this._doneReshuffled = false; };
 
   cls.prototype.reset = function(){
     var self = this;
@@ -629,7 +628,7 @@ $a.DeckCards = (function(){
       card.turnedDown();
     });
     this.shuffle();
-  }
+  };
 
   return cls;
 //}}}
@@ -638,28 +637,28 @@ $a.DeckCards = (function(){
 
 $a.HandCards = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){};
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.prototype.throwCard = function(card){
     this.remove(card);
     $a.talonCards.stacked(card);
-  }
+  };
 
   cls.prototype.throwCards = function(cards){
     var self = this;
     _.each(cards, function(card){ self.throwCard(card); });
-  }
+  };
 
   cls.prototype.useActionCard = function(card){
     this.remove(card);
     $a.playareaCards.stacked(card);
-  }
+  };
 
   cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
     this.pullCards(5);
-  }
+  };
 
   return cls;
 //}}}
@@ -668,12 +667,12 @@ $a.HandCards = (function(){
 
 $a.PlayareaCards = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){};
   $f.inherit(cls, new $a.Cards(), $a.Cards);
 
   cls.prototype.reset = function(){
     this.dumpTo($a.talonCards);
-  }
+  };
 
   return cls;
 //}}}
@@ -682,8 +681,7 @@ $a.PlayareaCards = (function(){
 
 $a.Screen = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [0, 0];
@@ -692,7 +690,7 @@ $a.Screen = (function(){
   cls.ZINDEXES = {
     COVER: 99999,
     NAVIGATOR: 100
-  }
+  };
 
   function __INITIALIZE(self){
     self.getView().css({
@@ -706,7 +704,7 @@ $a.Screen = (function(){
     $a.handBox.draw();
     $a.othercardsBox.draw();
     $a.pagechangerBox.draw();
-  }
+  };
 
   cls.prototype.changePage = function(page){
     // TODO: Add fadeIn/Out version
@@ -721,7 +719,7 @@ $a.Screen = (function(){
       $a.navigator.getView().hide();
     }
     return d.resolve();
-  }
+  };
 
   cls.prototype.runShowingRound = function(roundNumber, maxTurn){
     var d = $.Deferred();
@@ -750,13 +748,13 @@ $a.Screen = (function(){
           view.fadeOut(500, function(){
             view.remove();
             d.resolve();
-          })
+          });
         }, 500);
       })
       .appendTo(this.getView())
     ;
     return d;
-  }
+  };
 
   /**
    * Wait multipul card choices
@@ -787,7 +785,7 @@ $a.Screen = (function(){
         selectedList.push(choiced);
         choiced.toSelected();
       }
-    }
+    };
 
     var finisher = function(choiced, selectedList){
       if (choiced instanceof $a.Card === false) {
@@ -798,10 +796,10 @@ $a.Screen = (function(){
       } else {
         return false;
       }
-    }
+    };
 
     return $f.waitChoices(signalables, selector, finisher);
-  }
+  };
 
   cls.prototype.waitChoiceCardsWithLimit = function(selectableCards, minCount, maxCount){
     var self = this;
@@ -818,7 +816,7 @@ $a.Screen = (function(){
     }
     setTimeout(process, 1);
     return d;
-  }
+  };
 
   cls.prototype.waitChoiceAndDestroingHandCards = function(cardCount){
 
@@ -840,7 +838,7 @@ $a.Screen = (function(){
       $a.pagechangerBox.draw();
     });
 
-  }
+  };
 
   cls.hideCardViews = function(containerView){
     // FIXME:
@@ -863,13 +861,13 @@ $a.Screen = (function(){
     containerView.find('.' + $c.CSS_PREFIX + 'card').each(function(i, e){
       $(e).hide();
     });
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -878,8 +876,7 @@ $a.Screen = (function(){
 
 $a.Navigator = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [368, 0]; // 368 = 416 - 48
@@ -894,12 +891,11 @@ $a.Navigator = (function(){
         left: 3
       })
       .attr({
-        //target: '_blank',
-        //href: $e.baseUrl + '/help/'
-        href: 'javascript:void(0);'
+        href: '#'
       })
       .on('mousedown', {}, function(){
         window.open($e.baseUrl + '/help/', 'hitorion');
+        return false;
       })
       .appendTo(self.getView())
     ;
@@ -910,12 +906,11 @@ $a.Navigator = (function(){
         right: 3
       })
       .attr({
-        //target: '_blank',
-        //href: $e.baseUrl + '/ranking/'
-        href: 'javascript:void(0);'
+        href: '#'
       })
       .on('mousedown', {}, function(){
         window.open($e.baseUrl + '/ranking/', 'hitorion');
+        return false;
       })
       .appendTo(self.getView())
     ;
@@ -935,16 +930,16 @@ $a.Navigator = (function(){
         textDecoration: 'none',
         textAlign: 'center'//,
       })
-      .attr('href', 'javascript:void(0);')
+      .attr('href', '#')
       .text(label)
     ;
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -960,7 +955,7 @@ $a.MainBox = (function(){
       othercards: undefined//,
     };
     this._currentPageKey = 'hand';
-  }
+  };
   $f.inherit(cls, new $f.Box(), $f.Box);
   $f.mixin(cls, new $f.SignalableMixin());
 
@@ -998,16 +993,16 @@ $a.MainBox = (function(){
   cls.prototype.draw = function(){
     $f.Box.prototype.draw.apply(this);
     this._drawChangePage();
-  }
+  };
 
   cls.prototype.setPage = function(pageKey, box){
     this._pages[pageKey] = box;
-  }
+  };
 
   cls.prototype.changePage = function(pageKey){
     this._currentPageKey = pageKey;
     this._drawChangePage();
-  }
+  };
 
   cls.prototype._drawChangePage = function(){
     var self = this;
@@ -1018,11 +1013,11 @@ $a.MainBox = (function(){
         v.getView().hide();
       }
     });
-  }
+  };
 
   cls.prototype.getCurrentPageKey = function(){
     return this._currentPageKey;
-  }
+  };
 
   function __ONTOUCH(evt){
     var self = evt.data.self;
@@ -1034,7 +1029,7 @@ $a.MainBox = (function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -1043,15 +1038,13 @@ $a.MainBox = (function(){
 
 $a.HandBox = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [4, 4];
   cls.SIZE = [312, 312]; // 60 * 5 + 3 * 4
 
-  function __INITIALIZE(self){
-  }
+  function __INITIALIZE(self){}
 
   cls.prototype.draw = function(){
     var self = this;
@@ -1069,13 +1062,13 @@ $a.HandBox = (function(){
       card.getView().show();
       self.getView().append(card.getView());
     });
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -1084,8 +1077,7 @@ $a.HandBox = (function(){
 
 $a.KingdomBox = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = $a.HandBox.POS.slice();
@@ -1132,7 +1124,7 @@ $a.KingdomBox = (function(){
       card.getView().show();
       self.getView().append(card.getView());
     });
-  }
+  };
 
   function __ONHELPBUTTONTOUCH(evt){
     evt.stopPropagation();
@@ -1143,7 +1135,7 @@ $a.KingdomBox = (function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -1152,8 +1144,7 @@ $a.KingdomBox = (function(){
 
 $a.OthercardsBox = (function(){
 //{{{
-  var cls = function(){
-  }
+  var cls = function(){};
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = $a.HandBox.POS.slice();
@@ -1165,12 +1156,12 @@ $a.OthercardsBox = (function(){
     $a.deckCardsBox.draw();
     $a.talonCardsBox.draw();
     $a.trashCardsBox.draw();
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -1184,7 +1175,7 @@ $a.CardsBox = (function(){
     this._titleView = undefined;
     this._counterView = undefined;
     this._cardContainerView = undefined;
-  }
+  };
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [0, 0];
@@ -1233,7 +1224,7 @@ $a.CardsBox = (function(){
     $f.Box.prototype.draw.apply(this);
 
     $a.Screen.hideCardViews(this.getView());
-  }
+  };
 
   cls.prototype._drawSurfaceCard = function(cards){
     if (cards.count() === 0) return;
@@ -1243,13 +1234,13 @@ $a.CardsBox = (function(){
     this.getView().append(
       surfaceCard.getView().show()
     );
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -1258,7 +1249,7 @@ $a.CardsBox = (function(){
 
 $a.DeckCardsBox = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){};
   $f.inherit(cls, new $a.CardsBox(), $a.CardsBox);
 
   cls.POS = [
@@ -1273,7 +1264,7 @@ $a.DeckCardsBox = (function(){
     this._titleView.text('山札');
     this._counterView.text($a.deckCards.count());
     this._drawSurfaceCard($a.deckCards);
-  }
+  };
 
   return cls;
 //}}}
@@ -1282,7 +1273,7 @@ $a.DeckCardsBox = (function(){
 
 $a.TalonCardsBox = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){};
   $f.inherit(cls, new $a.CardsBox(), $a.CardsBox);
 
   cls.POS = [
@@ -1298,7 +1289,7 @@ $a.TalonCardsBox = (function(){
     this._titleView.text('捨札');
     this._counterView.text($a.talonCards.count());
     this._drawSurfaceCard($a.talonCards);
-  }
+  };
 
   return cls;
 //}}}
@@ -1307,7 +1298,7 @@ $a.TalonCardsBox = (function(){
 
 $a.TrashCardsBox = (function(){
 //{{{
-  var cls = function(){}
+  var cls = function(){};
   $f.inherit(cls, new $a.CardsBox(), $a.CardsBox);
 
   cls.POS = [
@@ -1323,7 +1314,7 @@ $a.TrashCardsBox = (function(){
     this._titleView.text('廃棄');
     this._counterView.text($a.trashCards.count());
     this._drawSurfaceCard($a.trashCards);
-  }
+  };
 
   return cls;
 //}}}
@@ -1334,7 +1325,7 @@ $a.StatusBox = (function(){
 //{{{
   var cls = function(){
     this._stateViews = {};
-  }
+  };
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [0, 0];
@@ -1406,7 +1397,7 @@ $a.StatusBox = (function(){
     frame._stateBodyView = body;
 
     return frame.append(header).append(body);
-  }
+  };
 
   cls.prototype.draw = function(){
     $f.Box.prototype.draw.apply(this);
@@ -1428,7 +1419,7 @@ $a.StatusBox = (function(){
     );
 
     this._drawHilightPhase();
-  }
+  };
 
   cls.prototype._drawHilightPhase = function(){
     var phaseType = $a.game.getCurrentPhaseType();
@@ -1439,7 +1430,7 @@ $a.StatusBox = (function(){
       this._stateViews.action.css({ color: cls.STYLES.COLOR });
       this._stateViews.buy.css({ color: cls.STYLES.HILIGHT_COLOR });
     }
-  }
+  };
 
   cls.create = function(){
     var obj = $f.Box.create.apply(this, arguments);
@@ -1456,7 +1447,7 @@ $a.PagechangerBox = (function(){
 //{{{
   var cls = function(){
     this._buttonViews = {};
-  }
+  };
   $f.inherit(cls, new $f.Box(), $f.Box);
 
   cls.POS = [368, 0];  // 48 + 320
@@ -1497,7 +1488,7 @@ $a.PagechangerBox = (function(){
         cursor: 'pointer',
         textAlign: 'center'//,
       });
-  }
+  };
 
   cls.prototype.draw = function(){
     var self = this;
@@ -1526,7 +1517,7 @@ $a.PagechangerBox = (function(){
         buttonView.css({ color:'#FFF' });
       }
     });
-  }
+  };
 
   function __ONBUTTONTOUCH(evt){
     var self = evt.data.self;
@@ -1548,7 +1539,7 @@ $a.PagechangerBox = (function(){
     var obj = $f.Box.create.apply(this, arguments);
     __INITIALIZE(obj);
     return obj;
-  }
+  };
 
   return cls;
 //}}}
@@ -1625,4 +1616,4 @@ $a.init = function(){
   $a.screen.changePage($a.topPage);
 
 //}}}
-}
+};
