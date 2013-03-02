@@ -12,7 +12,7 @@ var $c, $a; // $, _, $f, $d, $e are already existed
 
 $c = {
 //{{{
-  VERSION: '1.1.0',
+  VERSION: '1.1.1',
   CSS_PREFIX: 'htr-',
   SF_SIZE: [320, 416]//,
 //}}}
