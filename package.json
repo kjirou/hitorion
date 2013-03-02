@@ -16,6 +16,6 @@
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib": "~0.4.0",
-    "grunt-contrib-mincss": "*"
+    "grunt-contrib-cssmin": "*"
   }
 }

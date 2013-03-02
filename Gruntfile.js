@@ -83,7 +83,7 @@ module.exports = function(grunt){
   });
 
   grunt.loadNpmTasks('grunt-contrib');
-  grunt.loadNpmTasks('grunt-contrib-mincss');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
 
   grunt.registerTask('default', [
     'cssmin',
