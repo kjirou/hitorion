@@ -12,6 +12,9 @@
     "grunt-contrib": "~0.4.0",
     "grunt-contrib-cssmin": "*"
   },
+  "engines": {
+    "node": ">=0.10.35 <0.11"
+  },
   "homepage": "https://github.com/kjirou/hitorion",
   "license": "http://kjirou.mit-license.org/",
   "main": "index.html",
