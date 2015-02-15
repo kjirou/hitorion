@@ -3,6 +3,9 @@ var $e = {};
 $e.debug = true;
 $e.debugFinishingGame = false;
 
+// Google Analytics タグのID、'UA-' で始まるやつ
+$e.googleAnalyticsId = null;
+
 $e.baseUrl = 'http://hitorion.localhost';
 //$e.baseUrl = 'http://hitorion.intergames.jp';
 
