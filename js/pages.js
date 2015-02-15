@@ -138,7 +138,7 @@ $a.$pages.TopPage = (function(){
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .html('[v1.1.0] <strong style="color:red;">陰謀ステージを作成しました!</strong>')
+      .html('[v1.1.2] <strong style="color:red;">偵察員と男爵の効果の誤りを修正しました</strong>')
       .appendTo(self.getView())
     ;
   }
