@@ -990,6 +990,8 @@ $a.$cards.ScoutCard = (function(){
   $f.inherit(cls, new $a.Card(), $a.Card);
   cls.prototype._act = function(){
 
+    this._actBuffing();
+
     $a.asideCards.pullCards(4);
     _.each($a.asideCards.getData().slice(), function(card){
       if (card.hasCardType('victory')) {
