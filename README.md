@@ -1,9 +1,10 @@
 Hitorion
 ========
 
-## Getting started
+## Deployment
 ```
-$ git@github.com:kjirou/hitorion.git
-$ cd hitorion
-$ cp js/env.example.js js/env.js
+git clone git@github.com:kjirou/hitorion.git
+cd ./hitorion
+npm install
+npm run build-dev
 ```
