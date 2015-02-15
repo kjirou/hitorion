@@ -846,10 +846,10 @@ $a.$cards.BaronCard = (function(){
     var targets = $a.handCards.findDataByClassName('Victorypoints1Card');
     if (
       targets.length > 0 &&
-      confirm('屋敷を廃棄して 4 コインを取得しますか?')
+      confirm('屋敷を捨て札にして 4 コインを取得しますか?')
     ) {
       $a.game.modifyCoinCorrection(4);
-      $a.handCards.destroyCard(targets[0]);
+      $a.handCards.throwCard(targets[0]);
     } else {
       $a.talonCards.addNewCard('Victorypoints1Card');
     }
