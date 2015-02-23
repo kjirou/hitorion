@@ -121,6 +121,8 @@ $f.getBrowser = function(){
         ['ipad', /iPad/],
         ['iphone', /iPhone/],
         ['android', /Android/],
+        ['ie11', /Windows.+; Trident.+; rv:11/],
+        ['ie10', /MSIE 10\./],
         ['ie9', /MSIE 9\./],
         ['ie8', /MSIE 8\./],
         ['ie7', /MSIE 7\./],
@@ -138,7 +140,7 @@ $f.getBrowser = function(){
 };
 
 $f.isPCBrowser = function(){
-  var browsers = ['ie9', 'ie8', 'ie7', 'ie6', 'chrome', 'firefox', 'safari', 'opera'];
+  var browsers = ['ie11', 'ie10', 'ie9', 'ie8', 'ie7', 'ie6', 'chrome', 'firefox', 'safari', 'opera'];
   var browser = $f.getBrowser();
   var i;
   for (i = 0; i < browsers.length; i++) {
