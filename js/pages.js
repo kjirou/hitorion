@@ -138,7 +138,8 @@ $a.$pages.TopPage = (function(){
         fontFamily: 'serif',
         textAlign: 'center'//,
       })
-      .html('[v1.1.2] <strong style="color:red;">偵察員と男爵の効果の誤りを修正しました</strong>')
+      .html('[v1.1.3] <strong style="color:red;">iPhone4Sで画面が隠れていた点を修正</strong><br />' +
+        '[v1.1.2] <strong style="color:red;">偵察員と男爵の効果の誤りを修正しました</strong>')
       .appendTo(self.getView())
     ;
   }
