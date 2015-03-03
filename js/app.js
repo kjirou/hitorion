@@ -891,7 +891,7 @@ $a.Navigator = (function(){
         left: 3
       })
       .attr({
-        href: '#'
+        href: 'javascript:void(0);'
       })
       .on('mousedown', {}, function(){
         window.open($e.baseUrl + '/help/', 'hitorion');
@@ -906,7 +906,7 @@ $a.Navigator = (function(){
         right: 3
       })
       .attr({
-        href: '#'
+        href: 'javascript:void(0);'
       })
       .on('mousedown', {}, function(){
         window.open($e.baseUrl + '/ranking/', 'hitorion');
