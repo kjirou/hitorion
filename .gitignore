@@ -35,5 +35,5 @@ pip-log.txt
 testem.*.*.*.json
 
 
-easyscorekeepr/includes/env.php
+easyscorekeeper/includes/env.php
 .envrc
