@@ -1,0 +1,115 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+ul li {
+  list-style-type: none;
+}
+img {
+  border: 0;
+}
+.clearfix {
+  zoom: 1;
+}
+.clearfix:after {
+  content: " ";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  clear: both;
+}
+
+/* ------------ */
+
+body {
+}
+
+#container {
+  position: relative;
+  margin: 0 auto 0 auto;
+  width: 320px;
+  background-color: #FFF;
+}
+
+a.pagetop {
+  margin: 5px 0 0 0;
+  display: block;
+  text-align: center;
+}
+
+.inactive {
+  color: #666;
+}
+
+h1 {
+  text-align: center;
+  font-size: 1.5em;
+}
+
+h1.page_title {
+  margin: 20px 0 0 0;
+}
+
+h2 {
+  margin: 20px 0 0 0;
+  text-align: center;
+  font-size: 1.25em;
+  border-bottom: 1px solid #000;
+}
+
+p {
+  margin: 10px 10px 0 10px;
+}
+
+ul.navigator {
+  margin: 4px 0 0 0;
+  height: 40px;
+}
+
+ul.navigator li {
+  display: block;
+  float: left;
+  margin: 0 0 0 4px;
+  width: 75px;
+  height: 40px;
+}
+
+ul.navigator li a {
+  display: block;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border: 1px solid #000;
+}
+
+ul.contents {
+  margin-top: 10px;
+}
+ul.contents li {
+}
+ul.contents li a {
+  display: block;
+  padding: 5px 0 5px 0;
+  font-size: 1.25em;
+  text-align: center;
+}
+
+ul.toplist li {
+  text-align: center;
+}
+ul.toplist li a {
+  line-height: 2em;
+  font-size: 1.5em;
+}
+
+#footer {
+  padding: 10px 0 10px 0;
+  height: 24px;
+  line-height: 24px;
+  font-size: 10px;
+  text-align: center;
+}

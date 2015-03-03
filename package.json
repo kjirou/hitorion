@@ -11,7 +11,8 @@
     "grunt": "0.4.1",
     "grunt-cli": "0.1.13",
     "grunt-contrib": "~0.4.0",
-    "grunt-contrib-cssmin": "*"
+    "grunt-contrib-cssmin": "*",
+    "http-server": "0.7.5"
   },
   "engines": {
     "node": ">=0.10.35 <0.11"
@@ -27,6 +28,7 @@
   "scripts": {
     "build-dev": "grunt",
     "build-release": "grunt release",
+    "start": "http-server",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "grunt watch"
   }

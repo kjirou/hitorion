@@ -6,7 +6,7 @@ $e.debugFinishingGame = false;
 // Google Analytics タグのID、'UA-' で始まるやつ
 $e.googleAnalyticsId = null;
 
-$e.baseUrl = 'http://hitorion.localhost';
+$e.baseUrl = 'http://localhost:8080';
 //$e.baseUrl = 'http://hitorion.intergames.jp';
 
 $e.mediaUrl = '.';
@@ -34,5 +34,3 @@ if ($e.debug) {
 } else {
   $e.jsSources.push([$e.mediaUrl + '/js/all.min.js', true]);
 }
-
-$e.require();
