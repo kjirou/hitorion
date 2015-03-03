@@ -1,0 +1,5 @@
+DirectoryIndex 404.txt
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} \.git/
+RewriteRule .* - [F]
